@@ -325,7 +325,7 @@ class Generator(
                                             type = FrameworkClassNames.skUri
                                         ).build()
                                     ),
-                                    returnType = Unit::class.asTypeName()
+                                    returnType = Boolean::class.asTypeName()
                                 )
                             )
                                 .build()

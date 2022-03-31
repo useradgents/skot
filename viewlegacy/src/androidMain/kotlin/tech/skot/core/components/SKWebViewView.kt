@@ -8,6 +8,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import tech.skot.core.SKLog
+import tech.skot.core.SKUri
+import tech.skot.core.toSKUri
 import java.net.URLEncoder
 
 class SKWebViewView(
@@ -30,6 +32,13 @@ class SKWebViewView(
                     view: android.webkit.WebView?,
                     request: WebResourceRequest?
                 ): Boolean {
+
+                    request?.url?.let { uri ->
+                        if (activity.featureInitializer.onDeepLink?.invoke(uri.toSKUri()) == true) {
+                            return true
+                        }
+                    }
+
                     request?.let {
                         if (it.isForMainFrame && it.isRedirect) {
                             oneRedirectionAskedForCurrentOpenUrl = true
@@ -101,7 +110,8 @@ class SKWebViewView(
     private var oneRedirectionAskedForCurrentOpenUrl = false
 
     private fun SKWebViewVC.OpenUrl.finished(finishedUrl: String?) {
-        if (finishedUrl == url || oneRedirectionAskedForCurrentOpenUrl) {
+        SKLog.d("openUrl url = $url")
+        if (finishedUrl == url || finishedUrl == "$url/" || oneRedirectionAskedForCurrentOpenUrl) {
             openingUrl = null
             onFinished?.invoke()
             javascriptOnFinished?.let {

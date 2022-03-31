@@ -5,7 +5,7 @@ import kotlinx.coroutines.sync.withLock
 
 abstract class SKFeatureInitializer(
     val initialize: suspend () -> Unit,
-    val onDeepLink: ((uri: SKUri) -> Unit)?,
+    val onDeepLink: ((uri: SKUri) -> Boolean)?,
     val start: suspend () -> Unit,
 ) {
 
