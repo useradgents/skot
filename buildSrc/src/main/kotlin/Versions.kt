@@ -1,6 +1,6 @@
 object Versions {
 
-    const val group = "tech.skot"
+    const val group = "com.github.useradgents.skot"
     const val version = "1.2.7"
 
     const val kotlin = "1.8.0"
