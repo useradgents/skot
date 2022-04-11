@@ -39,6 +39,7 @@ class PluginModel: Plugin<Project> {
                 skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
                     res.srcDir("src/androidMain/res$it")
                     java.srcDir("src/androidMain/kotlin$it")
+
                 }
             }
 

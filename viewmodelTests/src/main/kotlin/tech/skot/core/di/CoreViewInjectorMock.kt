@@ -43,8 +43,11 @@ class CoreViewInjectorMock : CoreViewInjector {
         return SKPagerViewMock(screens, onSwipeToPage, initialSelectedPageIndex, swipable)
     }
 
-    override fun pagerWithTabs(pager: SKPagerVC, labels: List<String>): SKPagerWithTabsVC {
-        return SKPagerWithTabsViewMock(pager, labels)
+    override fun pagerWithTabs(
+        pager: SKPagerVC,
+        tabConfigs: List<SKPagerWithTabsVC.TabConfig>,
+        showTabs : Boolean): SKPagerWithTabsVC {
+        return SKPagerWithTabsViewMock(pager, tabConfigs, showTabs)
     }
 
     override fun skList(

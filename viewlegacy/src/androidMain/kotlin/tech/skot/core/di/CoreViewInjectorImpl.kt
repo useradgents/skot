@@ -35,10 +35,11 @@ class CoreViewInjectorImpl : CoreViewInjector {
         swipable = swipable
     )
 
-    override fun pagerWithTabs(pager: SKPagerVC, labels: List<String>) =
+    override fun pagerWithTabs(pager: SKPagerVC, tabConfigs: List<SKPagerWithTabsVC.TabConfig>, showTabs : Boolean) =
         SKPagerWithTabsViewProxy(
             pager = pager as SKPagerViewProxy,
-            initialLabels = labels
+            initialTabConfigs = tabConfigs,
+            initialShowTabs = showTabs
         )
 
 
