@@ -12,12 +12,9 @@ version = Versions.version
 
 kotlin {
 
-    jvm("jvm")
+    jvm()
 
-    android("android") {
-        publishLibraryVariants("release", "debug")
-        publishLibraryVariantsGroupedByFlavor = true
-    }
+    android()
 
 
     sourceSets {
@@ -29,6 +26,10 @@ kotlin {
             }
         }
 
+
+        val jvmMain by getting {
+
+        }
 
         val androidMain by getting {
             dependencies {
