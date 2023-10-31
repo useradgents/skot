@@ -8,15 +8,15 @@ public object Versions {
 
   public const val group: String = "com.github.useradgents.skot"
 
-  public const val serialization: String = "1.5.1"
+  public const val serialization: String = "1.6.0"
 
   public const val kotlinxDateTime: String = "0.4.0"
 
-  public const val ktor: String = "2.3.0"
+  public const val ktor: String = "2.3.5"
 
-  public const val kotlin: String = "map(valueof(DependencyValueSource))"
+  public const val kotlin: String = "1.9.10"
 
-  public const val kotlinCoroutines: String = "1.6.4"
+  public const val kotlinCoroutines: String = "1.7.3"
 
   public const val kotlinpoet: String = "1.12.0"
 

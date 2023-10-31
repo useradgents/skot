@@ -69,7 +69,6 @@ class PluginModelContract : Plugin<Project> {
 
         sourceSets {
             getByName("main").java.srcDirs("generated/androidMain/kotlin")
-//            getByName("main").java.srcDirs("generated/commonMain/kotlin")
             getByName("main").java.srcDirs("src/androidMain/kotlin")
             getByName("main").manifest.srcFile("src/androidMain/AndroidManifest.xml")
             getByName("main").res.srcDir("src/androidMain/res")
@@ -81,7 +80,7 @@ class PluginModelContract : Plugin<Project> {
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
         jvm()
-        android {
+        androidTarget {
             compilations.all {
                 kotlinOptions {
                     jvmTarget = "1.8"

@@ -122,7 +122,7 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
         withLoader: Boolean = false,
         specificErrorTreatment: ((ex: Exception) -> Unit)? = null,
         errorMessage: String? = null,
-        specificLoader:SKLoader? = null,
+        specificLoader: SKLoader? = null,
         block: suspend CoroutineScope.() -> Unit,
     ): Job =
         if (withLoader && specificLoader == null && loader == null) {
@@ -151,7 +151,7 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
         context: CoroutineContext = EmptyCoroutineContext,
         start: CoroutineStart = CoroutineStart.DEFAULT,
         errorMessage: String? = null,
-        specificLoader:SKLoader? = null,
+        specificLoader: SKLoader? = null,
         block: suspend CoroutineScope.() -> Unit,
     ): Job =
         launchWithOptions(
@@ -292,8 +292,10 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
                     }
                 } catch (ex: Exception) {
                     if (ex !is CancellationException) {
-                        SKLog.e(ex,
-                            "Error in collect of an SKComponent.onData may be un treatment or in a map")
+                        SKLog.e(
+                            ex,
+                            "Error in collect of an SKComponent.onData may be un treatment or in a map"
+                        )
                     }
 
                 }
@@ -341,6 +343,39 @@ fun List<SKComponent<*>>.join(separator: () -> SKComponent<*>): List<SKComponent
         list
     }
 }
+
+fun List<SKComponent<*>>.joinByGroups(
+    count: Int,
+    separator: () -> SKComponent<*>
+): List<SKComponent<*>> {
+    val listByGroup = this.chunked(count)
+    val list = mutableListOf<SKComponent<*>>()
+    val last = listByGroup.lastOrNull()
+    listByGroup.forEach {
+        list.addAll(it)
+        if (it != last && it.isNotEmpty()) {
+            list.add(separator())
+        }
+    }
+    return list
+}
+
+fun List<SKComponent<*>>.joinByGroup(
+    count: Int,
+    offset: Int = 0,
+    separator: () -> SKComponent<*>
+): List<SKComponent<*>> {
+    val list = this.toMutableList()
+    val firsts = this.subList(0, offset)
+    list.removeAll(firsts)
+    val all = list.chunked(count)
+    return all.toMutableList().apply {
+        if(firsts.isNotEmpty()) {
+            this.add(0, firsts)
+        }
+    }.joinGroups(separator)
+}
+
 
 fun List<List<SKComponent<*>>>.joinGroups(separator: () -> SKComponent<*>): List<SKComponent<*>> {
     val list = mutableListOf<SKComponent<*>>()

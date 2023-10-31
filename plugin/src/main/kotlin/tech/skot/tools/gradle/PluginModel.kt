@@ -3,8 +3,10 @@ package tech.skot.tools.gradle
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
 
@@ -13,7 +15,7 @@ import tech.skot.Versions
 //}
 
 @Suppress("UnstableApiUsage")
-class PluginModel: Plugin<Project> {
+class PluginModel : Plugin<Project> {
 
     override fun apply(project: Project) {
 //        val extension = project.extensions.create<SKPluginContractExtension>("skot")
@@ -27,13 +29,13 @@ class PluginModel: Plugin<Project> {
     }
 
 
-    private fun LibraryExtension.conf(project:Project) {
+    private fun LibraryExtension.conf(project: Project) {
 
         androidBaseConfig(project)
 
 
         sourceSets {
-            getByName("main"){
+            getByName("main") {
                 java.srcDirs("src/androidMain/kotlin")
                 res.srcDir("src/androidMain/res")
                 manifest.srcFile("src/androidMain/AndroidManifest.xml")
@@ -53,7 +55,7 @@ class PluginModel: Plugin<Project> {
     }
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
-        android {
+        androidTarget {
             compilations.all {
                 kotlinOptions {
                     jvmTarget = "1.8"
@@ -79,8 +81,7 @@ class PluginModel: Plugin<Project> {
             if (project.skReadImportsProperties()?.ktor2 != false) {
                 api("io.ktor:ktor-client-content-negotiation:${Versions.ktor}")
                 api("io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor}")
-            }
-            else {
+            } else {
                 api("io.ktor:ktor-client-serialization:${Versions.ktor}")
             }
         }

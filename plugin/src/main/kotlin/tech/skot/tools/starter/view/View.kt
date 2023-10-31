@@ -6,6 +6,7 @@ import tech.skot.tools.generation.writeStringTo
 import tech.skot.tools.starter.BuildGradleGenerator
 import tech.skot.tools.starter.ModuleGenerator
 import tech.skot.tools.starter.StarterGenerator
+import java.util.Locale
 
 fun StarterGenerator.view() {
     ModuleGenerator("view", configuration, rootDir).apply {
@@ -47,7 +48,10 @@ fun StarterGenerator.view() {
                             ClassName(
                                 configuration.appPackage,
                                 "${
-                                    configuration.appPackage.substringAfterLast(".").capitalize()
+                                    configuration.appPackage.substringAfterLast(".")
+                                        .replaceFirstChar {
+                                            if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                                        }
                                 }Initializer"
                             )
                         )
@@ -62,24 +66,23 @@ fun StarterGenerator.view() {
             .writeTo(rootDir.resolve("$name/src/androidMain/kotlin"))
 
 
-
         val initializeView = ClassName("${configuration.appPackage}.di", "initializeView")
-            FileSpec.builder(initializeView.packageName, initializeView.simpleName)
-                .addImport("tech.skot.core.components", "SKComponentView")
-                .addImport("android.view", "Gravity")
-                .addImport("android.widget", "FrameLayout")
-                .addImport("com.google.android.material.snackbar", "Snackbar")
-                .addImport("android.os", "Build")
-                .addImport("tech.skot.core.components", "SKActivity")
+        FileSpec.builder(initializeView.packageName, initializeView.simpleName)
+            .addImport("tech.skot.core.components", "SKComponentView")
+            .addImport("android.view", "Gravity")
+            .addImport("android.widget", "FrameLayout")
+            .addImport("com.google.android.material.snackbar", "Snackbar")
+            .addImport("android.os", "Build")
+            .addImport("tech.skot.core.components", "SKActivity")
 
-                .addImport(rootActivityClassName.packageName, rootActivityClassName.simpleName)
-                .addFunction(
-                    FunSpec.builder(initializeView.simpleName)
-                        .addModifiers(KModifier.SUSPEND)
-                        .addStatement("SKActivity.launchActivityClass = RootActivity::class.java")
-                        .addCode(
-                            CodeBlock.of(
-                                """SKComponentView.displayMessage = { message ->
+            .addImport(rootActivityClassName.packageName, rootActivityClassName.simpleName)
+            .addFunction(
+                FunSpec.builder(initializeView.simpleName)
+                    .addModifiers(KModifier.SUSPEND)
+                    .addStatement("SKActivity.launchActivityClass = RootActivity::class.java")
+                    .addCode(
+                        CodeBlock.of(
+                            """SKComponentView.displayMessage = { message ->
         Snackbar.make(activity.window.decorView, message.content, Snackbar.LENGTH_LONG)
             .apply {
                 view.apply {
@@ -96,12 +99,12 @@ fun StarterGenerator.view() {
                 show()
             }
     }"""
-                            )
                         )
-                        .build()
-                )
-                .build()
-                .writeTo(rootDir.resolve("$name/src/androidMain/kotlin"))
+                    )
+                    .build()
+            )
+            .build()
+            .writeTo(rootDir.resolve("$name/src/androidMain/kotlin"))
 
 
 

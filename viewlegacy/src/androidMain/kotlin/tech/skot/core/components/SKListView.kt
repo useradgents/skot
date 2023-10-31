@@ -207,7 +207,7 @@ abstract class SKListItemTouchHelperCallBack(private val listView: SKListView) :
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder,
     ): Int {
-        val position = viewHolder.adapterPosition
+        val position = viewHolder.bindingAdapterPosition
         val item = if (position >= 0) listView.items.getOrNull(position) else null
         if (item == null) {
             SKLog.e(IllegalStateException("getSwipeDirs item null"), "getSwipeDirs item null")

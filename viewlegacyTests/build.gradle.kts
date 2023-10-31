@@ -10,7 +10,7 @@ plugins {
 
 
 kotlin {
-    android("android") {
+    androidTarget("android") {
         publishLibraryVariants("release", "debug")
         publishLibraryVariantsGroupedByFlavor = true
         compilations.all {
@@ -23,9 +23,9 @@ kotlin {
 
 android {
     defaultConfig {
-        minSdk = Versions.Android.minSdk
+        minSdk = libs.versions.android.minSdk.get().toInt()
     }
-    compileSdk = 34
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
     namespace = "tech.skot.viewlegacytests"
 }
 

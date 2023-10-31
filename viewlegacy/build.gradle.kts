@@ -25,18 +25,17 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdk = Versions.Android.minSdk
+        minSdk = libs.versions.android.minSdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    compileSdk = 34
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
     namespace = "tech.skot.viewlegacy"
-
 
 }
 
 
 kotlin {
-    android("android") {
+    androidTarget("android") {
         publishLibraryVariants("release", "debug")
         publishLibraryVariantsGroupedByFlavor = true
         compilations.all {

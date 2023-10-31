@@ -18,7 +18,7 @@ kotlin {
 
     ios()
 
-    android {
+    androidTarget {
         publishLibraryVariants("release")
         compilations.all {
             kotlinOptions {
@@ -46,9 +46,9 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdk = Versions.Android.minSdk
+        minSdk = libs.versions.android.minSdk.get().toInt()
     }
-    compileSdk = 34
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
     namespace = "tech.skot.viewmodel"
 
 

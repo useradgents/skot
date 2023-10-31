@@ -10,7 +10,7 @@ fun Context.vibrateTwoLittleTimes() {
     vibrate(listOf(60, 60, 60), listOf(128, 0, 128))
 }
 
-//@SuppressLint("MissingPermission")
+@SuppressLint("MissingPermission")
 fun Context.vibrate(times: List<Long>, amplitude: List<Int>) {
     (getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator)?.let { vibrator ->
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {

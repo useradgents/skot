@@ -8,7 +8,7 @@ Show a SKComponent as a popup with a view as an anchor
   
   ```kotlin
   @SKPassToParentView
-  val popupWindow : SKPopupWindow`
+  val popupWindow : SKPopupWindowVC
   ```
   
   Voir [SKPassToParentView](../../annotations.md)

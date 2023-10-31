@@ -2,17 +2,12 @@ package tech.skot.tools.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.Delete
 import org.gradle.kotlin.dsl.*
 import tech.skot.Versions
 
 open class SKPluginToolsExtension {
-    //    var startScreen: String? = null
-//    var appPackage: String? = null
-//    var baseActivity:String? = null
-//    var featureModules:List<FeatureModule> = emptyList()
     var app: App? = null
 }
 
@@ -68,35 +63,6 @@ class PluginTools : Plugin<Project> {
                 "$trueProjectDir/viewmodel/generated",
             )
         }
-
-//        project.task("skMigrateToAlpha30") {
-//            doLast {
-//                println("Skot version ${Versions.skot}")
-//                val app = extension.app
-//                if (app == null) {
-//                    println("renseignez la configuration skot dans le build.gradle.kts du module skot .........")
-//                } else {
-//                    println("migrate .........")
-//                    project.javaexec {
-//                        main = "tech.skot.tools.generation.MigrateKt"
-//                        classpath = sourceSet.runtimeClasspath
-//                        args = listOf(
-//                            app.packageName,
-//                            app.startScreen,
-//                            app.rootState.toString(),
-//                            app.baseActivity ?: "null",
-//                            (project.parent?.projectDir ?: project.rootDir).toPath().toString(),
-//                            app.feature ?: "null",
-//                            app.baseActivityVar ?: "null",
-//                            app.initializationPlans.joinToString("_"),
-//                        )
-//                    }
-//                }
-//            }
-//            dependsOn(project.tasks.getByName("compileKotlin"))
-//            group = "Skot"
-//
-//        }
 
         project.task("skGenerate") {
             doLast {

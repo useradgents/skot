@@ -49,8 +49,8 @@ class SKBottomSheetDialogFragment() : BottomSheetDialogFragment() {
                         val bottomSheetDialog = it as BottomSheetDialog
                         val parentLayout =
                             bottomSheetDialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
-                        parentLayout?.let { it ->
-                            setupFullHeight(it)
+                        parentLayout?.let { parent ->
+                            setupFullHeight(parent)
                         }
                     }
                 }

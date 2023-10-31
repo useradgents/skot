@@ -30,7 +30,7 @@ class PluginViewLegacy: Plugin<Project> {
     }
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
-       android {
+        androidTarget {
            jvm()
             compilations.all {
                 kotlinOptions {

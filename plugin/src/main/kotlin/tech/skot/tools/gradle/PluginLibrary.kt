@@ -49,7 +49,7 @@ class PluginLibrary: Plugin<Project> {
 
         //ios()
 
-        android {
+        androidTarget {
                 compilations.all {
                     kotlinOptions {
                         jvmTarget = "1.8"
