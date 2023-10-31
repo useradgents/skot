@@ -208,7 +208,8 @@ abstract class SKActivity : AppCompatActivity() {
                 if (thisScreenPosition == -1) {
                     finishedAsked = true
                     finish()
-                    state.transition?.let { overridePendingTransition(it.enterAnim, it.exitAnim) }
+                    state.transition?.let {
+                        overridePendingTransition(it.enterAnim, it.exitAnim) }
                 } else {
                     if (state.screens.size > thisScreenPosition + 1) {
                         startActivityForProxy(state.screens.get(thisScreenPosition + 1))

@@ -1,5 +1,6 @@
 package tech.skot.core.components
 
+import tech.skot.core.SKLog
 import tech.skot.core.di.coreViewInjector
 import tech.skot.core.view.SKTransition
 
@@ -70,9 +71,6 @@ open class SKStack : SKComponent<SKStackVC>() {
         super.onRemove()
         state.screens.forEach { it.onRemove() }
     }
-
-//    val screenOnTop: SKScreen<*>?
-//        get() = state.screens.lastOrNull()
 
 }
 

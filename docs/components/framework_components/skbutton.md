@@ -13,9 +13,11 @@ Show a Button
   Launch the generation with the SKGenerate gradle task
 
 * In your Screen, instantiate the SKButton
+
+
   
   ```kotlin
-  override val myButtonId = SKButton(name) {//onTap}
+  override val myButtonId = SKButton(name) {/** on tap **/}
   ```
 
 * in your xml, add a Button / MaterialButton with id 'myButtonId'

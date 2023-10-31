@@ -33,9 +33,9 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion(Versions.Android.minSdk)
+        minSdk = libs.android.minSdk.get().toInt()
     }
-    compileSdkVersion(Versions.Android.compileSdk)
+    compileSdk = libs.android.compileSdk.get().toInt()
 
     sourceSets {
         getByName("main").java.srcDirs("src/androidMain/kotlin")

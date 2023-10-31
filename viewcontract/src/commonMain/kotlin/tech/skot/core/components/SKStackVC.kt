@@ -9,6 +9,6 @@ import tech.skot.core.view.SKTransition
  */
 @SKLayoutIsSimpleView
 interface SKStackVC : SKComponentVC {
-    open class State(open val screens:List<out SKScreenVC>, open val transition:SKTransition? = null)
+    open class State(open val screens:List<SKScreenVC>, open val transition:SKTransition? = null)
     var state:State
 }
