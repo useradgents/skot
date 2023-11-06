@@ -42,7 +42,7 @@ You can also override `onSwipe` function which will be called on item swiped.
 ## Properties
 
 | name | type |description |  
-|--|--|--|--|  
+|--|--|--|  
 | layoutMode | SKListVC.LayoutMode | It could be Manual, Linear or Grid mode |
 | reverse | Boolean | When set to true, layouts from end to start  |
 | animate | Boolean | Animate list on change |

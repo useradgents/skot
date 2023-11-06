@@ -25,7 +25,7 @@ override val myButtonId = SKButton(name) {
 ## Properties
 
 | name | type | description |  
-|--|--|--|--|  
+|--|--|--|  
 | onTap | ()->Unit | Function called when button is tapped |  
 | label | String | Text to display on Button |  
 | enabled | Boolean | Is Button enabled or not |  
