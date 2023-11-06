@@ -33,7 +33,11 @@ override val myList = SKList(name)
 	myList.items = listItems 
 }  
 ```  
-* in your xml, add a RecyclerView with your id (myList in this sample)
+* In your xml, add a RecyclerView with your id (myList in this sample)
+
+For improving list performances, you should override `computeItemId` function in every list item SkComponent. 
+You can also override `onSwipe` function which will be called on item swiped.
+
 
 ## Properties
 
@@ -51,4 +55,3 @@ override val myList = SKList(name)
 | Linear | Standard list mode. Set `vertical` property to false for horizontal list |
 | Grid | Grid mode. Set `nbColumn` property to define number of grid columns, and `vertical` property to false for an horizontal gridv| 
 
-## Advanced usage (coming soon)
