@@ -1,7 +1,6 @@
 # SKInput
 
-Show
-a [TextInputEditText](https://developer.android.com/reference/com/google/android/material/textfield/TextInputEditText)
+Show a [TextInputEditText](https://developer.android.com/reference/com/google/android/material/textfield/TextInputEditText)
 wrapped into
 a [TextInputLayout](https://developer.android.com/reference/com/google/android/material/textfield/TextInputLayout)
 as described in Android documentation
