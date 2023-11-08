@@ -80,7 +80,7 @@ In your xml layout file, whereas with [SKPager](skpager.md) you have to set an i
 | IconTitleTab(val title: SKSpannedString, val icon: Icon) |
 | IconTab(val icon: Icon) |
 
-| Visibility |
+| Visibility | |
 |--|--|
 | Visible | Tabs are visible |  
 | Gone | Tabs are not visible  | 
