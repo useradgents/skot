@@ -4,18 +4,24 @@ A project contains six module :
 
 - androidApp : contains the application class.
 
-- viewcontract : contains the contract of the view. Start point to create screen
+- viewcontract : contains the contract of the views. Start point to create Screens or components
+  
   [read more](viewcontract.md)
 
-- viewmodel : 
+- viewmodel : contains the ViewModel of the views. 
+
   [read more](viewmodel.md)
 
-- view
+- view : contains the view and its XML.
+
   [read more](view.md)
 
-- modelcontract : 
+- modelcontract : contains the contract of the model.
+
   [read more](modelcontract.md)
 
-- model
+- model : contains the model of the views, the businessModels, and all the code for network request
   
   [read more](model.md)
+
+![](MVVM_skot.jpg "Schema architecture")

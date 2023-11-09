@@ -1,11 +1,10 @@
 # Skot Framework
 
-a Super Kotlin framework
-Kotlin multiplatform 
-latest version : [![Maven Central](https://maven-badges.herokuapp.com/maven-central/tech.skot.starter/tech.skot.starter.gradle.plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/tech.skot.starter/tech.skot.starter.gradle.plugin)
+Latest Version: [![Jitpack](https://jitpack.io/v/useradgents/skot.svg)](https://jitpack.io/#useradgents/skot)
 
-To get started : 
+Show [changelog](changelog.md)
 
+To get started :
 - [learn the nomenclature](nomenclature/nomenclature.md)
 - [understand the framework structure](architecture/readme.md)
 - [create project](start/createproject.md)
