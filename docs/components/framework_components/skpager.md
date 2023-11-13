@@ -13,7 +13,7 @@ interface PaymentOnBoardingScreenVC : SKScreenVC {
 ```
 
 Launch the generation with the SKGenerate gradle task.
-In your screen, you have to instanciate your component as below :
+In your screen, you have to instantiate your component as below :
 
 ```kotlin
 override val pager = SKPager(
