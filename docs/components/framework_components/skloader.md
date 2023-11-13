@@ -56,4 +56,14 @@ Loader is display when this internal counter > 0.
 You can also manually show a skloader using `loader.workStarted` function. In this case, you have to call `loader.workEnded()` for updating counter value. 
 You can get loader visibility using `loader.isLoading()` or `loader.isNotLoading()` function
 
+Default loader component has to be named `loader` because `onData` and `launchWithLoaderAndErrors` function expect it.
+But you can create another loader and use it for a specific job : 
+
+```kotlin
+override val myOtherLoader: SKLoader = SKLoader()
+
+init {
+    launchWithLoaderAndErrors(specificLoader = myOtherLoader) {  /* Stuff */  }    
+}
+```
 
