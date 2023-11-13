@@ -12,10 +12,10 @@ interface MyCardInfoScreenVC : SKScreenVC {
 }
 ```
 Launch the generation with the SKGenerate gradle task.
-In your screen, you have to instanciate your component as below :
+In your screen, you have to instantiate your component as below :
 
 ```kotlin
-override val pager = SKPagerWithTabs(onUserSwipeToPage = onPageSwiped)
+override val pager = SKPagerWithTabs()
 ```
 
 In your xml layout file, whereas with [SKPager](skpager.md) you have to set an id on ViewPager2 widget, on SKPagerWithTabs, the id 
@@ -53,8 +53,7 @@ In your xml layout file, whereas with [SKPager](skpager.md) you have to set an i
 </LinearLayout>
 ```
 
-`initialPages` could be an empty list. You can set TabPage to display after SKPagerWithTabs init, setting `pages` properties.
-
+The `initialPages` property can be an empty list. You can define the list of TabPages to be displayed at any time by setting the `pages` property.
 
 ## Properties
 
