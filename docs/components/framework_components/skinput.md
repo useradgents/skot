@@ -5,8 +5,8 @@ wrapped into
 a [TextInputLayout](https://developer.android.com/reference/com/google/android/material/textfield/TextInputLayout)
 as described in Android documentation
 
-This component allows the user to type in some text, which could be checked by a Regex.
-If type in value does not match the regex, an error could be displayed
+This component enables text input and can use regular expression validation to ensure compliance with defined patterns. 
+If the input does not match the regular expression pattern, an error message will be displayed.
 
 ## Usage
 
