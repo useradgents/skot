@@ -13,17 +13,17 @@ interface MyAccountScreenVC : SKScreenVC, AccountActions {
 ```
 
 Launch the generation with the SKGenerate gradle task.
-In your screen, you have to instanciate your component as below :
+In your screen, you have to instantiate your component as below :
 
 ```kotlin
 override val loader: SKLoader = SKLoader()
 ```
 
 In your xml layout file, add a layout with id `loader`. It can be a `ProgressBar`, `ConstraintLayout` or whatever you want. 
-You can for example create an xml file called `loader.xml` 
+You can for example create an xml file called `my_loader.xml` 
 
 ```xml
-<!--loader.xml-->
+<!--my_loader.xml-->
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
