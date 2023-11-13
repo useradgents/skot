@@ -23,7 +23,7 @@ override val pager = SKPager(
     )
 ```
 
-In your xml layout file, you have to declare a `ViewPager2` widget with id `page` : 
+In your xml layout file, you have to declare a `ViewPager2` widget with id `pager` : 
 
 ```xml
 <androidx.viewpager2.widget.ViewPager2
@@ -34,7 +34,7 @@ In your xml layout file, you have to declare a `ViewPager2` widget with id `page
     app:layout_constraintTop_toBottomOf="@+id/actionBar" />
 ```
 
-`initialScreens` could be an empty list. You can set screens to display after SKPager init, setting `screens` properties : 
+`initialScreens` cou property can be an empty list. You can define the list of TabPages to be displayed at any time by setting the `screens` property.
 
 ```kotlin
 pager.screens = init.onBoardings.map { page ->
