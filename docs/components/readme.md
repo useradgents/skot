@@ -1,6 +1,7 @@
 # SKComponent
 
-...explanation of what is SKComponent...
+A SKComponent is a graphical android element boosted by Skot framework. It could be a entire screen or a widget such as a button or a list.
+Each SKComponent is described by a SKComponentVC which will contain all properties and functions.   
 
 ## Structure
 
