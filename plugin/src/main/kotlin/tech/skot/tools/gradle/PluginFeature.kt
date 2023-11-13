@@ -20,8 +20,7 @@ class PluginFeature : Plugin<Project> {
         println("############## project.extensions ${project.extensions}")
         println("############## applying skot-feature !!!")
         project.extensions.findByType(DynamicFeatureExtension::class)?.android(project)
-        project.extensions.findByType(AppExtension::class)
-            ?.android(project)
+        project.extensions.findByType(AppExtension::class)?.android()
 
         project.dependencies {
             dependencies(project)
@@ -52,16 +51,10 @@ class PluginFeature : Plugin<Project> {
             }
         }
 
+        packaging.jniLibs.excludes.add("META-INF/*.kotlin_module")
+        packaging.jniLibs.excludes.add("META-INF/*")
 
-
-        packagingOptions {
-            exclude("META-INF/*.kotlin_module")
-            exclude("META-INF/*")
-        }
-
-        lintOptions {
-            isAbortOnError = false
-        }
+        lint.abortOnError = false
 
         buildFeatures {
             viewBinding = true
@@ -69,12 +62,12 @@ class PluginFeature : Plugin<Project> {
 
     }
 
-    private fun AppExtension.android(project: Project) {
+    private fun AppExtension.android() {
         compileSdkVersion(Versions.android_compileSdk)
 
         defaultConfig {
-            minSdkVersion(Versions.android_minSdk)
-            targetSdkVersion(Versions.android_targetSdk)
+            minSdk = Versions.android_minSdk
+            targetSdk = Versions.android_targetSdk
         }
     }
 

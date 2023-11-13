@@ -26,7 +26,7 @@ fun skReadVariants(path: Path): SKVariants {
         val properties = Properties()
         properties.load(FileInputStream(propertiesPath.toFile()))
         SKVariants(
-            variants = properties.getProperty("variants").split(",") ?: emptyList(),
+            variants = properties.getProperty("variants").split(","),
             env = properties.getProperty("environment")
         )
     } else {
@@ -58,7 +58,7 @@ fun List<String>.combinaisons(): List<String> {
 fun skVariantsCombinaison(path: Path) =
     skReadVariants(path)
         .toList()
-        .map { it.capitalize() }
+        .map { it.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() } }
         .combinaisons()
         .drop(1)
 

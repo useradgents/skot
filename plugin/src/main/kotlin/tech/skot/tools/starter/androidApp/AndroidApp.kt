@@ -4,6 +4,7 @@ import com.squareup.kotlinpoet.*
 import tech.skot.tools.starter.BuildGradleGenerator
 import tech.skot.tools.starter.ModuleGenerator
 import tech.skot.tools.starter.StarterGenerator
+import java.util.Locale
 
 
 const val startGradleAndroidBlock = """android {
@@ -47,7 +48,8 @@ const val startGradleAndroidBlock = """android {
 fun StarterGenerator.androidApp(){
     ModuleGenerator("androidApp", configuration, rootDir).apply {
 
-        val applicationClassPrefix = configuration.appPackage.substringAfterLast(".").capitalize()
+        val applicationClassPrefix = configuration.appPackage.substringAfterLast(".")
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
         androidApplicationClass = "${applicationClassPrefix}Application"
 

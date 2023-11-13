@@ -12,14 +12,14 @@ plugins {
 
 
 dependencies {
-    api("com.android.tools.build:gradle:${Versions.Android.gradle}")
-    api("org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}")
-    api("org.jetbrains.kotlin:kotlin-serialization:${Versions.kotlin}")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.serialization}")
+    api(libs.gradle)
+    api(libs.kotlin.gradle.plugin)
+    api(libs.kotlin.serialization)
+    implementation(libs.kotlinx.serialization.json)
 
-    api("com.squareup:kotlinpoet:${Versions.kotlinpoet}")
+    api(libs.kotlinpoet)
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${Versions.kotlin}")
+    testImplementation(libs.jetbrains.kotlin.test.junit)
 }
 
 //configurations {
@@ -175,17 +175,17 @@ fun buildVersionsFile() {
     val classBuilderCommon = com.squareup.kotlinpoet.TypeSpec.objectBuilder("Versions")
         .addStringConst("skot", Versions.version)
         .addStringConst("group", Versions.group)
-        .addStringConst("serialization", Versions.serialization)
-        .addStringConst("kotlinxDateTime", Versions.kotlinxDateTime)
-        .addStringConst("ktor", Versions.ktor)
-        .addStringConst("kotlin", Versions.kotlin)
-        .addStringConst("kotlinCoroutines", Versions.kotlinCoroutines)
-        .addStringConst("kotlinpoet", Versions.kotlinpoet)
-        .addIntConst("android_minSdk", Versions.Android.minSdk)
-        .addIntConst("android_compileSdk", Versions.Android.compileSdk)
-        .addIntConst("android_targetSdk", Versions.Android.targetSdk)
-        .addStringConst("android_app_compat", Versions.Android.appcompat)
-        .addStringConst("sqldelight", Versions.sqldelight)
+        .addStringConst("serialization", libs.versions.kotlinx.serialization.get())
+        .addStringConst("kotlinxDateTime", libs.versions.kotlinx.datetime.get())
+        .addStringConst("ktor", libs.versions.ktor.get())
+        .addStringConst("kotlin", libs.versions.kotlin.get())
+        .addStringConst("kotlinCoroutines", libs.versions.kotlinx.coroutines.asProvider().get())
+        .addStringConst("kotlinpoet", libs.versions.kotlinpoet.get())
+        .addIntConst("android_minSdk", libs.versions.android.minSdk.get().toInt())
+        .addIntConst("android_compileSdk", libs.versions.android.compileSdk.get().toInt())
+        .addIntConst("android_targetSdk",libs.versions.android.targetSdk.get().toInt())
+        .addStringConst("android_app_compat", libs.versions.appcompat.get())
+        .addStringConst("sqldelight", libs.versions.sqldelight.get())
 
 
     file.addType(classBuilderCommon.build())

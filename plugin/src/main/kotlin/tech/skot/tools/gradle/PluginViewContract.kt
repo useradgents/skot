@@ -48,7 +48,7 @@ class PluginViewContract : Plugin<Project> {
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
         jvm()
-        android {
+        androidTarget {
             compilations.all {
                 kotlinOptions {
                     jvmTarget = "1.8"

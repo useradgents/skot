@@ -19,12 +19,12 @@ open class SKLocalDateSerializer(name: String, pattern: String) : KSerializer<Lo
     fun parse(str: String) =
         dateFormat.parse(str).toLocalDateTime(TimeZone.currentSystemDefault()).date
 
-    override fun serialize(output: Encoder, obj: LocalDate) {
-        output.encodeString(serialize(obj))
+    override fun serialize(encoder: Encoder, value: LocalDate) {
+        encoder.encodeString(serialize(value))
     }
 
-    override fun deserialize(input: Decoder): LocalDate {
-        val json = input.decodeString()
+    override fun deserialize(decoder: Decoder): LocalDate {
+        val json = decoder.decodeString()
         return parse(json)
     }
 }

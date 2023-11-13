@@ -16,12 +16,12 @@ open class SKInstantSerializer(name:String, pattern:String):KSerializer<Instant>
     fun serialize(obj: Instant) = dateFormat.format(obj)
     fun parse(str: String) = dateFormat.parse(str)
 
-    override fun serialize(output: Encoder, obj: Instant) {
-        output.encodeString(serialize(obj))
+    override fun serialize(encoder: Encoder, value: Instant) {
+        encoder.encodeString(serialize(value))
     }
 
-    override fun deserialize(input: Decoder): Instant {
-        val json = input.decodeString()
+    override fun deserialize(decoder: Decoder): Instant {
+        val json = decoder.decodeString()
         return parse(json)
     }
 }

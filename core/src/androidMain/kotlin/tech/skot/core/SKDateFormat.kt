@@ -7,7 +7,7 @@ import java.util.*
 
 actual class SKDateFormat actual constructor(pattern: String) {
 
-    private val sdf = SimpleDateFormat(pattern)
+    private val sdf = SimpleDateFormat(pattern,Locale.getDefault())
 
     actual fun format(instant: Instant): String {
         return sdf.format(Date(instant.toEpochMilliseconds()))

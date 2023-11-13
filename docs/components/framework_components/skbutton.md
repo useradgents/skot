@@ -15,10 +15,10 @@ Launch the generation with the SKGenerate gradle task
 
 * In your Screen, instantiate the SKButton
 
- ```kotlin  
+```kotlin  
 override val myButtonId = SKButton(name) {  
-    //onTap 
- }  
+   //onTap 
+}  
 ```
 
 * in your xml, add a Button or a MaterialButton with id `myButtonId`

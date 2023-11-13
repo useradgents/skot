@@ -14,7 +14,6 @@ import tech.skot.Versions
 class PluginViewModel: Plugin<Project> {
 
     override fun apply(project: Project) {
-//        val extension = project.extensions.create<SKPluginViewModelExtension>("skot")
         project.plugins.apply("com.android.library")
         project.plugins.apply("kotlinx-serialization")
 
@@ -38,7 +37,7 @@ class PluginViewModel: Plugin<Project> {
     }
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
-        android {
+        androidTarget {
             compilations.all {
                 kotlinOptions {
                     jvmTarget = "1.8"
