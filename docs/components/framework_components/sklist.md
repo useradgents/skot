@@ -17,8 +17,7 @@ Launch the generation with the SKGenerate gradle task
 ```kotlin  
 override val myList = SKList(name)  
 ```  
-
-* Instantiate a SKComponent for each items you ant to show in your SKList, and add this list in your SKlist :
+* Create and add SKComponents to your SKList for each item you want to display :
 ```kotlin  
   init{  
 	 val listItems = listOf(
