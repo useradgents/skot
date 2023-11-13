@@ -23,8 +23,8 @@ Launch the generation with the SKGenerate gradle task.
 Some files will be created, the mains are :
 
 | module | file |
-|--|--|--|
-| view | FaqPublicScreenView.kt |  |
+|--|--|
+| view | FaqPublicScreenView.kt |
 | view - generated | FaqPublicScreenViewProxy.kt |
 | view - androidTest | TestViewFaqPublicScreen.kt |
 | view - res/layout/ | faq_public_screen.xml |
