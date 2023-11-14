@@ -7,7 +7,7 @@ buildscript {
         classpath(libs.gradle)
         classpath(libs.kotlin.gradle.plugin)
         classpath(libs.kotlin.serialization)
-        classpath(libs.gradle.plugin)
+        classpath(libs.sqldelight.plugin)
         classpath(libs.kotlinpoet)
 
     }

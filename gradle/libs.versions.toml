@@ -8,7 +8,7 @@ constraintlayout = "2.1.4"
 core = "1.12.0"
 core-ktx = "1.5.0"
 espresso = "3.5.1"
-gradle = "8.1.2"
+gradle = "8.1.3"
 junit-ktx = "1.1.5"
 kotlin = "1.9.10"
 kotlinpoet = "1.12.0"
@@ -42,7 +42,6 @@ espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref =
 espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espresso" }
 espresso-web = { module = "androidx.test.espresso:espresso-web", version.ref = "espresso" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
-gradle-plugin = { module = "com.squareup.sqldelight:gradle-plugin", version.ref = "sqldelight" }
 jetbrains-kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 jetbrains-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-common", version.ref = "kotlin" }
 jetbrains-kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -69,6 +68,8 @@ recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "r
 sqldelight-android-driver = { module = "com.squareup.sqldelight:android-driver", version.ref = "sqldelight" }
 sqldelight-runtime = { module = "com.squareup.sqldelight:runtime", version.ref = "sqldelight" }
 sqldelight-sqlite-driver = { module = "com.squareup.sqldelight:sqlite-driver", version.ref = "sqldelight" }
+sqldelight-plugin = { module = "com.squareup.sqldelight:gradle-plugin", version.ref = "sqldelight" }
+
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
 

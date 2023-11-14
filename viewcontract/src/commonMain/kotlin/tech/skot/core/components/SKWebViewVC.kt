@@ -84,25 +84,5 @@ interface SKWebViewVC : SKComponentVC {
         ) : Launch()
     }
 
-
-    abstract class RedirectParam {
-        abstract fun matches(url: String): Boolean
-        abstract val onRedirect: (path: String, params: Map<String, String>) -> Boolean
-
-        class Start(
-            private val start: String,
-            override val onRedirect: (path: String, params: Map<String, String>) -> Boolean
-        ) : RedirectParam() {
-            override fun matches(url: String) = url.startsWith(start)
-        }
-
-        class Match(
-            private val regex: Regex,
-            override val onRedirect: (path: String, params: Map<String, String>) -> Boolean
-        ) : RedirectParam() {
-            override fun matches(url: String) = regex.matches(url)
-        }
-    }
-
     data class BackRequest(val onCantBack: (() -> Unit)? = null)
 }
