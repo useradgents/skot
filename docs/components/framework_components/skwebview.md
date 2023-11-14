@@ -57,7 +57,7 @@ public override val webView: SKWebView = SKWebView(
 | domStorageEnabled | Boolean | Sets whether the DOM storage API is enabled. Default value is true |
 | javascriptOnStart | (()-> String?)? | Javascript code to execute when a web page start loaded. Default value is null |
 | javascriptOnFinished | (()-> String?)? | Javascript code to execute when a web page finish loaded. Default value is null |
-| shouldOverrideUrlLoading: ((skUri: SKUri) -> Boolean)? | Give the component a chance to take control when a URL is about to be loaded. Default value is null |
+| shouldOverrideUrlLoading | ((skUri: SKUri) -> Boolean)? | Give the component a chance to take control when a URL is about to be loaded. Default value is null |
 | onRequest | ((skUri: SKUri) -> Unit)? | Function called when a resource request is received by the component. Default value is null |
 | onHttpAuthRequest | ((host : String?, realm : String?, onProceed : (login : String?, password : String?) -> Unit ) -> Unit)? | Function called when a auth request is received by the component. Default value is null |
 
