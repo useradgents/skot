@@ -1,11 +1,17 @@
 package tech.skot.core.components
 
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.TypedValue
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -14,6 +20,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import tech.skot.core.SKFeatureInitializer
+import tech.skot.core.SKLog
 import tech.skot.core.toSKUri
 import tech.skot.view.SKPermissionAndroid
 import tech.skot.view.SKPermissionsRequestResultAndroid
@@ -22,6 +29,32 @@ import tech.skot.view.extensions.updatePadding
 abstract class SKActivity : AppCompatActivity() {
 
     var screenKey: Long? = null
+
+    var fileCallback: ValueCallback<Array<Uri>>? = null
+    val fileSelectorCallback : ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            fileCallback?.let { cb ->
+                fileCallback = null
+
+                val data: Intent? = result.data
+                // This always logs ActivityResult{resultCode=RESULT_CANCELED, data=null}
+                SKLog.i("info data $result")
+                SKLog.i("info result code ${result.resultCode} ${Activity.RESULT_OK}")
+                val returnedValue: Array<Uri>? =
+                    if (result.resultCode != Activity.RESULT_OK) {
+                        null
+                    } else if (data?.clipData != null) {
+                        // The files are in data.clipData if the user selected multiple files
+                        // https://github.com/xamarin/Xamarin.Forms/issues/15341
+                        val clipData = data.clipData!!
+
+                        (0 until clipData.itemCount).map { clipData.getItemAt(it).uri }.toTypedArray()
+                    } else {
+                        WebChromeClient.FileChooserParams.parseResult(result.resultCode, data)
+                    }
+
+                cb.onReceiveValue(returnedValue)
+            }
+        }
 
     companion object {
         private var oneActivityAlreadyLaunched = false
