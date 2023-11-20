@@ -1,13 +1,11 @@
 package tech.skot.core.components
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.webkit.*
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
 import tech.skot.core.SKLog
 import tech.skot.core.toSKUri
@@ -20,36 +18,11 @@ class SKWebViewView(
     private val webView: WebView,
 ) : SKComponentView<WebView>(proxy, activity, fragment, webView) {
 
-    private var fileCallback: ValueCallback<Array<Uri>>? = null
-    private val fileSelectorCallback =
-
-        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            fileCallback?.let { cb ->
-                fileCallback = null
-
-                val data: Intent? = result.data
-                // This always logs ActivityResult{resultCode=RESULT_CANCELED, data=null}
-                SKLog.i("info data $result")
-                SKLog.i("info result code ${result.resultCode} ${Activity.RESULT_OK}")
-                val returnedValue: Array<Uri>? =
-                    if (result.resultCode != Activity.RESULT_OK) {
-                        null
-                    } else if (data?.clipData != null) {
-                        // The files are in data.clipData if the user selected multiple files
-                        // https://github.com/xamarin/Xamarin.Forms/issues/15341
-                        val clipData = data.clipData!!
-
-                        (0 until clipData.itemCount).map { clipData.getItemAt(it).uri }.toTypedArray()
-                    } else {
-                        WebChromeClient.FileChooserParams.parseResult(result.resultCode, data)
-                    }
-
-                cb.onReceiveValue(returnedValue)
-            }
-        }
 
     init {
-        webView.webChromeClient = SKWebChromeClient(activity)
+        webView.webChromeClient = SKWebChromeClient(activity.fileSelectorCallback) {
+            activity.fileCallback = it
+        }
     }
 
     fun onConfig(config: SKWebViewVC.Config) {
@@ -376,40 +349,13 @@ class SKWebViewView(
 
 
 
-    open class SKWebChromeClient(activity : AppCompatActivity) : WebChromeClient() {
-        private var fileCallback: ValueCallback<Array<Uri>>? = null
-        private val fileSelectorCallback =
-
-            activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                fileCallback?.let { cb ->
-                    fileCallback = null
-
-                    val data: Intent? = result.data
-                    // This always logs ActivityResult{resultCode=RESULT_CANCELED, data=null}
-                    SKLog.i("info data $result")
-                    SKLog.i("info result code ${result.resultCode} ${Activity.RESULT_OK}")
-                    val returnedValue: Array<Uri>? =
-                        if (result.resultCode != Activity.RESULT_OK) {
-                            null
-                        } else if (data?.clipData != null) {
-                            // The files are in data.clipData if the user selected multiple files
-                            // https://github.com/xamarin/Xamarin.Forms/issues/15341
-                            val clipData = data.clipData!!
-
-                            (0 until clipData.itemCount).map { clipData.getItemAt(it).uri }.toTypedArray()
-                        } else {
-                            WebChromeClient.FileChooserParams.parseResult(result.resultCode, data)
-                        }
-
-                    cb.onReceiveValue(returnedValue)
-                }
-            }
+    open class SKWebChromeClient(private val fileSelectorCallback  : ActivityResultLauncher<Intent>, private val onFileCallback : (ValueCallback<Array<Uri>>?)->Unit ) : WebChromeClient() {
         override fun onShowFileChooser(
             webView: WebView?,
             filePathCallback: ValueCallback<Array<Uri>>?,
             fileChooserParams: FileChooserParams?
         ): Boolean {
-            fileCallback = filePathCallback
+            onFileCallback(filePathCallback)
             fileSelectorCallback.launch(fileChooserParams?.createIntent())
             return true
         }

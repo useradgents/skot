@@ -11,7 +11,13 @@ version = Versions.version
 
 
 kotlin {
-    jvm()
+    jvm {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
+        }
+    }
 
     ios()
 
