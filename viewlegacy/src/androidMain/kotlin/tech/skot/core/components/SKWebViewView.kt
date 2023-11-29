@@ -1,15 +1,17 @@
 package tech.skot.core.components
 
-import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.webkit.*
-import androidx.activity.result.ActivityResultLauncher
+import androidx.annotation.RequiresApi
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import tech.skot.core.SKLog
+import tech.skot.core.SKUri
 import tech.skot.core.toSKUri
 import java.net.URLEncoder
+
 
 class SKWebViewView(
     override val proxy: SKWebViewViewProxy,
@@ -68,6 +70,20 @@ class SKWebViewView(
                     return super.shouldOverrideUrlLoading(view, request)
                 }
 
+
+                override fun onReceivedHttpError(
+                    view: WebView?,
+                    request: WebResourceRequest?,
+                    errorResponse: WebResourceResponse?
+                ) {
+                    request?.url?.toSKUri()?.let { url ->
+                        errorResponse?.statusCode?.let { statusCode ->
+                            config.httpError(url, statusCode)
+                        }
+                    }
+                    super.onReceivedHttpError(view, request, errorResponse)
+                }
+
                 override fun onReceivedHttpAuthRequest(
                     view: WebView?,
                     handler: HttpAuthHandler?,
@@ -75,9 +91,9 @@ class SKWebViewView(
                     realm: String?
                 ) {
                     config.onHttpAuthRequest?.invoke(host, realm) { login, password ->
-                        if(login == null || password == null){
-                           super.onReceivedHttpAuthRequest(view, handler, host, realm)
-                        }else {
+                        if (login == null || password == null) {
+                            super.onReceivedHttpAuthRequest(view, handler, host, realm)
+                        } else {
                             handler?.proceed(login, password)
                         }
                     } ?: super.onReceivedHttpAuthRequest(view, handler, host, realm)
@@ -85,7 +101,7 @@ class SKWebViewView(
 
                 override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                     config.javascriptOnStart?.invoke()?.let {
-                        onEvaluateJavascript(it){
+                        onEvaluateJavascript(it) {
 
                         }
                     }
@@ -95,7 +111,7 @@ class SKWebViewView(
                 override fun onPageFinished(view: WebView?, url: String?) {
                     openingUrl?.finished(url)
                     config.javascriptOnFinished?.invoke()?.let {
-                        onEvaluateJavascript(it){
+                        onEvaluateJavascript(it) {
 
                         }
                     }
@@ -107,8 +123,19 @@ class SKWebViewView(
                     request: WebResourceRequest?,
                     error: WebResourceError?
                 ) {
-                    openingUrl?.error(request?.url)
+                    openingUrl?.error(request?.url, error?.errorCode)
                     super.onReceivedError(view, request, error)
+                }
+
+                @Suppress("deprecation")
+                override fun onReceivedError(
+                    view: WebView?,
+                    errorCode: Int,
+                    description: String?,
+                    failingUrl: String?
+                ) {
+                    openingUrl?.error(failingUrl?.toUri(), errorCode)
+                    super.onReceivedError(view, errorCode, description, failingUrl)
                 }
 
                 override fun shouldInterceptRequest(
@@ -117,7 +144,7 @@ class SKWebViewView(
                 ): WebResourceResponse? {
                     request?.url?.toSKUri()?.let { skUri ->
                         try {
-                           config.onRequest?.invoke(skUri)
+                            config.onRequest?.invoke(skUri)
                         } catch (ex: Exception) {
                             SKLog.e(
                                 ex,
@@ -130,6 +157,19 @@ class SKWebViewView(
             }
         } else {
             webView.webViewClient = object : WebViewClient() {
+                override fun onReceivedHttpError(
+                    view: WebView?,
+                    request: WebResourceRequest?,
+                    errorResponse: WebResourceResponse?
+                ) {
+                    request?.url?.toSKUri()?.let { url ->
+                        errorResponse?.statusCode?.let { statusCode ->
+                            config.httpError(url, statusCode)
+                        }
+                    }
+                    super.onReceivedHttpError(view, request, errorResponse)
+                }
+
                 override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
 
                     url?.let { Uri.parse(url).toSKUri() }?.let { skUri ->
@@ -193,13 +233,28 @@ class SKWebViewView(
                 }
 
 
+                @RequiresApi(Build.VERSION_CODES.M)
                 override fun onReceivedError(
                     view: WebView?,
                     request: WebResourceRequest?,
                     error: WebResourceError?
                 ) {
-                    openingUrl?.error(request?.url)
+                    SKLog.d(
+                        "WebView onReceivedError ${error?.errorCode}"
+                    )
+                    openingUrl?.error(request?.url, error?.errorCode)
                     super.onReceivedError(view, request, error)
+                }
+
+                @Suppress("DEPRECATION")
+                override fun onReceivedError(
+                    view: WebView?,
+                    errorCode: Int,
+                    description: String?,
+                    failingUrl: String?
+                ) {
+                    openingUrl?.error(failingUrl?.toUri(), errorCode)
+                    super.onReceivedError(view, errorCode, description, failingUrl)
                 }
 
                 override fun shouldInterceptRequest(
@@ -220,7 +275,6 @@ class SKWebViewView(
                 }
 
 
-
             }
         }
 
@@ -231,9 +285,9 @@ class SKWebViewView(
     private var oneRedirectionAskedForCurrentOpenUrl = false
 
     private fun SKWebViewVC.Launch.finished(finishedUrl: String?) {
-        val escapedUrl =   if(this is SKWebViewVC.Launch.LoadData){
-              "data:text/html,$data"
-        }else{
+        val escapedUrl = if (this is SKWebViewVC.Launch.LoadData) {
+            "data:text/html,$data"
+        } else {
             url?.replace(" ", "%20")
         }
 
@@ -248,16 +302,33 @@ class SKWebViewView(
 
     }
 
-    private fun SKWebViewVC.Launch.error(requestedUri: Uri?) {
-        when(this){
+    private fun SKWebViewVC.Launch.error(requestedUri: Uri?, errorCode: Int?) {
+        SKLog.d("error ${requestedUri?.toString()} $errorCode")
+        when (this) {
             is SKWebViewVC.Launch.LoadData -> {}
-            is SKWebViewVC.Launch.OpenPostUrl -> launchError(requestedUri,this.url, this.onError)
-            is SKWebViewVC.Launch.OpenUrl -> launchError(requestedUri,this.url, this.onError)
-            is SKWebViewVC.Launch.OpenUrlWithHeader -> launchError(requestedUri,this.url, this.onError)
+            is SKWebViewVC.Launch.OpenPostUrl -> launchError(requestedUri, this.url, this.onError)
+            is SKWebViewVC.Launch.OpenUrl -> launchError(requestedUri, this.url, this.onError)
+            is SKWebViewVC.Launch.OpenUrlWithHeader -> launchError(
+                requestedUri,
+                this.url,
+                this.onError
+            )
         }
     }
 
-    private fun launchError(requestedUri: Uri?, url : String?,  onError: (() -> Unit)?){
+    private fun SKWebViewVC.Config.httpError(requestedUri: SKUri, errorCode: Int) {
+        launchHttpError(requestedUri, errorCode,this.onHttpError)
+    }
+
+    private fun launchHttpError(
+        requestedUri: SKUri,
+        statusCode: Int,
+        onError: ((url: SKUri, statusCode: Int) -> Unit)?
+    ) {
+        onError?.invoke(requestedUri, statusCode)
+    }
+
+    private fun launchError(requestedUri: Uri?, url: String?, onError: (() -> Unit)?) {
         requestedUri?.toString()?.let { requestUrl ->
             if (url == requestUrl) {
                 onError?.invoke()
@@ -273,13 +344,13 @@ class SKWebViewView(
             if (launch.removeCookies) {
                 CookieManager.getInstance().removeAllCookies {
                     launch.cookie?.let {
-                        CookieManager.getInstance().setCookie(it.first,it.second)
+                        CookieManager.getInstance().setCookie(it.first, it.second)
                     }
                     launchNow(launch)
                 }
             } else {
                 launch.cookie?.let {
-                    CookieManager.getInstance().setCookie(it.first,it.second)
+                    CookieManager.getInstance().setCookie(it.first, it.second)
                 }
                 launchNow(launch)
             }
@@ -288,14 +359,15 @@ class SKWebViewView(
     }
 
     private fun launchNow(launch: SKWebViewVC.Launch) {
-        when(launch){
+        when (launch) {
             is SKWebViewVC.Launch.LoadData -> {
-                if(launch.url != null){
-                    binding.loadDataWithBaseURL(launch.url, launch.data,null,null, null)
-                }else{
-                    binding.loadData(launch.data,null,null)
+                if (launch.url != null) {
+                    binding.loadDataWithBaseURL(launch.url, launch.data, null, null, null)
+                } else {
+                    binding.loadData(launch.data, null, null)
                 }
             }
+
             is SKWebViewVC.Launch.OpenPostUrl -> {
                 val params = launch.post.map {
                     "${it.key}=${URLEncoder.encode(it.value, "UTF-8")}"
@@ -303,11 +375,13 @@ class SKWebViewView(
                     .joinToString(separator = "&")
                 binding.postUrl(launch.url, params.toByteArray())
             }
+
             is SKWebViewVC.Launch.OpenUrl -> {
                 binding.loadUrl(launch.url)
             }
+
             is SKWebViewVC.Launch.OpenUrlWithHeader -> {
-                binding.loadUrl(launch.url,launch.headers)
+                binding.loadUrl(launch.url, launch.headers)
             }
         }
     }
@@ -331,7 +405,8 @@ class SKWebViewView(
     fun onRequestReload() {
         webView.reload()
     }
-    fun onEvaluateJavascript(js : String, onResult : (String)-> Unit){
+
+    fun onEvaluateJavascript(js: String, onResult: (String) -> Unit) {
         SKLog.d("evaluateJs $js")
         webView.evaluateJavascript(js, onResult)
     }
@@ -345,9 +420,7 @@ class SKWebViewView(
         }
 
 
-
-
-    open class SKWebChromeClient(private val activity : SKActivity ) : WebChromeClient() {
+    open class SKWebChromeClient(private val activity: SKActivity) : WebChromeClient() {
         override fun onShowFileChooser(
             webView: WebView?,
             filePathCallback: ValueCallback<Array<Uri>>?,
