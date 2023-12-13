@@ -10,6 +10,7 @@ abstract class SKFeatureInitializer(
     val resetToRoot:()->Unit
 ) {
 
+    fun isInitialized() = done
     private var done = false
     private val initializeMutex = Mutex()
     suspend fun initializeIfNeeded(uri: SKUri?, action:String?) {

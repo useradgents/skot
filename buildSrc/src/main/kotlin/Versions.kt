@@ -1,6 +1,6 @@
 object Versions {
 
     const val group = "com.github.useradgents.skot"
-    const val version = "1.2.26-ua"
+    const val version = "1.2.27-ua"
 
 }
