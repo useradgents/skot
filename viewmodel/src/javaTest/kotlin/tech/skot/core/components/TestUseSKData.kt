@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package tech.skot.core.components
 
 import kotlinx.coroutines.*
@@ -7,9 +9,12 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import tech.skot.core.view.SKPermission
+import tech.skot.core.view.Style
 import tech.skot.model.DatedData
 import tech.skot.model.SKData
 
+@OptIn(DelicateCoroutinesApi::class)
 class TestUseSKData {
 
 
@@ -38,11 +43,12 @@ class TestUseSKData {
             flow.value = newDatedValue
             return newDatedValue.data
         }
+        @Suppress("MemberVisibilityCanBePrivate", "RedundantSuspendModifier")
         suspend fun newDatedData(): DatedData<Int> {
             return DatedData((_current?.data ?: -1) + 1)
         }
 
-        override fun fallBackValue() :Int {
+        override suspend fun fallBackValue() :Int {
             println("fallBackValue used")
             return -1
         }
@@ -55,7 +61,50 @@ class TestUseSKData {
 
         val compo = object :SKComponent<SKComponentVC>() {
             override val view = object :SKComponentVC {
+                override fun displayMessage(message: SKComponentVC.Message) {
 
+                }
+
+                @Deprecated("Use  SKComponent.displayMessageError(message) or  view.displayMessage(SKComponentVC.Message.Error(message))")
+                override fun displayErrorMessage(message: String) {
+
+                }
+
+                override fun closeKeyboard() {
+
+                }
+
+                override fun onRemove() {
+
+                }
+
+                override fun requestPermissions(
+                    permissions: List<SKPermission>,
+                    onResult: (permissionsOk: List<SKPermission>) -> Unit
+                ) {
+
+                }
+
+                override fun hasPermission(vararg permission: SKPermission): Boolean {
+                    return false
+                }
+
+                override fun notificationsPermissionManaged(): Boolean {
+                   return true
+                }
+
+                override fun hasNotificationsPermission(): Boolean {
+                    return true
+                }
+
+                override fun requestNotificationsPermissions(
+                    onOk: () -> Unit,
+                    onKo: (() -> Unit)?
+                ) {
+
+                }
+
+                override var style: Style? = null
             }
 
             private var counter = 0

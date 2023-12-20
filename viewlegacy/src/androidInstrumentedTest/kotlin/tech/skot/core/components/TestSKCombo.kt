@@ -38,7 +38,6 @@ class TestSKCombo: SKTestView() {
             )
         )
 
-
         testComponent(box)
 
     }

@@ -1,10 +1,10 @@
 package tech.skot.core.components
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.TypedValue
@@ -26,12 +26,14 @@ import tech.skot.view.SKPermissionAndroid
 import tech.skot.view.SKPermissionsRequestResultAndroid
 import tech.skot.view.extensions.updatePadding
 
+@Suppress("OVERRIDE_DEPRECATION")
 abstract class SKActivity : AppCompatActivity() {
 
     var screenKey: Long? = null
 
     var fileCallback: ValueCallback<Array<Uri>>? = null
-    val fileSelectorCallback : ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    val fileSelectorCallback: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             fileCallback?.let { cb ->
                 fileCallback = null
 
@@ -47,7 +49,8 @@ abstract class SKActivity : AppCompatActivity() {
                         // https://github.com/xamarin/Xamarin.Forms/issues/15341
                         val clipData = data.clipData!!
 
-                        (0 until clipData.itemCount).map { clipData.getItemAt(it).uri }.toTypedArray()
+                        (0 until clipData.itemCount).map { clipData.getItemAt(it).uri }
+                            .toTypedArray()
                     } else {
                         WebChromeClient.FileChooserParams.parseResult(result.resultCode, data)
                     }
@@ -80,11 +83,10 @@ abstract class SKActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val typedValue = TypedValue()
-            theme.resolveAttribute(android.R.attr.windowLightStatusBar, typedValue, true)
-            themeWindowLightStatusBar = typedValue.data != 0
-        }
+        val typedValue = TypedValue()
+        theme.resolveAttribute(android.R.attr.windowLightStatusBar, typedValue, true)
+        themeWindowLightStatusBar = typedValue.data != 0
+
 
         lifecycleScope.launch {
 
@@ -95,7 +97,7 @@ abstract class SKActivity : AppCompatActivity() {
 
             if (SKRootStackViewProxy.stateLD.value.screens.isEmpty()) {
                 featureInitializer.start(intent?.action)
-                if(alreadyInitialized) {
+                if (alreadyInitialized) {
                     intent?.data?.toSKUri()?.let {
                         featureInitializer.onDeepLink?.invoke(it, false)
                     }
@@ -194,12 +196,14 @@ abstract class SKActivity : AppCompatActivity() {
                     -1
                 )
             }
+
             savedInstanceState?.containsKey(ScreensManager.SK_EXTRA_VIEW_KEY) == true -> {
                 savedInstanceState.getLong(
                     ScreensManager.SK_EXTRA_VIEW_KEY,
                     -1
                 )
             }
+
             else -> -1
         }
 
@@ -248,7 +252,8 @@ abstract class SKActivity : AppCompatActivity() {
                     finishedAsked = true
                     finish()
                     state.transition?.let {
-                        overridePendingTransition(it.enterAnim, it.exitAnim) }
+                        overridePendingTransition(it.enterAnim, it.exitAnim)
+                    }
                 } else {
                     if (state.screens.size > thisScreenPosition + 1) {
                         startActivityForProxy(state.screens.get(thisScreenPosition + 1))
@@ -295,6 +300,7 @@ abstract class SKActivity : AppCompatActivity() {
 
 
     //Pas de back par défaut, il faut faire attention avec ça
+    @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         ScreensManager.backPressed.post(Unit)
     }

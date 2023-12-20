@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import tech.skot.core.components.SKActivity
 import tech.skot.core.components.SKComponentView
 import tech.skot.core.components.SKComponentViewProxy
-import tech.skot.viewlegacy.test.R
+import tech.skot.viewlegacytests.R
 
 class SKStringViewProxy(
     val content:CharSequence

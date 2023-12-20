@@ -3,12 +3,8 @@ package tech.skot.tools.generation
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.WildcardTypeName
-import com.squareup.kotlinpoet.jvm.jvmWildcard
-import kotlinx.coroutines.GlobalScope
-import java.lang.reflect.WildcardType
 
 object FrameworkClassNames {
-//    val icon = ClassName("")
 
     val style =  ClassName("tech.skot.core.view", "Style")
 

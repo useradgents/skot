@@ -3,7 +3,6 @@ package tech.skot.tools.generation
 import com.squareup.kotlinpoet.*
 import tech.skot.core.components.*
 import tech.skot.model.SKStateDef
-import tech.skot.tools.generation.viewlegacy.kClass
 import tech.skot.tools.generation.viewmodel.toVM
 import kotlin.reflect.*
 import kotlin.reflect.full.*
@@ -94,12 +93,7 @@ data class PropertyDef(
     val passToParentView: Boolean = false
 ) {
     fun asParam(withDefaultNullIfNullable: Boolean = false): ParameterSpec =
-        ParameterSpec.builder(name, type)
-            .apply {
-//                if (type.isNullable && withDefaultNullIfNullable) {
-//                    defaultValue("null")
-//                }
-            }.build()
+        ParameterSpec.builder(name, type).build()
 
     fun initial(): PropertyDef = PropertyDef(name.initial(), type)
 
@@ -144,7 +138,7 @@ fun MutableSet<KClass<out SKComponentVC>>.addLinkedComponents(
     add(aComponentClass)
     val subComponents = aComponentClass.ownProperties().map { it.returnType }.filter {
         it.isComponent() && (it.asTypeName() as? ClassName)?.packageName?.startsWith(appPackageName) == true
-    }.map { it.jvmErasure as KClass<out SKComponentVC> }
+    }.map{ it.jvmErasure as KClass<out SKComponentVC> }
 
     aComponentClass.nestedClasses.filter { it.isComponent() }
         .map { it as KClass<out SKComponentVC> }.forEach {
@@ -209,7 +203,7 @@ fun KClass<out SKComponentVC>.def(): ComponentDef {
                 passToParentView = it.hasAnnotation<SKPassToParentView>()
             )
         },
-        fixProperties = stateProperties.filter { !(it is KMutableProperty) }.map {
+        fixProperties = stateProperties.filter { (it !is KMutableProperty) }.map {
             PropertyDef(name = it.name, type = it.returnType.asTypeName())
         },
         mutableProperties = stateProperties.filter { it is KMutableProperty }.map {

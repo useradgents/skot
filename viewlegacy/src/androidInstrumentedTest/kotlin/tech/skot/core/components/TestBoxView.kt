@@ -6,13 +6,13 @@ import tech.skot.core.components.inputs.SKInputViewProxy
 import tech.skot.core.components.inputs.SKInputWithSuggestionsViewProxy
 import tech.skot.view.tests.SKTestView
 import tech.skot.view.tests.testComponent
-import tech.skot.viewlegacy.test.R
+import tech.skot.viewlegacytests.R
 
 class TestBoxView : SKTestView() {
 
     @Test
     fun testSKBox() {
-        SKInputViewProxy.LAYOUT_ID = R.layout.sk_input_test
+       SKInputViewProxy.LAYOUT_ID = R.layout.sk_input_test
         val input1 = dummyInput(hint = "hint1", text = "text1")
         val input2 = dummyInput(hint = "hint2", text = "text2")
         val input3 = dummyInput(hint = "hint3", text = "text3")

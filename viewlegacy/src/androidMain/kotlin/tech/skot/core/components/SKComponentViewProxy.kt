@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import tech.skot.core.di.get
@@ -70,6 +71,7 @@ abstract class SKComponentViewProxy<B : Any> : SKComponentVC {
 
     }
 
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.TIRAMISU)
     override fun notificationsPermissionManaged(): Boolean {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
     }

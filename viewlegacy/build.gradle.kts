@@ -24,13 +24,16 @@ dependencies {
 
 
 android {
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     namespace = "tech.skot.viewlegacy"
-
+    testNamespace= "tech.skot.viewlegacytests"
 }
 
 
@@ -56,7 +59,7 @@ kotlin {
     sourceSets["androidMain"].dependencies {
     }
 
-//    sourceSets["androidInstrumentedTest"].resources.srcDir("src/androidInstrumentedTest/res")
+    //sourceSets["androidInstrumentedTest"].resources.srcDir("src/androidMain/res_test")
 
     println("-----@@@@@@@---- ${sourceSets.asMap}")
 

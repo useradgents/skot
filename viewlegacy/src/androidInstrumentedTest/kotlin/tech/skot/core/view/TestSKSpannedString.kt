@@ -1,16 +1,12 @@
 package tech.skot.core.view
 
-import android.os.Build
-import android.text.Html
 import org.junit.Test
 import tech.skot.core.components.SKBoxViewProxy
 import tech.skot.view.tests.SKTestView
 import tech.skot.view.tests.testComponent
-import tech.skot.viewlegacy.test.R
+import tech.skot.viewlegacytests.R
 
 class TestSKSpannedString : SKTestView() {
-
-
     fun spans(underline: Boolean, striked: Boolean): List<SKSpan> {
         return listOf(
             SKSpan(
