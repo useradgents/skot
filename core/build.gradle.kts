@@ -11,6 +11,10 @@ version = Versions.version
 
 
 kotlin {
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
     jvm {
         compilations.all {
             kotlinOptions {
@@ -19,7 +23,6 @@ kotlin {
         }
     }
 
-    ios()
 
     androidTarget {
         publishLibraryVariants("release")
@@ -32,7 +35,8 @@ kotlin {
 
 
     sourceSets {
-        val commonMain by getting {
+
+        commonMain {
             dependencies {
                 api(libs.kotlinx.coroutines.core)
                 api(kotlin("reflect"))
@@ -40,14 +44,13 @@ kotlin {
             }
         }
 
-
-        val jvmMain by getting {
+        jvmMain {
             dependencies {
                 api(libs.bundles.kotlinx.coroutines)
             }
         }
 
-        val androidMain by getting {
+        androidMain {
             dependencies {
                 api(libs.timber)
                 api(libs.bundles.kotlinx.coroutines)
@@ -55,12 +58,12 @@ kotlin {
             }
         }
 
-
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 implementation(libs.jetbrains.kotlin.test.junit)
             }
         }
+        
 
         val androidInstrumentedTest by getting {
             dependencies {

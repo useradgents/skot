@@ -15,10 +15,11 @@ version = Versions.version
 
 
 kotlin {
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
     jvm()
-
-    ios()
 
     androidTarget {
         publishLibraryVariants("release")
@@ -31,7 +32,8 @@ kotlin {
 
 
     sourceSets {
-        val commonMain by getting {
+
+        commonMain {
             dependencies {
                 api(project(":core"))
                 api(project(":modelcontract"))
@@ -42,16 +44,15 @@ kotlin {
                 api(libs.ktor.ktor.client.logging)
             }
         }
-        
 
-        val androidMain by getting {
+        androidMain {
             dependencies {
                 api(libs.sqldelight.android.driver)
                 api(libs.ktor.ktor.client.okhttp)
             }
         }
 
-        val jvmMain by getting {
+        jvmMain {
             dependencies {
                 api(libs.sqldelight.sqlite.driver)
                 api(libs.ktor.ktor.client.okhttp)
@@ -61,7 +62,7 @@ kotlin {
             }
         }
 
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 implementation(libs.jetbrains.kotlin.test.junit)
                 implementation(libs.kotlinx.coroutines.test)

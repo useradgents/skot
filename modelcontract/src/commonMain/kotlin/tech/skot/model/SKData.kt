@@ -37,7 +37,7 @@ interface SKPaginatedData<D : Any> : SKData<List<D>> {
 }
 
 
-@Deprecated("map is the new masSuspend", ReplaceWith("map(transform)"))
+@Deprecated("map is the new mapSuspend", ReplaceWith("map(transform)"))
 fun <D : Any?, O : Any?> SKData<D>.mapSuspend(transform: suspend (d: D) -> O): SKData<O> {
     return map(transform)
 }

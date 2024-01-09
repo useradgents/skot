@@ -4,17 +4,17 @@ import kotlin.Int
 import kotlin.String
 
 public object Versions {
-  public const val skot: String = "1.2.27-ua"
+  public const val skot: String = "1.2.28-ua"
 
   public const val group: String = "com.github.useradgents.skot"
 
-  public const val serialization: String = "1.6.1"
+  public const val serialization: String = "1.6.2"
 
-  public const val kotlinxDateTime: String = "0.4.1"
+  public const val kotlinxDateTime: String = "0.5.0"
 
   public const val ktor: String = "2.3.6"
 
-  public const val kotlin: String = "1.9.20"
+  public const val kotlin: String = "1.9.21"
 
   public const val kotlinCoroutines: String = "1.7.3"
 

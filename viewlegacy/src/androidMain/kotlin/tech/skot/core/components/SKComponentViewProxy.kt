@@ -28,6 +28,7 @@ abstract class SKComponentViewProxy<B : Any> : SKComponentVC {
         displayMessageMessage.post(message)
     }
 
+    @Deprecated(message = "Use  SKComponent.displayMessageError(message) or  view.displayMessage(SKComponentVC.Message.Error(message))", replaceWith = ReplaceWith("displayMessageError(message)"))
     override fun displayErrorMessage(message: String) {
         displayMessage(SKComponentVC.Message.Error(message))
     }

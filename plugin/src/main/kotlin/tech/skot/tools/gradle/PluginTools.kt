@@ -131,7 +131,7 @@ class PluginTools : Plugin<Project> {
         this.add("implementation", project("$parentProjectPath:viewcontract"))
         this.add("implementation", project("$parentProjectPath:modelcontract"))
         this.add("api", "${Versions.group}:generator:${Versions.skot}")
-        this.add("implementation", "com.pinterest:ktlint:0.43.2")
+        this.add("implementation", "com.pinterest.ktlint:ktlint-cli:1.1.0")
     }
 
 }

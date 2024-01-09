@@ -13,10 +13,12 @@ version = Versions.version
 
 
 kotlin {
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
     jvm()
 
-    ios()
 
     androidTarget {
         publishLibraryVariants("release")
@@ -28,7 +30,7 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(project(":core"))
                 api(project(":viewcontract"))

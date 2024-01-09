@@ -20,6 +20,7 @@ suspend fun parrallel(coroutineScope: CoroutineScope, vararg blocks: suspend () 
     deffereds.forEach { it.await() }
 }
 
+@Suppress("unused")
 suspend fun CoroutineScope.parrallelize(vararg blocks: suspend () -> Unit) {
     parrallel(this, *blocks)
 }

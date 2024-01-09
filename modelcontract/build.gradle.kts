@@ -11,12 +11,13 @@ version = Versions.version
 
 kotlin {
     jvm()
-
-    ios()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
     sourceSets {
 
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 api(project(":core"))
                 api(libs.jetbrains.kotlin.stdlib)
@@ -25,12 +26,11 @@ kotlin {
                 api(libs.kotlinx.datetime)
             }
         }
-        val jvmTest by getting {
+
+        jvmTest {
             dependencies {
                 implementation(libs.jetbrains.kotlin.test.junit)
             }
         }
     }
-
-
 }
