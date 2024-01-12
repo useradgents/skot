@@ -16,7 +16,6 @@ kotlin {
     iosSimulatorArm64()
 
     sourceSets {
-
         commonMain {
             dependencies {
                 api(project(":core"))

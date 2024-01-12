@@ -1,6 +1,5 @@
 package tech.skot.core.components
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,6 +9,8 @@ import android.os.PersistableBundle
 import android.util.TypedValue
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
+import androidx.activity.BackEventCompat
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +19,10 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.transition.ChangeBounds
+import androidx.transition.Fade
+import androidx.transition.TransitionManager
+import androidx.transition.TransitionSet
 import kotlinx.coroutines.launch
 import tech.skot.core.SKFeatureInitializer
 import tech.skot.core.SKLog
@@ -59,6 +64,27 @@ abstract class SKActivity : AppCompatActivity() {
             }
         }
 
+    private val onBackPressedCallback: OnBackPressedCallback =
+        object : OnBackPressedCallback(true) {
+
+            override fun handleOnBackPressed() {
+                ScreensManager.backPressed.post(Unit)
+            }
+
+            override fun handleOnBackCancelled() {
+                super.handleOnBackCancelled()
+            }
+
+            override fun handleOnBackStarted(backEvent: BackEventCompat) {
+                super.handleOnBackStarted(backEvent)
+            }
+
+            override fun handleOnBackProgressed(backEvent: BackEventCompat) {
+                super.handleOnBackProgressed(backEvent)
+            }
+
+        }
+
     companion object {
         private var oneActivityAlreadyLaunched = false
         var launchActivityClass: Class<out SKActivity>? = null
@@ -83,6 +109,7 @@ abstract class SKActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
         val typedValue = TypedValue()
         theme.resolveAttribute(android.R.attr.windowLightStatusBar, typedValue, true)
         themeWindowLightStatusBar = typedValue.data != 0
@@ -297,14 +324,6 @@ abstract class SKActivity : AppCompatActivity() {
             putExtra(ScreensManager.SK_EXTRA_VIEW_KEY, proxy.key)
         })
     }
-
-
-    //Pas de back par défaut, il faut faire attention avec ça
-    @SuppressLint("MissingSuperCall")
-    override fun onBackPressed() {
-        ScreensManager.backPressed.post(Unit)
-    }
-
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

@@ -47,14 +47,14 @@ interface SKPersistor {
 
     suspend fun putDouble(
         name: String,
-        data: Float,
+        data: Double,
         key: String? = null,
         timestamp: Long = currentTimeMillis()
     )
 
     suspend fun putLong(
         name: String,
-        data: Boolean,
+        data: Long,
         key: String? = null,
         timestamp: Long = currentTimeMillis()
     )
@@ -159,13 +159,13 @@ abstract class CommonSKPersistor : SKPersistor {
     }
 
 
-    override suspend fun putDouble(name: String, data: Float, key: String?, timestamp: Long) {
+    override suspend fun putDouble(name: String, data: Double, key: String?, timestamp: Long) {
         withContext(Dispatchers.Default) {
             _putString(name, data.toString(), key, timestamp)
         }
     }
 
-    override suspend fun putLong(name: String, data: Boolean, key: String?, timestamp: Long) {
+    override suspend fun putLong(name: String, data: Long, key: String?, timestamp: Long) {
         withContext(Dispatchers.Default) {
             _putString(name, data.toString(), key, timestamp)
         }

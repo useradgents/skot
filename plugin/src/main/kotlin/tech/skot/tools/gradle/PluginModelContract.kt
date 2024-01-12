@@ -27,8 +27,6 @@ class PluginModelContract : Plugin<Project> {
 
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
 
-
-
         project.afterEvaluate {
             project.tasks.getByName("preDebugBuild").doFirst {
                 extension.buildFiles?.let {
@@ -52,10 +50,6 @@ class PluginModelContract : Plugin<Project> {
                 }
             }
         }
-
-
-
-
     }
 
 
@@ -63,19 +57,12 @@ class PluginModelContract : Plugin<Project> {
 
         androidBaseConfig(project)
 
-
-
-
-
         sourceSets {
             getByName("main").java.srcDirs("generated/androidMain/kotlin")
             getByName("main").java.srcDirs("src/androidMain/kotlin")
             getByName("main").manifest.srcFile("src/androidMain/AndroidManifest.xml")
             getByName("main").res.srcDir("src/androidMain/res")
         }
-
-
-
     }
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
@@ -88,12 +75,10 @@ class PluginModelContract : Plugin<Project> {
             }
         }
 
-
         sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
         sourceSets["commonMain"].dependencies {
             api("${Versions.group}:modelcontract:${Versions.skot}")
         }
-
 
         skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
             sourceSets["commonMain"].kotlin.srcDir("src/commonMain/kotlin$it")

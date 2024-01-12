@@ -1,0 +1,21 @@
+# CHANGELOG
+- 1.2.29-ua
+  - update gradle
+  - replace deprecated OnBackPressed by onBackPressedDispatcher
+- 1.2.28-ua
+  - fix test
+  - clean code
+- 1.2.27-ua
+  - deeplink redirection after use of kill function
+- 1.2.26-ua
+  - SkWebview callback for httpError
+- 1.2.25-ua
+  - webview file chooser with fix
+- 1.2.24-ua (do not use, fix in 1.2.25-ua)
+    - webview file chooser
+- 1.2.23-ua (do not use, fix in 1.2.25-ua)
+    - webview file chooser
+- 1.2.22-ua 
+    - clean code and dependencies
+- 1.2.21-ua
+    - Snackbar : improve position
