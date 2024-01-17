@@ -102,7 +102,7 @@ class PluginTools : Plugin<Project> {
                                 workingDir = project.rootDir
                                 mainClass.set("com.pinterest.ktlint.Main")
                                 classpath = sourceSet.runtimeClasspath
-                                args = listOf("-F", srcs, "--disabled_rules=parameter-list-wrapping")
+                                args = listOf("-F", srcs)
                                 jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
                             }
                         }
