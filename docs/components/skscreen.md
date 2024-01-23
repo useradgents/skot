@@ -18,5 +18,18 @@ It's as simple as creating a [SKComponent](./readme.md), nothing else needs to b
 
 See [create My First Screen](../start/createscreen.md)
 
+## SKScreenView
+
+View give access to fives * :
+- fullScreen: Boolean ->
+   let drawing in the statusBar
+
+- lightStatusBar: Boolean ->
+    let change text or icon color 
+
+- secured:Boolean = false ->
+- withWindowsInsetsPaddingTop: Boolean ->
+- onWindowInset: ((windowInsets: WindowInsetsCompat) -> Unit) ->
+
 
 

@@ -72,11 +72,11 @@ class SKBottomSheetDialogFragment() : BottomSheetDialogFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        (view?.parent as? View?)?.apply {
-            backgroundTintMode = PorterDuff.Mode.CLEAR
-            backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
-            setBackgroundColor(Color.TRANSPARENT)
-        }
+//        (view?.parent as? View?)?.apply {
+//            backgroundTintMode = PorterDuff.Mode.CLEAR
+//            backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
+//            setBackgroundColor(Color.TRANSPARENT)
+//        }
     }
 
     override fun onCreateView(

@@ -1,5 +1,9 @@
 # Changelog
 
+## Version `1.2.30-ua`
+### fix
+- remove SKBottomSheet default transparent background
+
 ## Version `1.2.29-ua`
 ### chore
   - update gradle
