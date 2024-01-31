@@ -1,5 +1,9 @@
 # Changelog
 
+## Version `1.2.31-ua`
+### feat
+- add drawable-nodpi in Icons file generation
+
 ## Version `1.2.30-ua`
 ### fix
 - remove SKBottomSheet default transparent background
