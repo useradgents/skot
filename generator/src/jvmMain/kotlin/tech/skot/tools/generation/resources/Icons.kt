@@ -17,6 +17,8 @@ fun Generator.generateIcons() {
         rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/drawable")
     val drawableXhdpiDir =
         rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/drawable-xhdpi")
+    val drawableNodpiDir =
+        rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/drawable-nodpi")
 
     fun Path.listRes(): List<String> = if (!Files.exists(this)) {
         emptyList<String>()
@@ -26,19 +28,19 @@ fun Generator.generateIcons() {
     }
 
     val icons: List<String> =
-        drawableDir.listRes() + drawableXhdpiDir.listRes() +
-                if (referenceIconsByVariant) {
-                    variantsCombinaison.flatMap {
-                        rootPath.resolve(modules.view)
-                            .resolve("src/androidMain/res${it}_referenced/drawable-xhdpi")
-                            .listRes() +
-                                rootPath.resolve(modules.view)
-                                    .resolve("src/androidMain/res${it}_referenced/drawable")
-                                    .listRes()
-                    }
-                } else {
-                    emptyList()
-                }
+        drawableDir.listRes() + drawableXhdpiDir.listRes() + drawableNodpiDir.listRes()
+    if (referenceIconsByVariant) {
+        variantsCombinaison.flatMap {
+            rootPath.resolve(modules.view)
+                .resolve("src/androidMain/res${it}_referenced/drawable-xhdpi").listRes() +
+                    rootPath.resolve(modules.view)
+                        .resolve("src/androidMain/res${it}_referenced/drawable").listRes() +
+                    rootPath.resolve(modules.view)
+                        .resolve("src/androidMain/res${it}_referenced/drawable-nodpi").listRes()
+        }
+    } else {
+        emptyList()
+    }
 
 
     fun String.toIconsPropertyName() = decapitalize()
