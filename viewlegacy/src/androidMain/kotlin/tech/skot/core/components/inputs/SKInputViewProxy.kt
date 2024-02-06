@@ -54,9 +54,6 @@ abstract class SKInputViewProxyCommon<V : View>(
         requestFocusMessage.post(Unit)
     }
 
-
-
-
     abstract fun createView(
         activity: SKActivity,
         fragment: Fragment?,

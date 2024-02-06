@@ -7,16 +7,17 @@ import tech.skot.core.components.SKLayoutIsSimpleView
 interface SKInputVC: SKComponentVC {
 
     sealed class Type {
-        object Normal : Type()
-        object Number : Type()
-        object Phone : Type()
-        object Password: Type()
-        object PasswordWithDefaultHintFont: Type()
-        object NumberPassword : Type()
-        object LongText : Type()
-        object EMail: Type()
-        object TextCapSentences: Type()
-        object AllCaps: Type()
+        data object Normal : Type()
+        data object Number : Type()
+        data object Phone : Type()
+        data object Password: Type()
+        data object PasswordWithDefaultHintFont: Type()
+        data object NumberPassword : Type()
+        data object VisiblePassword : Type()
+        data object LongText : Type()
+        data object EMail: Type()
+        data object TextCapSentences: Type()
+        data object AllCaps: Type()
     }
 
     val onInputText: (newText: String?) -> Unit

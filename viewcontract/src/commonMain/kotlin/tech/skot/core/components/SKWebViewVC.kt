@@ -2,6 +2,22 @@ package tech.skot.core.components
 
 import tech.skot.core.SKUri
 
+/**
+ * # Show a WebView in your application.
+ *
+ * ## Sample ViewContract code :
+ * ```
+ * /**
+ *  * In your screenVC or componentVC, declare a SKWebView
+ *  */
+ * private interface MyScreenVC : SKScreenVC {
+ *      val webView: SKWebViewVC
+ * }
+ * ```
+ * @see [tech.skot.core.components.SKWebView][the viewModel]
+ * @see [tech.skot.core.components.SKWebViewView][the view]
+ *
+ */
 @SKLayoutIsSimpleView
 interface SKWebViewVC : SKComponentVC {
     val config: Config

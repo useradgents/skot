@@ -88,6 +88,7 @@ abstract class SKInputViewCommon<V : View>(
                 SKInputVC.Type.TextCapSentences -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
                 SKInputVC.Type.AllCaps -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
                 SKInputVC.Type.Normal -> InputType.TYPE_CLASS_TEXT
+                SKInputVC.Type.VisiblePassword -> InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
             }
             if (type == SKInputVC.Type.PasswordWithDefaultHintFont) {
                 editText.typeface = Typeface.DEFAULT
