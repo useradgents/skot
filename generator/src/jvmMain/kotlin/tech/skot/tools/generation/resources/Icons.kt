@@ -5,6 +5,7 @@ import tech.skot.core.view.Icon
 import tech.skot.tools.generation.*
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.Locale
 import java.util.stream.Collectors
 
 
@@ -28,7 +29,7 @@ fun Generator.generateIcons() {
     }
 
     val icons: List<String> =
-        drawableDir.listRes() + drawableXhdpiDir.listRes() + drawableNodpiDir.listRes()
+        drawableDir.listRes() + drawableXhdpiDir.listRes() + drawableNodpiDir.listRes() +
     if (referenceIconsByVariant) {
         variantsCombinaison.flatMap {
             rootPath.resolve(modules.view)
@@ -43,7 +44,7 @@ fun Generator.generateIcons() {
     }
 
 
-    fun String.toIconsPropertyName() = decapitalize()
+    fun String.toIconsPropertyName() = replaceFirstChar { it.lowercase(Locale.getDefault()) }
 
 
     FileSpec.builder(
