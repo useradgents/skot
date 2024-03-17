@@ -430,6 +430,10 @@ class SKWebViewView(
             activity.fileSelectorCallback.launch(fileChooserParams?.createIntent())
             return true
         }
+
+        override fun getDefaultVideoPoster(): Bitmap? {
+            return Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
+        }
     }
 
 
