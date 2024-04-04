@@ -99,6 +99,7 @@ class PluginTools : Plugin<Project> {
                         val srcs = "**/generated/**/*.kt"
                         try {
                             project.javaexec {
+                                isIgnoreExitValue = true
                                 workingDir = project.rootDir
                                 mainClass.set("com.pinterest.ktlint.Main")
                                 classpath = sourceSet.runtimeClasspath

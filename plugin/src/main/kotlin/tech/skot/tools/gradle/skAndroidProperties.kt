@@ -3,7 +3,6 @@ package tech.skot.tools.gradle
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.TestedExtension
 import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
-import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import tech.skot.Versions
 import java.io.FileInputStream
@@ -29,10 +28,10 @@ fun skReadAndroidProperties(path: Path): SKAndroidProperties? {
 
 class SKAndroidProperties(private val properties: Properties) {
     val minSdk:Int?
-        get() = (properties.get("minSdk") as? String)?.toInt()
+        get() = (properties["minSdk"] as? String)?.toInt()
 
     val leakCanary:Boolean?
-        get() = (properties.get("leakCanary") as? String)?.toBoolean()
+        get() = (properties["leakCanary"] as? String)?.toBoolean()
 }
 
 fun Project.skReadAndroidProperties(): SKAndroidProperties? = skReadAndroidProperties(rootProject.rootDir.toPath())
@@ -51,7 +50,7 @@ fun skReadImportsProperties(path: Path): SKImportsProperties? {
 class SKImportsProperties(private val properties: Properties) {
     val ktor2:Boolean?
         get() {
-            return (properties.get("ktor2") as? String?)?.toBoolean()
+            return (properties["ktor2"] as? String?)?.toBoolean()
         }
 }
 
