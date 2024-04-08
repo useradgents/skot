@@ -4,6 +4,7 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import kotlinx.serialization.Serializable
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
+import java.util.Locale
 
 @ExperimentalStdlibApi
 fun Generator.generateStates(rootState: StateDef) {
@@ -219,7 +220,7 @@ fun Generator.generateStates(rootState: StateDef) {
             bmS.forEach {
                 addProperty(
                     PropertySpec.builder(
-                        it.simpleName.decapitalize(),
+                        it.simpleName.replaceFirstChar { it.lowercase(Locale.getDefault()) },
                         it
                     ).initializer(
                         (listOf("key") + (parentsList.map {
@@ -289,8 +290,8 @@ fun Generator.generateStates(rootState: StateDef) {
                         }
                     )
                     .returns(it.modelClassName.nullable())
-                    .beginControlFlow("return if (${it.propertiesComposingComposite!!.map { "${it.name.decapitalizeAsciiOnly() } != null" }.joinToString(" && ")})")
-                    .addStatement("${it.name}(this, ${it.propertiesComposingComposite!!.map { it.name.decapitalizeAsciiOnly() }.joinToString()})")
+                    .beginControlFlow("return if (${it.propertiesComposingComposite.map { "${it.name.decapitalizeAsciiOnly() } != null" }.joinToString(" && ")})")
+                    .addStatement("${it.name}(this, ${it.propertiesComposingComposite.map { it.name.decapitalizeAsciiOnly() }.joinToString()})")
                     .endControlFlow()
                     .beginControlFlow("else")
                     .addStatement("null")
@@ -299,7 +300,7 @@ fun Generator.generateStates(rootState: StateDef) {
 
 
                 addFunction(FunSpec.builder("update${it.name}")
-                    .addStatement("${it.nameAsProperty.suffix("SKData")}.value = compute${it.nameAsProperty}(${it.propertiesComposingComposite!!.map { it.nameAsProperty }.joinToString()})")
+                    .addStatement("${it.nameAsProperty.suffix("SKData")}.value = compute${it.nameAsProperty}(${it.propertiesComposingComposite.map { it.nameAsProperty }.joinToString()})")
                     .build())
                 
                 addProperty(
@@ -388,11 +389,11 @@ fun Generator.generateStates(rootState: StateDef) {
             .addProperty(
                 PropertySpec.builder(keyName, String::class)
                     .addModifiers(KModifier.CONST)
-                    .initializer("\"${rootStatePropertyName!!.uppercase()}\"")
+                    .initializer("\"${rootStatePropertyName.uppercase()}\"")
                     .build()
             )
             .addProperty(
-                PropertySpec.builder(rootStatePropertyName!!, rootState.modelClassName)
+                PropertySpec.builder(rootStatePropertyName, rootState.modelClassName)
                     .addModifiers(KModifier.LATEINIT)
                     .mutable()
                     .build()

@@ -42,7 +42,7 @@ fun Generator.generateColors() {
             colors.map {
                 PropertySpec.builder(
                     it.toColorsPropertyName(),
-                    tech.skot.core.view.ColorRef::class
+                    ColorRef::class
                 )
                     .build()
             }
@@ -62,9 +62,11 @@ fun Generator.generateColors() {
     val funGetSpec = FunSpec.builder("get")
         .addParameter("key", String::class)
         .returns(ColorRef::class.asTypeName().copy(nullable = true))
-        .addAnnotation(AnnotationSpec.builder(ClassName("android.annotation","SuppressLint"))
-            .addMember("value = [%S]","DiscouragedApi")
-            .build())
+        .addAnnotation(
+            AnnotationSpec.builder(ClassName("android.annotation", "SuppressLint"))
+                .addMember("value = [%S]", "DiscouragedApi")
+                .build()
+        )
         .addStatement("val id = applicationContext.resources.getIdentifier(key,\"color\",applicationContext.packageName)")
         .beginControlFlow("return if(id > 0)")
         .addStatement("ColorRef(id)")
@@ -91,7 +93,7 @@ fun Generator.generateColors() {
             colors.map {
                 PropertySpec.builder(
                     it.toColorsPropertyName(),
-                    tech.skot.core.view.ColorRef::class,
+                    ColorRef::class,
                     KModifier.OVERRIDE,
                 )
                     .initializer("ColorRef(R.color.${it.toAndroidResourcePropertyName()})")
@@ -118,7 +120,7 @@ fun Generator.generateColors() {
             colors.map {
                 PropertySpec.builder(
                     it.toColorsPropertyName(),
-                    tech.skot.core.view.ColorRef::class,
+                    ColorRef::class,
                     KModifier.OVERRIDE
                 )
                     .initializer("ColorRef(R.color.${it.toAndroidResourcePropertyName()})")
@@ -136,7 +138,7 @@ fun Generator.generateColors() {
             colors.map {
                 PropertySpec.builder(
                     it.toColorsPropertyName(),
-                    tech.skot.core.view.ColorRef::class,
+                    ColorRef::class,
                     KModifier.OVERRIDE
                 )
                     .initializer("ColorRef(\"${it.toColorsPropertyName()}\".hashCode())")

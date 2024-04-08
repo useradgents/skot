@@ -3,6 +3,7 @@ package tech.skot.tools.generation.viewlegacy
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import tech.skot.tools.generation.*
+import java.util.Locale
 
 const val TODO_GENERATED_BUT_NOT_IMPLEMENTED = "TODO(\"generated but still not implemented\")"
 
@@ -60,7 +61,7 @@ fun ComponentDef.buildViewImpl(viewModuleAndroidPackage:String) =
 fun PropertyDef.generatedBodyForProperty():String? {
     return when(type.simpleName())  {
        "String" -> {
-            "binding.tv${name.capitalize()}.text = $name"
+            "binding.tv${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}.text = $name"
         }
         "Function0" -> {
             "binding.btn${name.substringAfter("onTap")}.setOnClick($name)"

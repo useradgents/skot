@@ -14,6 +14,7 @@ import tech.skot.tools.generation.viewlegacy.*
 import tech.skot.tools.generation.viewmodel.*
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.Locale
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
@@ -168,7 +169,8 @@ class Generator(
     val skBuild = ClassName(appPackage, "SKBuild")
     val generatedAppModules = ClassName("$appPackage.di", "generatedAppModules")
     val appFeatureInitializer =
-        ClassName(appPackage, "${appPackage.substringAfterLast(".").capitalize()}Initializer")
+        ClassName(appPackage, "${appPackage.substringAfterLast(".")
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}Initializer")
     val viewModelModuleMock = ClassName("$appPackage.di", "moduleMock")
 
     val statePersistenceManager = ClassName("$appPackage.states", "statePersistenceManager")
@@ -414,7 +416,7 @@ class Generator(
         modelInjectorInterface.fileInterfaceBuilder {
             addFunctions(
                 componentsWithModel.map {
-                    FunSpec.builder(it.name.decapitalize())
+                    FunSpec.builder(it.name.replaceFirstChar { it.lowercase(Locale.getDefault()) })
                         .addParameter(
                             ParameterSpec.builder(
                                 "coroutineContext",

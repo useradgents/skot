@@ -1,3 +1,5 @@
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING", "UNCHECKED_CAST")
+
 package tech.skot.core.di
 
 import kotlin.reflect.KClass
@@ -37,7 +39,7 @@ abstract class Injector<C:Any>(modules: List<Module<in C>>) {
                 if (singleInstances.containsKey(type)) {
                     singleInstances[type] as D
                 } else {
-                    (singles[type]?.factory?.invoke(context) as D)?.apply {
+                    (singles[type]?.factory?.invoke(context) as D).apply {
                         singleInstances[type] = this
                     }
                 }

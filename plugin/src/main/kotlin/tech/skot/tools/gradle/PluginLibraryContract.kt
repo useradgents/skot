@@ -7,6 +7,7 @@ import org.gradle.kotlin.dsl.get
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
 
+@Suppress("UNUSED_PARAMETER")
 class PluginLibraryContract : Plugin<Project> {
 
     override fun apply(project: Project) {

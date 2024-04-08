@@ -10,7 +10,6 @@ import tech.skot.core.components.SKLegacyViewIncluded
 import tech.skot.tools.generation.*
 import tech.skot.tools.generation.AndroidClassNames.layoutInflater
 import tech.skot.tools.generation.AndroidClassNames.viewGroup
-import tech.skot.tools.generation.viewmodel.InitializationPlan
 import kotlin.io.path.exists
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -218,6 +217,14 @@ fun ComponentDef.buildProxy(
                 addFunction(
                     FunSpec.builder("getActivityClass")
                         .addModifiers(KModifier.OVERRIDE)
+                        .returns(
+                            ClassName("java.lang", "Class")
+                                .parameterizedBy(
+                                    WildcardTypeName.producerOf(
+                                        Any::class.asTypeName().nullable(),
+                                    ),
+                                ),
+                        )
                         .addCode(
                             activityClass?.let { "return $it::class.java" }
                                 ?: generator.baseActivityVar?.let { "return $it" }

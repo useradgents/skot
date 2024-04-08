@@ -89,6 +89,7 @@ private fun Project.skSaveUploadedInfos() {
     replaceWith = ReplaceWith("skVersionsTasks(nbMaxCommitsInReleaseNote)"),
     level = DeprecationLevel.ERROR
 )
+@Suppress("UNUSED_PARAMETER")
 fun Project.skVersionsTasks(branchEnvVariable:String, defaultBranch:String, nbMaxCommitsInReleaseNote:Int) {
     skVersionsTasks(nbMaxCommitsInReleaseNote)
 }

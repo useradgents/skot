@@ -1,6 +1,25 @@
 # Changelog
+## Version `1.2.36-ua`
+### chore
+- update kotlin
+- update gradle
+- update libraries
 
-## Version `1.2.31-ua`
+## Version `1.2.35-ua` (`fix 1.2.31-ua`)
+### fix
+- #### KTLint
+  - ignore Ktlint exit value durintg SkGenerate
+
+## Version `1.2.34-ua` (`fix 1.2.31-ua`)
+### fix
+- #### SkWebView
+  - webview crash on some device
+
+## Version `1.2.33-ua` (`fix 1.2.31-ua`)
+### fix
+- publish variant icons 
+
+## Version `1.2.32-ua`
 ### feat
 - #### SKInput
   - add SKInputVC.Type.VisiblePassword for SkInput

@@ -10,38 +10,23 @@ import kotlin.reflect.full.createInstance
 fun buildGenerator(args: Array<String>):Generator {
     val appPackage = args[0]
 
-    val startClassFullName = args[1]?.let {
+    val startClassFullName = args[1].let {
         if (it.startsWith(".")) {
             "$appPackage$it"
-        }
-        else {
+        } else {
             it
         }
     }
     val startClass = Class.forName(startClassFullName).kotlin
-//    startClass.createInstance().
-
-
-//    val compTester = Class.forName("com.sezane.tracking.TrackerFB").kotlin.createInstance() as ComponentInitializer
-//    println(compTester.test())
 
     val rootStateClassFullName = args[2].let {
-        if (it != "null") {
-            if (it.startsWith(".")) {
-                "$appPackage$it"
-            }
-            else {
-                it
-            }
+        when {
+            it == "null" -> null
+            it.startsWith(".") ->  "$appPackage$it"
+            else -> it
         }
-        else {
-            null
-        }
-
     }
     val rootStateClass = rootStateClassFullName?.let { Class.forName(it).kotlin }
-
-
 
     val strBaseActivity = args[3]
 
@@ -58,9 +43,7 @@ fun buildGenerator(args: Array<String>):Generator {
 
     println("########   ${baseActivity.simpleName} ${baseActivity.packageName}")
 
-    if (!startClass.isScreenVC()) {
-        throw IllegalArgumentException("Start class ${args[0]} is not a ScreenVC !")
-    }
+    require(startClass.isScreenVC()) { "Start class ${args[0]} is not a ScreenVC !" }
 
     val rootPath = Paths.get(args[4])
     println("########   rootPath $rootPath")

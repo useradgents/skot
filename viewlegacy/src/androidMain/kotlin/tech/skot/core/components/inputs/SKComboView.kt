@@ -1,3 +1,4 @@
+
 package tech.skot.core.components.inputs
 
 import android.text.InputType
@@ -47,17 +48,18 @@ abstract class SKCommonComboView<Binding : Any>(
     protected val autoComplete: AutoCompleteTextView,
     private val choiceItemLayoutID: Int
 ) : SKComponentView<Binding>(proxy, activity, fragment, binding) {
-
     private var _adapter: BaseAdapter? = null
     protected var _choices: List<SKComboVC.Choice> = emptyList()
 
     init {
-
-
         autoComplete.apply {
 
             object : BaseAdapter(), Filterable {
-                override fun getView(position: Int, p1: View?, viewGroup: ViewGroup?): View {
+                override fun getView(
+                    position: Int,
+                    p1: View?,
+                    viewGroup: ViewGroup?
+                ): View {
                     val tv = p1 ?: LayoutInflater.from(context)
                         .inflate(choiceItemLayoutID, viewGroup, false)
                     val choice = _choices[position]
@@ -68,7 +70,6 @@ abstract class SKCommonComboView<Binding : Any>(
                         choice.textColor?.toColor(context)?.let {
                             textView.setTextColor(it)
                         }
-
                     }
                     return tv
                 }
@@ -102,15 +103,12 @@ abstract class SKCommonComboView<Binding : Any>(
         }
     }
 
-
     fun onHint(hint: String?) {
         if (proxy.oldSchoolModeHint) {
             autoComplete.hint = hint
         } else {
             inputLayout.hint = hint
         }
-
-
     }
 
     fun onError(error: String?) {
@@ -121,27 +119,20 @@ abstract class SKCommonComboView<Binding : Any>(
 
     fun onOnSelected(onSelected: ((data: Any?) -> Unit)?) {
         if (onSelected != null) {
-//            autoComplete.setOnDismissListener {
-//                SKLog.d("---- dans OnDismissListener $lockSelectedReaction")
-//            }
-
-            autoComplete.setOnItemClickListener { parent, view, position, id ->
+            autoComplete.setOnItemClickListener { _, view, position, id ->
                 _choices.getOrNull(position)?.let {
                     onSelected(it.data)
                 }
-
             }
         } else {
             autoComplete.setOnClickListener(null)
         }
-
     }
 
     fun onChoices(choices: List<SKComboVC.Choice>) {
         _choices = choices
         _adapter?.notifyDataSetChanged()
     }
-
 
     open fun onSelect(selected: SKComboVC.Choice?) {
         lockSelectedReaction = true
@@ -161,16 +152,15 @@ abstract class SKCommonComboView<Binding : Any>(
         hidden?.let { inputLayout.setVisible(!it) }
     }
 
-
     fun onDropDownDisplayed(state: Boolean) {
         autoComplete.post {
-            if (state) {
-                autoComplete.showDropDown()
-            } else {
-                autoComplete.dismissDropDown()
+            if (autoComplete.isAttachedToWindow) {
+                if (state) {
+                    autoComplete.showDropDown()
+                } else {
+                    autoComplete.dismissDropDown()
+                }
             }
         }
-
     }
-
 }

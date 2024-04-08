@@ -26,7 +26,7 @@ class SKPagerView(
             override fun getItemCount() = screens.size
 
             override fun createFragment(position: Int): Fragment {
-                return (screens[position] as SKScreenViewProxy<*>).createFragment(canSetFullScreen = false)
+                return (screens[position]).createFragment(canSetFullScreen = false)
             }
 
         }

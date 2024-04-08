@@ -2,6 +2,7 @@ package tech.skot.tools.generation.viewlegacy
 
 import com.squareup.kotlinpoet.*
 import tech.skot.tools.generation.*
+import java.util.Locale
 
 fun Generator.generateViewLegacyInjectorImpl(module: String) {
 
@@ -26,7 +27,7 @@ fun Generator.generateViewLegacyInjectorImpl(module: String) {
 }
 
 fun ComponentDef.asViewLegacyInjection(generator: Generator) =
-        FunSpec.builder(name.decapitalize())
+        FunSpec.builder(name.replaceFirstChar { it.lowercase(Locale.getDefault()) })
                 .addModifiers(KModifier.OVERRIDE)
                 .apply {
                     if (isScreen) {

@@ -20,7 +20,7 @@ fun skReadVariants(path: Path): SKVariants {
         val properties = Properties()
         properties.load(FileInputStream(propertiesPath.toFile()))
         SKVariants(
-            variants = properties.getProperty("variants").split(",").filter { it.isNotBlank() } ?: emptyList(),
+            variants = properties.getProperty("variants").split(",").filter { it.isNotBlank() },
             env = properties.getProperty("environment").let { if (it.isBlank()) null else it }
         )
     } else {

@@ -14,7 +14,7 @@ open class SKPluginModelContractExtension {
     var buildFiles: List<Any>? = null
 }
 
-@Suppress("UnstableApiUsage")
+@Suppress("UnstableApiUsage","UNUSED_PARAMETER")
 class PluginModelContract : Plugin<Project> {
 
     override fun apply(project: Project) {

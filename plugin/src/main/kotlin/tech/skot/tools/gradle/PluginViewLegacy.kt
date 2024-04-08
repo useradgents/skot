@@ -8,15 +8,13 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
 import tech.skot.tools.gradle.SKLibrary.Companion.addDependenciesToViewLegacy
 
-//open class SKPluginViewLegacyExtension {
-//}
 
+
+@Suppress("UNUSED_PARAMETER")
 class PluginViewLegacy: Plugin<Project> {
 
     override fun apply(project: Project) {
-//        val extension = project.extensions.create<SKPluginViewLegacyExtension>("skot")
         project.plugins.apply("com.android.library")
-//        project.plugins.apply("com.github.ben-manes.versions")
 
         project.extensions.findByType(LibraryExtension::class)?.android(project)
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)

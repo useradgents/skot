@@ -44,7 +44,8 @@ fun Generator.generateStrings() {
     FileSpec.builder(
         stringsInterface.packageName,
         stringsInterface.simpleName
-    ).addType(TypeSpec.interfaceBuilder(stringsInterface.simpleName)
+    )
+        .addType(TypeSpec.interfaceBuilder(stringsInterface.simpleName)
         .addProperties(
             strings.map {
                 PropertySpec.builder(it.toStringsPropertyName(), String::class)
@@ -62,18 +63,6 @@ fun Generator.generateStrings() {
         .build()
         .writeTo(generatedCommonSources(modules.modelcontract))
 
-//    val funGetSpec = FunSpec.builder("get")
-//        .addParameter("key", String::class)
-//        .returns(String::class.asTypeName().copy(nullable = true))
-//        .addStatement("val id = applicationContext.resources.getIdentifier(key,\"string\",applicationContext.packageName)")
-//        .beginControlFlow("return if(id > 0)")
-//        .addStatement("get(id)")
-//        .endControlFlow()
-//        .beginControlFlow("else")
-//        .addStatement("null")
-//        .endControlFlow()
-//        .addModifiers(KModifier.OVERRIDE)
-//        .build()
 
     fun TypeSpec.Builder.stringsImplTypeSpecBuilder(override: Boolean) {
         if (override) {
@@ -99,6 +88,11 @@ fun Generator.generateStrings() {
         addFunction(
             FunSpec.builder("get")
                 .addParameter("key", String::class)
+                .addAnnotation(
+                    AnnotationSpec.builder(ClassName("android.annotation", "SuppressLint"))
+                        .addMember("value = [%S]", "DiscouragedApi")
+                        .build()
+                )
                 .returns(String::class.asTypeName().copy(nullable = true))
                 .addStatement("val id = applicationContext.resources.getIdentifier(key,\"string\",applicationContext.packageName)")
                 .beginControlFlow("return if(id > 0)")
@@ -145,6 +139,7 @@ fun Generator.generateStrings() {
     println("generate Strings jvm mock .........")
     stringsMock.fileClassBuilder() {
         addSuperinterface(stringsInterface)
+
         addProperties(
             pairsStringsPatterns.map {
                 PropertySpec.builder(
