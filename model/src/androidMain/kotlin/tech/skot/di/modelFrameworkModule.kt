@@ -5,25 +5,27 @@ import tech.skot.core.di.BaseInjector
 import tech.skot.core.di.module
 import tech.skot.model.*
 
-actual val modelFrameworkModule = module<BaseInjector> {
+actual val modelFrameworkModule =
+    module<BaseInjector> {
 
-    single {
-        androidApplication as Context
+        single<Context> {
+            androidApplication
+        }
+
+        factory<PersistorFactory> {
+            object : PersistorFactory {
+                override fun getPersistor(
+                    dbFileName: String,
+                    cache: Boolean,
+                ): SKPersistor = AndroidSKPersistor(androidApplication, dbFileName, cache)
+            }
+        }
+
+        factory<Prefs> {
+            AndroidPrefs(androidApplication)
+        }
+
+        factory<Device> {
+            AndroidDevice()
+        }
     }
-
-    factory {
-        object : PersistorFactory {
-            override fun getPersistor(dbFileName: String, cache: Boolean): SKPersistor =
-                AndroidSKPersistor(androidApplication, dbFileName, cache)
-
-        } as PersistorFactory
-    }
-
-    factory {
-        AndroidPrefs(androidApplication) as Prefs
-    }
-
-    factory {
-        AndroidDevice() as Device
-    }
-}

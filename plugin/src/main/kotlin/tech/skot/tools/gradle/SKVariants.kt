@@ -2,20 +2,19 @@ package tech.skot.tools.gradle
 
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSetContainer
-import java.io.File
 import java.io.FileInputStream
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.*
 import kotlin.io.path.name
 
 data class SKVariants(val variants: List<String>, val env: String?) {
-    fun toList(): List<String> = if (env != null) {
-        variants + env
-    } else {
-        variants
-    }
+    fun toList(): List<String> =
+        if (env != null) {
+            variants + env
+        } else {
+            variants
+        }
 }
 
 const val SKOT_VARIANT_PROPERIES_FILE_NAME = "skot_variants.properties"
@@ -27,15 +26,14 @@ fun skReadVariants(path: Path): SKVariants {
         properties.load(FileInputStream(propertiesPath.toFile()))
         SKVariants(
             variants = properties.getProperty("variants").split(","),
-            env = properties.getProperty("environment")
+            env = properties.getProperty("environment"),
         )
     } else {
         SKVariants(
             variants = emptyList(),
-            env = null
+            env = null,
         )
     }
-
 }
 
 fun List<String>.combinaisons(): List<String> {
@@ -53,7 +51,6 @@ fun List<String>.combinaisons(): List<String> {
         }
     }
 }
-
 
 fun skVariantsCombinaison(path: Path) =
     skReadVariants(path)
@@ -79,17 +76,24 @@ fun Project.skBuildSrcVariants(sourceSets: SourceSetContainer) {
     }
 }
 
-fun Project.skSwitchTask(name:String, environment:String, vararg variant:String) {
+fun Project.skSwitchTask(
+    name: String,
+    environment: String,
+    vararg variant: String,
+) {
     task(name) {
         doFirst {
             println("Switch to Variant environment=$environment  variants=${variant.joinToString(" ")} ")
             val rootPath = rootProject.rootDir.toPath()
             val builSrcRep = rootPath.resolve("buildSrc/build")
             val propertiesPath = rootPath.resolve(SKOT_VARIANT_PROPERIES_FILE_NAME)
-            Files.write(propertiesPath, listOf(
-                "variants=${variant.joinToString(",")}",
-                "environment=$environment"
-            ))
+            Files.write(
+                propertiesPath,
+                listOf(
+                    "variants=${variant.joinToString(",")}",
+                    "environment=$environment",
+                ),
+            )
             if (Files.exists(builSrcRep)) {
                 println("Will delete buildSrc/build directory")
                 builSrcRep.toFile().deleteRecursively()

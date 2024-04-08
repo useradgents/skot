@@ -3,9 +3,8 @@
 package tech.skot.core
 
 import kotlinx.datetime.*
+
 actual class SKDateFormat actual constructor(pattern: String) {
-
-
     actual fun format(instant: Instant): String {
         TODO()
     }

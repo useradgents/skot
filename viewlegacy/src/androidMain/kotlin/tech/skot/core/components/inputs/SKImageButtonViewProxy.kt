@@ -1,6 +1,5 @@
 package tech.skot.core.components.inputs
 
-
 import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import tech.skot.core.components.SKActivity
@@ -14,9 +13,8 @@ class SKImageButtonViewProxy(
     iconInitial: Icon,
     enabledInitial: Boolean? = true,
     hiddenInitial: Boolean? = false,
-    override val debounce: Long? = 500
+    override val debounce: Long? = 500,
 ) : SKComponentViewProxy<ImageButton>(), SKImageButtonVC {
-
     companion object {
         var LAYOUT_ID: Int? = null
     }
@@ -39,7 +37,7 @@ class SKImageButtonViewProxy(
     override fun bindTo(
         activity: SKActivity,
         fragment: Fragment?,
-        binding: ImageButton
+        binding: ImageButton,
     ) = SKImageButtonView(this, activity, fragment, binding).apply {
         onTapLD.observe {
             onOnTap(it)
@@ -54,5 +52,4 @@ class SKImageButtonViewProxy(
             onHidden(it)
         }
     }
-
 }

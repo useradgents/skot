@@ -1,4 +1,5 @@
-@file:Suppress("UnstableApiUsage")
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+
 
 plugins {
     kotlin("multiplatform")
@@ -10,23 +11,20 @@ plugins {
 group = Versions.group
 version = Versions.version
 
-
-
 kotlin {
+    jvmToolchain(17)
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    compilerOptions {
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+    }
     iosX64()
     iosArm64()
     iosSimulatorArm64()
 
     jvm()
 
-
     androidTarget {
         publishLibraryVariants("release")
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
-        }
     }
 
     sourceSets {
@@ -38,7 +36,6 @@ kotlin {
             }
         }
     }
-
 }
 
 dependencies {
@@ -53,13 +50,8 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     namespace = "tech.skot.viewmodel"
 
-
-
-
     sourceSets {
         getByName("main").manifest.srcFile("src/androidMain/AndroidManifest.xml")
         getByName("test").java.srcDirs("src/javaTest/kotlin")
     }
-
 }
-

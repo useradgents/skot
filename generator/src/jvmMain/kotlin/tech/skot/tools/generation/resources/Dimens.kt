@@ -13,11 +13,9 @@ import java.nio.file.Files
 import java.util.stream.Collectors
 
 fun Generator.generateDimens() {
-
     println("dimens .........")
     println("generate Dimens interface .........")
     val values = rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/values")
-
 
     val dimens =
         if (!Files.exists(values)) {
@@ -29,7 +27,6 @@ fun Generator.generateDimens() {
             }.collect(Collectors.toList())
         }
 
-
     fun String.toDimenPropertyName() = decapitalizeAsciiOnly().replace('.', '_')
 
     val dimensAndroidRes: MutableList<PropertySpec> = mutableListOf()
@@ -40,40 +37,38 @@ fun Generator.generateDimens() {
             PropertySpec.builder(
                 it.toDimenPropertyName(),
                 tech.skot.core.view.DimenRef::class,
-                KModifier.OVERRIDE
+                KModifier.OVERRIDE,
             )
                 .initializer("DimenRef(R.dimen.${it.toAndroidResourcePropertyName()})")
-                .build()
+                .build(),
         )
         dimensJVmMock.add(
             PropertySpec.builder(
                 it.toDimenPropertyName(),
                 tech.skot.core.view.DimenRef::class,
-                KModifier.OVERRIDE
+                KModifier.OVERRIDE,
             )
                 .initializer("DimenRef(\"${it.toDimenPropertyName()}\".hashCode())")
-                .build()
+                .build(),
         )
         dimensInt.add(
             PropertySpec.builder(it.toDimenPropertyName(), tech.skot.core.view.DimenRef::class)
-                .build()
+                .build(),
         )
-
     }
 
     FileSpec.builder(
         dimensInterface.packageName,
-        dimensInterface.simpleName
+        dimensInterface.simpleName,
     ).addType(
         TypeSpec.interfaceBuilder(dimensInterface.simpleName)
             .addProperties(dimensInt)
-            .build()
+            .build(),
     )
         .build()
         .writeTo(generatedCommonSources(modules.viewcontract))
 
     println("generate Dimens android implementation .........")
-
 
     dimensImpl.fileClassBuilder(listOf(viewR)) {
         addSuperinterface(dimensInterface)
@@ -87,10 +82,8 @@ fun Generator.generateDimens() {
     }.writeTo(generatedAndroidTestSources(modules.view))
 
     println("generate Dimens jvm mock .........")
-    dimensMock.fileClassBuilder() {
+    dimensMock.fileClassBuilder {
         addSuperinterface(dimensInterface)
         addProperties(dimensJVmMock)
     }.writeTo(generatedJvmTestSources(feature ?: modules.viewmodel))
-
-
 }

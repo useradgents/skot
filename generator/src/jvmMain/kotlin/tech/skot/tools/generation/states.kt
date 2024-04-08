@@ -8,18 +8,15 @@ import java.util.Locale
 
 @ExperimentalStdlibApi
 fun Generator.generateStates(rootState: StateDef) {
-
     fun StateDef.generate() {
         contractClassName.fileInterfaceBuilder {
-
-
             parentsList.forEach {
                 addProperty(
                     PropertySpec.builder(
                         it.name.decapitalizeAsciiOnly(),
-                        it.contractClassName
+                        it.contractClassName,
                     )
-                        .build()
+                        .build(),
                 )
             }
 
@@ -27,29 +24,27 @@ fun Generator.generateStates(rootState: StateDef) {
                 addProperty(
                     PropertySpec.builder(
                         it.nameAsProperty,
-                        it.contractClassName.nullable()
+                        it.contractClassName.nullable(),
                     )
-                        .build()
+                        .build(),
                 )
                 addProperty(
                     PropertySpec.builder(
                         it.nameAsProperty.suffix("SKData"),
-                        FrameworkClassNames.skData.parameterizedBy(WildcardTypeName.producerOf(it.contractClassName.nullable()))
+                        FrameworkClassNames.skData.parameterizedBy(WildcardTypeName.producerOf(it.contractClassName.nullable())),
                     )
-                        .build()
+                        .build(),
                 )
             }
             compositeParts.forEach {
                 addProperty(
                     PropertySpec.builder(
                         it.name.decapitalizeAsciiOnly(),
-                        it.contract
-                    ).build()
+                        it.contract,
+                    ).build(),
                 )
             }
-
         }.writeTo(generatedCommonSources(modules.modelcontract))
-
 
         if (!isCompositeState) {
             infosClassName.fileClassBuilder {
@@ -58,106 +53,104 @@ fun Generator.generateStates(rootState: StateDef) {
                 addAnnotation(Serializable::class)
                 addPrimaryConstructorWithParams(
                     properties.map {
-                        ParamInfos(it.name, it.typeName, default = it.default )
+                        ParamInfos(it.name, it.typeName, default = it.default)
                     } +
-                            subStates.map {
-                                ParamInfos(
-                                    it.nameAsProperty,
-                                    it.infosClassName.nullable(),
-                                    default = "null"
-                                )
-                            }
+                        subStates.map {
+                            ParamInfos(
+                                it.nameAsProperty,
+                                it.infosClassName.nullable(),
+                                default = "null",
+                            )
+                        },
                 )
             }.writeTo(generatedCommonSources(modules.modelcontract))
         }
 
-
         modelClassName.fileClassBuilder(
-            imports = if (compositeSubStates.isNotEmpty()) {
-                listOf(
-                    FrameworkClassNames.mapSKData,
-                    FrameworkClassNames.combineSKData,
-                    FrameworkClassNames.skData
-                )
-            } else {
-                emptyList()
-            } + bmS.map { it.withSuffix("Impl") }
+            imports =
+                if (compositeSubStates.isNotEmpty()) {
+                    listOf(
+                        FrameworkClassNames.mapSKData,
+                        FrameworkClassNames.combineSKData,
+                        FrameworkClassNames.skData,
+                    )
+                } else {
+                    emptyList()
+                } + bmS.map { it.withSuffix("Impl") },
         ) {
             addSuperinterface(contractClassName)
             addSuperinterface(kclass)
-
 
             if (isCompositeState) {
                 addPrimaryConstructorWithParams(
                     parentsList.map {
                         ParamInfos(it.name.decapitalizeAsciiOnly(), it.modelClassName, modifiers = listOf(KModifier.OVERRIDE))
-                    } + compositeParts.map {
-                        ParamInfos(it.name.decapitalizeAsciiOnly(), it.model, modifiers = listOf(KModifier.OVERRIDE))
-                    }
+                    } +
+                        compositeParts.map {
+                            ParamInfos(it.name.decapitalizeAsciiOnly(), it.model, modifiers = listOf(KModifier.OVERRIDE))
+                        },
                 )
                 compositeParts.forEach {
                     addSuperinterface(
                         it.kClass,
-                        delegate = CodeBlock.of(it.name.decapitalizeAsciiOnly())
+                        delegate = CodeBlock.of(it.name.decapitalizeAsciiOnly()),
                     )
                 }
 
-                //parent key (sauf root qui n'en a ps
+                // parent key (sauf root qui n'en a ps
                 val parentKey = parentsList.drop(1).lastOrNull()?.let { it.name.decapitalizeAsciiOnly() }
                 val thisInfosKey = compositeParts.map { it.name.decapitalizeAsciiOnly() }
                 addProperty(
                     PropertySpec.builder("key", String::class)
                         .initializer(
                             CodeBlock.of(
-                                (listOfNotNull(parentKey) + thisInfosKey).map { "\${$it.key}" }
-                                    .joinToString(separator = "_", prefix = "\"", postfix = "\"")
-                            )
+                                (listOfNotNull(parentKey) + thisInfosKey).joinToString(
+                                    separator = "_",
+                                    prefix = "\"",
+                                    postfix = "\""
+                                ) { "\${$it.key}" },
+                            ),
                         )
-                        .build()
-
+                        .build(),
                 )
-
-
             } else {
                 addPrimaryConstructorWithParams(
                     parentsList.map {
                         ParamInfos(it.name.decapitalizeAsciiOnly(), it.modelClassName, modifiers = listOf(KModifier.OVERRIDE))
-                    } + ParamInfos("infos", this@generate.infosClassName, isVal = false)
+                    } + ParamInfos("infos", this@generate.infosClassName, isVal = false),
                 )
-
 
                 val keyProperties = properties.filter { !it.mutable }
                 if (keyProperties.isNotEmpty()) {
-                    val keyInitializer = if (keyProperties.size == 1 && parentsList.size == 1) {
-                        val uniqueProp = keyProperties.first()
-                        "infos.${uniqueProp.name}${if (uniqueProp.typeName.simpleName() != "String") ".toString()" else ""}"
-                    } else {
-                        (listOfNotNull(
-                            parentsList.drop(1).lastOrNull()
-                                ?.let { "${it.name.decapitalizeAsciiOnly()}.key" }) +
-                                keyProperties.map { "infos.${it.name}" }
-                                ).map {
-                                "\${$it}"
-                            }.joinToString(separator = "_", prefix = "\"", postfix = "\"")
-                    }
+                    val keyInitializer =
+                        if (keyProperties.size == 1 && parentsList.size == 1) {
+                            val uniqueProp = keyProperties.first()
+                            "infos.${uniqueProp.name}${if (uniqueProp.typeName.simpleName() != "String") ".toString()" else ""}"
+                        } else {
+                            (
+                                    listOfNotNull(
+                                        parentsList.drop(1).lastOrNull()
+                                            ?.let { "${it.name.decapitalizeAsciiOnly()}.key" },
+                                    ) +
+                                            keyProperties.map { "infos.${it.name}" }
+                                    ).joinToString(separator = "_", prefix = "\"", postfix = "\"") {
+                                    "\${$it}"
+                                }
+                        }
                     addProperty(
                         PropertySpec.builder("key", String::class)
                             .initializer(CodeBlock.of(keyInitializer))
-                            .build()
+                            .build(),
                     )
-                }
-                else {
-                    //on est dans le root state
+                } else {
+                    // on est dans le root state
                     addProperty(
                         PropertySpec.builder("key", String::class.asTypeName().nullable())
                             .initializer(CodeBlock.of("null"))
-                            .build()
+                            .build(),
                     )
                 }
-
             }
-
-
 
             if (!isCompositeState) {
                 properties.forEach {
@@ -165,18 +158,18 @@ fun Generator.generateStates(rootState: StateDef) {
                         addProperty(
                             PropertySpec.builder(
                                 "${it.name}SKData",
-                                FrameworkClassNames.skManualData.parameterizedBy(it.typeName)
+                                FrameworkClassNames.skManualData.parameterizedBy(it.typeName),
                             )
                                 .initializer(
-                                    CodeBlock.of("${FrameworkClassNames.skManualData.simpleName}(infos.${it.name})")
+                                    CodeBlock.of("${FrameworkClassNames.skManualData.simpleName}(infos.${it.name})"),
                                 )
-                                .build()
+                                .build(),
                         )
                     }
                     addProperty(
                         PropertySpec.builder(
                             it.name,
-                            it.typeName
+                            it.typeName,
                         ).mutable(it.mutable)
                             .apply {
                                 if (it.mutable) {
@@ -184,23 +177,22 @@ fun Generator.generateStates(rootState: StateDef) {
                                         getter(
                                             FunSpec.getterBuilder()
                                                 .addStatement("return ${it.name}SKData.value")
-                                                .build()
+                                                .build(),
                                         )
                                         setter(
                                             FunSpec.setterBuilder()
                                                 .addParameter("newValue", it.typeName)
                                                 .addStatement("${it.name}SKData.value = newValue")
                                                 .addStatement("saveState()")
-                                                .build()
+                                                .build(),
                                         )
-                                    }
-                                    else {
+                                    } else {
                                         setter(
                                             FunSpec.setterBuilder()
                                                 .addParameter("newValue", it.typeName)
                                                 .addStatement("field = newValue")
                                                 .addStatement("saveState()")
-                                                .build()
+                                                .build(),
                                         )
                                     }
                                 }
@@ -208,30 +200,32 @@ fun Generator.generateStates(rootState: StateDef) {
                                 if (!it.bySkData) {
                                     initializer("infos.${it.name}")
                                 }
-
                             }
                             .addModifiers(KModifier.OVERRIDE)
-                            .build()
+                            .build(),
                     )
                 }
             }
-
 
             bmS.forEach {
                 addProperty(
                     PropertySpec.builder(
                         it.simpleName.replaceFirstChar { it.lowercase(Locale.getDefault()) },
-                        it
+                        it,
                     ).initializer(
-                        (listOf("key") + (parentsList.map {
-                            it.name.decapitalizeAsciiOnly()
-                        }) + "this").joinToString(
+                        (
+                            listOf("key") + (
+                                parentsList.map {
+                                    it.name.decapitalizeAsciiOnly()
+                                }
+                            ) + "this"
+                        ).joinToString(
                             separator = ", ",
                             prefix = "${it.simpleName}Impl(",
-                            postfix = ")"
-                        )
+                            postfix = ")",
+                        ),
                     )
-                        .build()
+                        .build(),
                 )
             }
 
@@ -243,12 +237,14 @@ fun Generator.generateStates(rootState: StateDef) {
                 addProperty(
                     PropertySpec.builder(
                         it.nameAsProperty.suffix("SKData"),
-                        FrameworkClassNames.skManualData.parameterizedBy(it.modelClassName.nullable())
+                        FrameworkClassNames.skManualData.parameterizedBy(it.modelClassName.nullable()),
                     )
                         .addModifiers(KModifier.OVERRIDE)
                         .initializer(
                             CodeBlock.builder()
-                                .beginControlFlow("${FrameworkClassNames.skManualData.simpleName}(infos.${it.nameAsProperty}?.let { ${it.modelClassName.simpleName}($subStateConstructorParams) })")
+                                .beginControlFlow(
+                                    "${FrameworkClassNames.skManualData.simpleName}(infos.${it.nameAsProperty}?.let { ${it.modelClassName.simpleName}($subStateConstructorParams) })",
+                                )
                                 .apply {
                                     compositeSubStates.forEach { compositeSubState ->
                                         if (compositeSubState.propertiesComposingComposite!!.contains(it)) {
@@ -258,83 +254,89 @@ fun Generator.generateStates(rootState: StateDef) {
                                 }
                                 .addStatement("saveState()")
                                 .endControlFlow()
-                                .build())
-                        .build()
-
-
+                                .build(),
+                        )
+                        .build(),
                 )
 
                 addProperty(
                     PropertySpec.builder(
                         it.nameAsProperty,
-                        it.modelClassName.nullable()
+                        it.modelClassName.nullable(),
                     )
                         .mutable(true)
                         .addModifiers(KModifier.OVERRIDE)
                         .delegate(it.nameAsProperty.suffix("SKData"))
-                        .build()
-
+                        .build(),
                 )
             }
 
-
-
             compositeSubStates.forEach {
+                // méthode computeState
+                addFunction(
+                    FunSpec.builder("compute${it.nameAsProperty}")
+                        .addParameters(
+                            it.propertiesComposingComposite!!.map {
+                                ParameterSpec.builder(it.name.decapitalizeAsciiOnly(), it.modelClassName.nullable())
+                                    .build()
+                            },
+                        )
+                        .returns(it.modelClassName.nullable())
+                        .beginControlFlow(
+                            "return if (${
+                                it.propertiesComposingComposite.joinToString(
+                                    " && ",
+                                ) { "${it.name.decapitalizeAsciiOnly()} != null" }
+                            })",
+                        )
+                        .addStatement(
+                            "${it.name}(this, ${it.propertiesComposingComposite.joinToString { it.name.decapitalizeAsciiOnly() }})",
+                        )
+                        .endControlFlow()
+                        .beginControlFlow("else")
+                        .addStatement("null")
+                        .endControlFlow()
+                        .build(),
+                )
 
-                //méthode computeState
-                addFunction(FunSpec.builder("compute${it.nameAsProperty}")
-                    .addParameters(
-                        it.propertiesComposingComposite!!.map {
-                            ParameterSpec.builder(it.name.decapitalizeAsciiOnly(), it.modelClassName.nullable())
-                                .build()
-                        }
-                    )
-                    .returns(it.modelClassName.nullable())
-                    .beginControlFlow("return if (${it.propertiesComposingComposite.map { "${it.name.decapitalizeAsciiOnly() } != null" }.joinToString(" && ")})")
-                    .addStatement("${it.name}(this, ${it.propertiesComposingComposite.map { it.name.decapitalizeAsciiOnly() }.joinToString()})")
-                    .endControlFlow()
-                    .beginControlFlow("else")
-                    .addStatement("null")
-                    .endControlFlow()
-                    .build())
+                addFunction(
+                    FunSpec.builder("update${it.name}")
+                        .addStatement(
+                            "${it.nameAsProperty.suffix(
+                                "SKData",
+                            )}.value = compute${it.nameAsProperty}(${it.propertiesComposingComposite.joinToString { it.nameAsProperty }})",
+                        )
+                        .build(),
+                )
 
-
-                addFunction(FunSpec.builder("update${it.name}")
-                    .addStatement("${it.nameAsProperty.suffix("SKData")}.value = compute${it.nameAsProperty}(${it.propertiesComposingComposite.map { it.nameAsProperty }.joinToString()})")
-                    .build())
-                
                 addProperty(
                     PropertySpec.builder(
                         it.nameAsProperty.suffix("SKData"),
-                        FrameworkClassNames.skManualData.parameterizedBy(it.modelClassName.nullable())
+                        FrameworkClassNames.skManualData.parameterizedBy(it.modelClassName.nullable()),
                     )
                         .addModifiers(KModifier.OVERRIDE)
                         .initializer(
-                            CodeBlock.of("${FrameworkClassNames.skManualData.simpleName}(compute${it.nameAsProperty}(${it.propertiesComposingComposite.map { it.nameAsProperty }.joinToString()}))")
-
+                            CodeBlock.of(
+                                "${FrameworkClassNames.skManualData.simpleName}(compute${it.nameAsProperty}(${it.propertiesComposingComposite.joinToString { it.nameAsProperty }}))",
+                            ),
                         )
-                        .build()
+                        .build(),
                 )
 
                 addProperty(
                     PropertySpec.builder(
                         it.nameAsProperty,
-                        it.modelClassName.nullable()
+                        it.modelClassName.nullable(),
                     )
                         .addModifiers(KModifier.OVERRIDE)
                         .getter(
                             FunSpec.getterBuilder()
                                 .addCode("return ${it.nameAsProperty.suffix("SKData")}._current?.data")
-                                .build()
+                                .build(),
                         )
-                        .build()
-
+                        .build(),
                 )
-
-
             }
-
-
 
             if (!isCompositeState) {
                 addFunction(
@@ -350,9 +352,9 @@ fun Generator.generateStates(rootState: StateDef) {
                         }
                         .addCode(")\n")
                         .returns(infosClassName)
-                        .build())
+                        .build(),
+                )
             }
-
         }
             .writeTo(generatedCommonSources(modules.model))
 
@@ -363,7 +365,6 @@ fun Generator.generateStates(rootState: StateDef) {
         compositeSubStates.forEach {
             it.generate()
         }
-
     }
 
     println("génération des états...")
@@ -390,13 +391,13 @@ fun Generator.generateStates(rootState: StateDef) {
                 PropertySpec.builder(keyName, String::class)
                     .addModifiers(KModifier.CONST)
                     .initializer("\"${rootStatePropertyName.uppercase()}\"")
-                    .build()
+                    .build(),
             )
             .addProperty(
                 PropertySpec.builder(rootStatePropertyName, rootState.modelClassName)
                     .addModifiers(KModifier.LATEINIT)
                     .mutable()
-                    .build()
+                    .build(),
             )
             .addFunction(
                 FunSpec.builder(saveStateFunction.simpleName)
@@ -408,7 +409,7 @@ fun Generator.generateStates(rootState: StateDef) {
                     .addStatement("data = $rootStatePropertyName.infos()")
                     .addStatement(")")
                     .endControlFlow()
-                    .build()
+                    .build(),
             )
             .addFunction(
                 FunSpec.builder(restoreStateFunction.simpleName)
@@ -421,12 +422,12 @@ fun Generator.generateStates(rootState: StateDef) {
                     .addStatement(
                         "?: ${rootState.modelClassName.simpleName}(${rootState.infosClassName.simpleName}(${
                             rootState.subStates.joinToString(
-                                separator = ", "
+                                separator = ", ",
                             ) { "null" }
-                        }))"
+                        }))",
                     )
                     .returns(rootState.modelClassName)
-                    .build()
+                    .build(),
             )
             .addImportClassName(FrameworkClassNames.globalPersistor)
             .addImportClassName(FrameworkClassNames.coroutineScope)
@@ -437,8 +438,5 @@ fun Generator.generateStates(rootState: StateDef) {
             .writeTo(commonSources(modules.model))
     }
 
-
     println("... fin génération des états")
-
 }
-

@@ -1,6 +1,5 @@
 package tech.skot.core.components.inputs
 
-
 import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import tech.skot.core.components.SKActivity
@@ -13,9 +12,8 @@ class SKImageButtonView(
     override val proxy: SKImageButtonViewProxy,
     activity: SKActivity,
     fragment: Fragment?,
-    button: ImageButton
+    button: ImageButton,
 ) : SKComponentView<ImageButton>(proxy, activity, fragment, button) {
-
     fun onOnTap(onTap: (() -> Unit)?) {
         binding.setOnClick(onTap, single = proxy.debounce != null, delay = proxy.debounce ?: 500)
     }
@@ -28,11 +26,9 @@ class SKImageButtonView(
         enabled?.let {
             binding.isEnabled = it
         }
-
     }
 
     fun onHidden(hidden: Boolean?) {
         hidden?.let { binding.setVisible(!it) }
     }
-
 }

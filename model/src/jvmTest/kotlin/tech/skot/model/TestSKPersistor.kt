@@ -6,10 +6,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class TestSKPersistor {
-
     @Test
     fun `test clear`() {
-
         val persistor = JvmSKPersistor("global")
 
         runTest {
@@ -25,7 +23,5 @@ class TestSKPersistor {
                 persistor.getBoolean("test1", null) == true
             }
         }
-
-
     }
 }

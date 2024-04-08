@@ -14,4 +14,3 @@ annotation class SKLegacyViewIncluded()
 
 @Target(AnnotationTarget.PROPERTY)
 annotation class SKPassToParentView
-

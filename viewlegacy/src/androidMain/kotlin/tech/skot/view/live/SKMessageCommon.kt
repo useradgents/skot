@@ -1,7 +1,6 @@
 package tech.skot.view.live
 
 abstract class SKMessageCommon<D>(private val multiReceiver: Boolean = false) {
-
     private var pendingValues: List<D> = emptyList()
 
     private var activeCount = 0
@@ -15,17 +14,15 @@ abstract class SKMessageCommon<D>(private val multiReceiver: Boolean = false) {
             field = value
         }
 
-    //called on transition 0 active observer to 1
+    // called on transition 0 active observer to 1
     protected open fun onActive() = Unit
 
-    //called on transition 1 active observer to 0
+    // called on transition 1 active observer to 0
     protected open fun onInactive() = Unit
 
     protected open fun hasActiveObserver() = activeCount > 0
 
-
     val observers: MutableSet<Observer> = mutableSetOf()
-
 
     abstract inner class Observer(val onChanged: (d: D) -> Unit) {
         var mActive: Boolean = false
@@ -45,7 +42,6 @@ abstract class SKMessageCommon<D>(private val multiReceiver: Boolean = false) {
                 onChanged(it)
             }
         }
-
 
         fun onBecomeInactive() {
             mActive = false
@@ -99,8 +95,7 @@ abstract class SKMessageCommon<D>(private val multiReceiver: Boolean = false) {
     }
 
     fun debug() =
-            "pendingValues: $pendingValues ${observers.size} observers dont ${observers.count { it.mActive }} actifs activeCount $activeCount"
-
+        "pendingValues: $pendingValues ${observers.size} observers dont ${observers.count { it.mActive }} actifs activeCount $activeCount"
 
     fun post(message: D) {
         pendingValues = pendingValues + message
@@ -108,5 +103,4 @@ abstract class SKMessageCommon<D>(private val multiReceiver: Boolean = false) {
             if (observer.notify(message) && !multiReceiver) break
         }
     }
-
 }

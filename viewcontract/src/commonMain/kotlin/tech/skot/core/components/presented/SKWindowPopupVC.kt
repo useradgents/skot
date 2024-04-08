@@ -5,18 +5,16 @@ import tech.skot.core.components.SKLayoutNo
 
 @SKLayoutNo
 interface SKWindowPopupVC : SKComponentVC {
-
     data class Shown(
         val component: SKComponentVC,
-        val behavior : Behavior
+        val behavior: Behavior,
     )
 
-
     sealed class Behavior
-    class Cancelable(val onDismiss:(()->Unit)? = null) : Behavior()
-    object NotCancelable : Behavior()
 
+    class Cancelable(val onDismiss: (() -> Unit)? = null) : Behavior()
+
+    data object NotCancelable : Behavior()
 
     var state: Shown?
-
 }

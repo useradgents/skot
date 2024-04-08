@@ -8,5 +8,6 @@ package tech.skot.core
  */
 expect class SKDecimalFormat(pattern: String) {
     fun format(number: Number): String
+
     fun parse(str: String): Number?
 }

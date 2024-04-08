@@ -3,7 +3,6 @@ package tech.skot.core.test
 import kotlin.test.assertTrue
 
 open class SKFunMock<C : Any, R : Any?>(val name: String) {
-
     var calls: MutableList<C> = mutableListOf()
 
     var returns: List<R> = emptyList()
@@ -17,6 +16,7 @@ open class SKFunMock<C : Any, R : Any?>(val name: String) {
     }
 
     var nextCallException: Exception? = null
+
     fun willFail(ex: Exception) {
         nextCallException = ex
     }
@@ -30,7 +30,7 @@ open class SKFunMock<C : Any, R : Any?>(val name: String) {
         return getReturn()
     }
 
-    fun assertCalled(rule:String = "") {
+    fun assertCalled(rule: String = "") {
         assertTrue("$rule -> $name : la méthode doit avoir été appelé") {
             calls.isNotEmpty()
         }

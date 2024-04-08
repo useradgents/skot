@@ -10,40 +10,46 @@ import tech.skot.core.view.Icon
 import timber.log.Timber
 
 abstract class SKTestView {
-
     companion object {
-        fun dummyVisiblityListener(): SKVisiblityListener = object : SKVisiblityListener {
-            override fun onResume() {
-            }
+        fun dummyVisiblityListener(): SKVisiblityListener =
+            object : SKVisiblityListener {
+                override fun onResume() {
+                }
 
-            override fun onPause() {
+                override fun onPause() {
+                }
             }
-        }
     }
 
     @Before
-    fun initSKTestView(){
+    fun initSKTestView()  {
         Timber.plant(Timber.DebugTree())
     }
 
-    fun toast(message: String): () -> Unit = {
-        Toast.makeText(
-            ApplicationProvider.getApplicationContext(),
-            message,
-            Toast.LENGTH_SHORT
-        ).show()
-    }
+    fun toast(message: String): () -> Unit =
+        {
+            Toast.makeText(
+                ApplicationProvider.getApplicationContext(),
+                message,
+                Toast.LENGTH_SHORT,
+            ).show()
+        }
 
-
-    fun dummyButton(toast: String? = null, label: String? = null): SKButtonViewProxy =
+    fun dummyButton(
+        toast: String? = null,
+        label: String? = null,
+    ): SKButtonViewProxy =
         SKButtonViewProxy(
             onTapInitial = toast?.let { toast(it) },
             labelInitial = label,
             enabledInitial = null,
-            hiddenInitial = null
+            hiddenInitial = null,
         )
 
-    fun dummyImageButton(toast: String? = null, icon:Icon? = null): SKImageButtonViewProxy =
+    fun dummyImageButton(
+        toast: String? = null,
+        icon: Icon? = null,
+    ): SKImageButtonViewProxy =
         SKImageButtonViewProxy(
             onTapInitial = toast?.let { toast(it) },
             iconInitial = icon ?: Icon(android.R.drawable.btn_star),
@@ -60,24 +66,31 @@ abstract class SKTestView {
             enabledInitial = null,
             hiddenInitial = null,
             dropDownDisplayedInitial = false,
-            oldSchoolModeHint = false
+            oldSchoolModeHint = false,
         )
     }
 
-    fun dummyBox(vararg component: SKComponentViewProxy<*>, asItemVertical:Boolean = false) = SKBoxViewProxy(
+    fun dummyBox(
+        vararg component: SKComponentViewProxy<*>,
+        asItemVertical: Boolean = false,
+    ) = SKBoxViewProxy(
         itemsInitial = component.asList(),
         hiddenInitial = false,
-        asItemVertical = asItemVertical
+        asItemVertical = asItemVertical,
     )
 
-    fun dummyList(vararg component: SKComponentViewProxy<*>) = SKListViewProxy(
-        layoutMode = SKListVC.LayoutMode.Linear(vertical = true),
-        reverse = false,
-        animate = true,
-        animateItem = false
-    ).apply { setItems(*component) }
+    fun dummyList(vararg component: SKComponentViewProxy<*>) =
+        SKListViewProxy(
+            layoutMode = SKListVC.LayoutMode.Linear(vertical = true),
+            reverse = false,
+            animate = true,
+            animateItem = false,
+        ).apply { setItems(*component) }
 
-    fun dummyInput(text: String? = null, hint: String? = null) = SKInputViewProxy(
+    fun dummyInput(
+        text: String? = null,
+        hint: String? = null,
+    ) = SKInputViewProxy(
         maxSize = null,
         onDone = null,
         onFocusChange = null,
@@ -88,10 +101,13 @@ abstract class SKTestView {
         hiddenInitial = null,
         hintInitial = hint,
         textInitial = text,
-        showPasswordInitial = null
+        showPasswordInitial = null,
     )
 
-    fun dummySimpleInput(text: String? = null, hint: String? = null) = SKSimpleInputViewProxy(
+    fun dummySimpleInput(
+        text: String? = null,
+        hint: String? = null,
+    ) = SKSimpleInputViewProxy(
         maxSize = null,
         onDone = null,
         onFocusChange = null,
@@ -102,11 +118,8 @@ abstract class SKTestView {
         hiddenInitial = null,
         hintInitial = hint,
         textInitial = text,
-        showPasswordInitial = null
+        showPasswordInitial = null,
     )
-
-
-
 
     fun dummyShortText() =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla commodo semper nulla, cursus placerat justo suscipit et."
@@ -117,14 +130,14 @@ abstract class SKTestView {
     fun dummyLargeText() = dummyMediumText() + dummyMediumText() + dummyMediumText()
 
     fun SKListViewProxy.setItems(vararg component: SKComponentViewProxy<*>) {
-        this.items = component.map {
-            Triple(it, it, null)
-        }
+        this.items =
+            component.map {
+                Triple(it, it, null)
+            }
     }
 
     fun string(res: Int) = ApplicationProvider.getApplicationContext<Context>().getString(res)
 
-    val context:Context
+    val context: Context
         get() = ApplicationProvider.getApplicationContext()
-
 }

@@ -5,18 +5,24 @@ import org.gradle.api.Project
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.memberProperties
 
-//var skDebugMode:Boolean = false
+// var skDebugMode:Boolean = false
 
-fun copyBuildFileToImplementation(build: Any, project: Project, addingVersionCodeAndDebug:Boolean, debug:Boolean) {
+fun copyBuildFileToImplementation(
+    build: Any,
+    project: Project,
+    addingVersionCodeAndDebug: Boolean,
+    debug: Boolean,
+) {
     println("Copy of build object :${build::class.simpleName} addingVersionCodeAndDebug: $addingVersionCodeAndDebug  with debug: $debug")
     val stringType = String::class.createType()
     val intType = Int::class.createType()
 
     val buildObjectType = build::class.asTypeName()
-    val file = com.squareup.kotlinpoet.FileSpec.builder(
-        buildObjectType.packageName,
-        buildObjectType.simpleName
-    )
+    val file =
+        com.squareup.kotlinpoet.FileSpec.builder(
+            buildObjectType.packageName,
+            buildObjectType.simpleName,
+        )
     val classBuilderCommon =
         com.squareup.kotlinpoet.TypeSpec.objectBuilder(buildObjectType.simpleName)
             .apply {
@@ -26,22 +32,21 @@ fun copyBuildFileToImplementation(build: Any, project: Project, addingVersionCod
                         com.squareup.kotlinpoet.PropertySpec.builder(
                             "versionCode",
                             Int::class,
-                            com.squareup.kotlinpoet.KModifier.CONST
+                            com.squareup.kotlinpoet.KModifier.CONST,
                         )
                             .initializer(project.skVersionCode().toString())
-                            .build()
+                            .build(),
                     )
 
                     addProperty(
                         com.squareup.kotlinpoet.PropertySpec.builder(
                             "debug",
                             Boolean::class,
-                            com.squareup.kotlinpoet.KModifier.CONST
+                            com.squareup.kotlinpoet.KModifier.CONST,
                         )
                             .initializer(debug.toString())
-                            .build()
+                            .build(),
                     )
-
                 }
 
                 build::class.memberProperties.forEach {
@@ -51,10 +56,10 @@ fun copyBuildFileToImplementation(build: Any, project: Project, addingVersionCod
                                 com.squareup.kotlinpoet.PropertySpec.builder(
                                     it.name,
                                     String::class,
-                                    com.squareup.kotlinpoet.KModifier.CONST
+                                    com.squareup.kotlinpoet.KModifier.CONST,
                                 )
                                     .initializer("\"${it.call()}\"")
-                                    .build()
+                                    .build(),
                             )
                         }
                         intType -> {
@@ -62,14 +67,13 @@ fun copyBuildFileToImplementation(build: Any, project: Project, addingVersionCod
                                 com.squareup.kotlinpoet.PropertySpec.builder(
                                     it.name,
                                     Int::class,
-                                    com.squareup.kotlinpoet.KModifier.CONST
+                                    com.squareup.kotlinpoet.KModifier.CONST,
                                 )
                                     .initializer(it.call().toString())
-                                    .build()
+                                    .build(),
                             )
                         }
                     }
-
                 }
             }
     file.addType(classBuilderCommon.build())

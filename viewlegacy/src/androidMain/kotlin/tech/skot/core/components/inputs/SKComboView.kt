@@ -1,4 +1,3 @@
-
 package tech.skot.core.components.inputs
 
 import android.text.InputType
@@ -16,21 +15,20 @@ import tech.skot.view.extensions.strike
 import tech.skot.viewlegacy.R
 import tech.skot.viewlegacy.databinding.SkComboBinding
 
-
 class SKComboView(
     override val proxy: SKComboViewProxy,
     activity: SKActivity,
     fragment: Fragment?,
-    binding: SkComboBinding
+    binding: SkComboBinding,
 ) : SKCommonComboView<SkComboBinding>(
-    proxy,
-    activity,
-    fragment,
-    binding,
-    binding.root,
-    binding.autoComplete,
-    R.layout.sk_combo_choice_item
-) {
+        proxy,
+        activity,
+        fragment,
+        binding,
+        binding.root,
+        binding.autoComplete,
+        R.layout.sk_combo_choice_item,
+    ) {
     init {
         autoComplete.apply {
             isEnabled = false
@@ -46,7 +44,7 @@ abstract class SKCommonComboView<Binding : Any>(
     binding: Binding,
     protected val inputLayout: TextInputLayout,
     protected val autoComplete: AutoCompleteTextView,
-    private val choiceItemLayoutID: Int
+    private val choiceItemLayoutID: Int,
 ) : SKComponentView<Binding>(proxy, activity, fragment, binding) {
     private var _adapter: BaseAdapter? = null
     protected var _choices: List<SKComboVC.Choice> = emptyList()
@@ -58,10 +56,11 @@ abstract class SKCommonComboView<Binding : Any>(
                 override fun getView(
                     position: Int,
                     p1: View?,
-                    viewGroup: ViewGroup?
+                    viewGroup: ViewGroup?,
                 ): View {
-                    val tv = p1 ?: LayoutInflater.from(context)
-                        .inflate(choiceItemLayoutID, viewGroup, false)
+                    val tv =
+                        p1 ?: LayoutInflater.from(context)
+                            .inflate(choiceItemLayoutID, viewGroup, false)
                     val choice = _choices[position]
 
                     (tv as? TextView)?.let { textView ->
@@ -91,7 +90,10 @@ abstract class SKCommonComboView<Binding : Any>(
                             return FilterResults()
                         }
 
-                        override fun publishResults(p0: CharSequence?, p1: FilterResults?) {
+                        override fun publishResults(
+                            p0: CharSequence?,
+                            p1: FilterResults?,
+                        ) {
                             // na
                         }
                     }

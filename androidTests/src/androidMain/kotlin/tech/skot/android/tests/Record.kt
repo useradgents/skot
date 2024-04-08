@@ -9,12 +9,12 @@ import io.ktor.util.AttributeKey
 import java.io.File
 
 class Record {
-
     class Config
 
     val baseDirectory by lazy {
         Environment.getExternalStoragePublicDirectory(
-                "Records")
+            "Records",
+        )
     }
 
     fun getRecordDirectory(directoryName: String): File {
@@ -30,25 +30,25 @@ class Record {
 
     companion object Feature : HttpClientFeature<Unit, Record> {
         override val key: AttributeKey<Record> = AttributeKey("Record")
+
         override fun prepare(block: Unit.() -> Unit): Record {
             return Record()
         }
 
-        override fun install(feature: Record, scope: HttpClient) {
+        override fun install(
+            feature: Record,
+            scope: HttpClient,
+        ) {
             scope.responsePipeline.intercept(HttpResponsePipeline.After) {
                 (subject as? HttpResponseContainer)?.let { httpCont ->
                     (httpCont.response as? String)?.let {
                         val path = context.request.url.encodedPath
                         val dir = feature.getRecordDirectory(path.replace('/', '_'))
-                        val file = File(dir, "${System.currentTimeMillis().toString()}_${context.response.status.value.toString()}.json")
+                        val file = File(dir, "${System.currentTimeMillis()}_${context.response.status.value}.json")
                         file.writeText(it)
-
                     }
                 }
             }
-
-
         }
     }
-
 }

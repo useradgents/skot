@@ -10,7 +10,6 @@ plugins {
     signing
 }
 
-
 dependencies {
     api(libs.gradle)
     api(libs.kotlin.gradle.plugin)
@@ -22,13 +21,13 @@ dependencies {
     testImplementation(libs.jetbrains.kotlin.test.junit)
 }
 
-//configurations {
+// configurations {
 //    all {
 //        attributes {
 //            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
 //        }
 //    }
-//}
+// }
 
 val gradlePortal = false
 
@@ -36,12 +35,11 @@ pluginBundle {
     website = "https://github.com/skot-framework/skot"
     vcsUrl = "https://github.com/skot-framework/skot/tree/master"
     tags = listOf("skot", "kotlin", "kmm")
-    mavenCoordinates { }
+    //mavenCoordinates { }
 }
 
 gradlePlugin {
     plugins {
-
 
         create("SkotStarter") {
             id = "tech.skot.starter"
@@ -135,62 +133,59 @@ gradlePlugin {
                 implementationClass = "tech.skot.tools.gradle.PluginLibraryViewLegacy"
             }
         }
-
     }
 }
 
 fun buildVersionsFile() {
-
     fun com.squareup.kotlinpoet.TypeSpec.Builder.addStringConst(
         name: String,
-        value: String
+        value: String,
     ): com.squareup.kotlinpoet.TypeSpec.Builder {
         return addProperty(
             com.squareup.kotlinpoet.PropertySpec.builder(
                 name,
                 String::class,
-                com.squareup.kotlinpoet.KModifier.CONST
+                com.squareup.kotlinpoet.KModifier.CONST,
             )
                 .initializer("\"$value\"")
-                .build()
+                .build(),
         )
     }
 
     fun com.squareup.kotlinpoet.TypeSpec.Builder.addIntConst(
         name: String,
-        value: Int
+        value: Int,
     ): com.squareup.kotlinpoet.TypeSpec.Builder {
         return addProperty(
             com.squareup.kotlinpoet.PropertySpec.builder(
                 name,
                 Int::class,
-                com.squareup.kotlinpoet.KModifier.CONST
+                com.squareup.kotlinpoet.KModifier.CONST,
             )
                 .initializer(value.toString())
-                .build()
+                .build(),
         )
     }
 
     val file = com.squareup.kotlinpoet.FileSpec.builder("tech.skot", "Versions")
-    val classBuilderCommon = com.squareup.kotlinpoet.TypeSpec.objectBuilder("Versions")
-        .addStringConst("skot", Versions.version)
-        .addStringConst("group", Versions.group)
-        .addStringConst("serialization", libs.versions.kotlinx.serialization.get())
-        .addStringConst("kotlinxDateTime", libs.versions.kotlinx.datetime.get())
-        .addStringConst("ktor", libs.versions.ktor.get())
-        .addStringConst("kotlin", libs.versions.kotlin.get())
-        .addStringConst("kotlinCoroutines", libs.versions.kotlinx.coroutines.asProvider().get())
-        .addStringConst("kotlinpoet", libs.versions.kotlinpoet.get())
-        .addIntConst("android_minSdk", libs.versions.android.minSdk.get().toInt())
-        .addIntConst("android_compileSdk", libs.versions.android.compileSdk.get().toInt())
-        .addIntConst("android_targetSdk",libs.versions.android.targetSdk.get().toInt())
-        .addStringConst("android_app_compat", libs.versions.appcompat.get())
-        .addStringConst("sqldelight", libs.versions.sqldelight.get())
-
+    val classBuilderCommon =
+        com.squareup.kotlinpoet.TypeSpec.objectBuilder("Versions")
+            .addStringConst("skot", Versions.version)
+            .addStringConst("group", Versions.group)
+            .addStringConst("serialization", libs.versions.kotlinx.serialization.get())
+            .addStringConst("kotlinxDateTime", libs.versions.kotlinx.datetime.get())
+            .addStringConst("ktor", libs.versions.ktor.get())
+            .addStringConst("kotlin", libs.versions.kotlin.get())
+            .addStringConst("kotlinCoroutines", libs.versions.kotlinx.coroutines.asProvider().get())
+            .addStringConst("kotlinpoet", libs.versions.kotlinpoet.get())
+            .addIntConst("android_minSdk", libs.versions.android.minSdk.get().toInt())
+            .addIntConst("android_compileSdk", libs.versions.android.compileSdk.get().toInt())
+            .addIntConst("android_targetSdk", libs.versions.android.targetSdk.get().toInt())
+            .addStringConst("android_app_compat", libs.versions.appcompat.get())
+            .addStringConst("sqldelight", libs.versions.sqldelight.get())
 
     file.addType(classBuilderCommon.build())
     file.build().writeTo(rootProject.projectDir.resolve("plugin/src/main/kotlin"))
 }
 
 buildVersionsFile()
-

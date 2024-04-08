@@ -14,9 +14,8 @@ abstract class SKNullableDistantDataWithCache<D : Any>(
     protected open val key: String?,
     private val cache: SKPersistor = globalPersistor,
     validity: Long? = null,
-    private val fetchData: suspend () -> D?
+    private val fetchData: suspend () -> D?,
 ) : SKDistantData<D?>(validity, fetchData) {
-
     private val serializer: KSerializer<Nullable<D>> = Nullable.serializer(dataSerializer)
 
     override suspend fun newDatedData(): DatedData<D?> {
@@ -35,12 +34,12 @@ abstract class SKNullableDistantDataWithCache<D : Any>(
                     name,
                     Nullable(newData.data),
                     completeKey,
-                    newData.timestamp
+                    newData.timestamp,
                 )
             } catch (ex: Exception) {
                 SKLog.e(
                     ex,
-                    "SKDistantDataWithCache Problème à la mise en cache de la donnée $name $key"
+                    "SKDistantDataWithCache Problème à la mise en cache de la donnée $name $key",
                 )
             }
         }
@@ -55,18 +54,17 @@ abstract class SKNullableDistantDataWithCache<D : Any>(
 
                 if (cacheDate != null) {
                     try {
-                        flow.value = cache.getData(serializer, name, completeKey)?.let {
-                            DatedData(it.value, cacheDate)
-                        }
+                        flow.value =
+                            cache.getData(serializer, name, completeKey)?.let {
+                                DatedData(it.value, cacheDate)
+                            }
                     } catch (ex: Exception) {
                         SKLog.e(
                             ex,
-                            "SKDistantDataWithCache Problème à la récupération du cache de la donnée $name $key"
+                            "SKDistantDataWithCache Problème à la récupération du cache de la donnée $name $key",
                         )
                     }
-
                 }
-
             }
         }
     }
@@ -89,5 +87,4 @@ abstract class SKNullableDistantDataWithCache<D : Any>(
         super.setDatedData(newDatedData)
         saveInCache(newDatedData)
     }
-
 }

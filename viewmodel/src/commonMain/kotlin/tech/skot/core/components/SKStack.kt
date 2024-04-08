@@ -1,6 +1,5 @@
 package tech.skot.core.components
 
-import tech.skot.core.SKLog
 import tech.skot.core.di.coreViewInjector
 import tech.skot.core.view.SKTransition
 
@@ -14,21 +13,23 @@ open class SKStack : SKComponent<SKStackVC>() {
 
     var state: State = State(emptyList(), null)
         set(value) {
-            val transition = value.transition ?: when {
-                defaultPushTransition != null && value.screens.dropLast(1) == field.screens -> {
-                    defaultPushTransition
+            val transition =
+                value.transition ?: when {
+                    defaultPushTransition != null && value.screens.dropLast(1) == field.screens -> {
+                        defaultPushTransition
+                    }
+                    defaultPopTransition != null && field.screens.dropLast(1) == value.screens -> {
+                        defaultPopTransition
+                    }
+                    else -> {
+                        null
+                    }
                 }
-                defaultPopTransition != null && field.screens.dropLast(1) == value.screens -> {
-                    defaultPopTransition
-                }
-                else -> {
-                    null
-                }
-            }
-            view.state = SKStackVC.State(
-                screens = value.screens.map { it.view },
-                transition = transition
-            )
+            view.state =
+                SKStackVC.State(
+                    screens = value.screens.map { it.view },
+                    transition = transition,
+                )
             field.screens.forEach { if (!value.screens.contains(it)) it.onRemove() }
             value.screens.forEach { it.parent = this }
             field = value
@@ -41,27 +42,43 @@ open class SKStack : SKComponent<SKStackVC>() {
             state = State(listOf(value))
         }
 
-    fun push(screen: SKScreen<*>, transition: SKTransition? = null) {
+    fun push(
+        screen: SKScreen<*>,
+        transition: SKTransition? = null,
+    ) {
 //        SKLog.d("Will push screen: ${screen::class.simpleName}")
         state = State(state.screens + screen, transition)
     }
 
-    fun replace(oldScreen: SKScreen<*>, newScreen: SKScreen<*>, transition: SKTransition? = null) {
-        state = State(state.screens.map {
-            if (it == oldScreen) newScreen else it
-        }, transition)
+    fun replace(
+        oldScreen: SKScreen<*>,
+        newScreen: SKScreen<*>,
+        transition: SKTransition? = null,
+    ) {
+        state =
+            State(
+                state.screens.map {
+                    if (it == oldScreen) newScreen else it
+                },
+                transition,
+            )
     }
 
-    fun pop(transition: SKTransition? = null, ifRoot: (() -> Unit)? = null) {
+    fun pop(
+        transition: SKTransition? = null,
+        ifRoot: (() -> Unit)? = null,
+    ) {
         if (state.screens.size > 1) {
             state = State(state.screens - state.screens.last(), transition)
         } else {
             ifRoot?.invoke()
         }
-
     }
 
-    fun remove(screen: SKScreen<*>, transition: SKTransition? = null) {
+    fun remove(
+        screen: SKScreen<*>,
+        transition: SKTransition? = null,
+    ) {
         if (state.screens.contains(screen)) {
             state = State(screens = state.screens - screen, transition = transition)
         }
@@ -71,6 +88,4 @@ open class SKStack : SKComponent<SKStackVC>() {
         super.onRemove()
         state.screens.forEach { it.onRemove() }
     }
-
 }
-

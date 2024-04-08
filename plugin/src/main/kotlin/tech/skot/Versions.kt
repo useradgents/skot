@@ -4,7 +4,7 @@ import kotlin.Int
 import kotlin.String
 
 public object Versions {
-  public const val skot: String = "1.2.39-ua"
+  public const val skot: String = "1.3.0-ua"
 
   public const val group: String = "com.github.useradgents.skot"
 
@@ -14,7 +14,7 @@ public object Versions {
 
   public const val ktor: String = "2.3.10"
 
-  public const val kotlin: String = "1.9.23"
+  public const val kotlin: String = "2.0.0"
 
   public const val kotlinCoroutines: String = "1.8.0"
 

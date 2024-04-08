@@ -6,17 +6,14 @@ import tech.skot.core.components.SKScreenVC
 
 @SKLayoutNo
 interface SKBottomSheetVC : SKComponentVC {
-
     data class Shown(
         val screen: SKScreenVC,
         val onDismiss: (() -> Unit)? = null,
         val expanded: Boolean = true,
         val skipCollapsed: Boolean = true,
         val fullHeight: Boolean = false,
-        val resizeOnKeyboard: Boolean = false
+        val resizeOnKeyboard: Boolean = false,
     )
 
     var state: Shown?
-
-
 }

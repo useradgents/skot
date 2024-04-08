@@ -1,8 +1,8 @@
-//package tech.skot.core
+// package tech.skot.core
 //
-//import org.junit.Test
+// import org.junit.Test
 //
-//class TestFormats {
+// class TestFormats {
 //
 //    @Test
 //    fun testSkFormat() {
@@ -11,4 +11,4 @@
 //            motif.skFormat(66, "chaîne") == "une entier: 66 une chaîne: chaîne"
 //        )
 //    }
-//}
+// }

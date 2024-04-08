@@ -20,14 +20,13 @@ import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmErasure
 
-//val project by lazy {
+// val project by lazy {
 //    KotlinCoreEnvironment.createForProduction(
 //        Disposer.newDisposable(),
 //        CompilerConfiguration(),
 //        EnvironmentConfigFiles.JVM_CONFIG_FILES
 //    ).project
-//}
-
+// }
 
 class Generator(
     val appPackage: String,
@@ -38,18 +37,16 @@ class Generator(
     val feature: String?,
     val baseActivityVar: String?,
     val initializationPlans: List<InitializationPlan>,
-    val iOs:Boolean,
-    val referenceIconsByVariant:Boolean
+    val iOs: Boolean,
+    val referenceIconsByVariant: Boolean,
 ) {
-
-
     class ModulesNames(
         val app: String = "androidApp",
         val viewcontract: String = "viewcontract",
         val modelcontract: String = "modelcontract",
         val view: String = "view",
         val viewmodel: String = "viewmodel",
-        val model: String = "model"
+        val model: String = "model",
     )
 
     val modules = ModulesNames(view = feature ?: "view", app = feature ?: "androidApp")
@@ -61,10 +58,11 @@ class Generator(
     val rootState = rootStateClass?.let { StateDef("rootState", appPackage, it) }
 
     @ExperimentalStdlibApi
-    val rootStatePropertyName = rootState?.let { rootState ->
-        feature?.let { "$feature${rootState.nameAsProperty.capitalizeAsciiOnly()}" }
-            ?: rootState.nameAsProperty
-    }
+    val rootStatePropertyName =
+        rootState?.let { rootState ->
+            feature?.let { "$feature${rootState.nameAsProperty.capitalizeAsciiOnly()}" }
+                ?: rootState.nameAsProperty
+        }
 
     @ExperimentalStdlibApi
     fun StateDef.addToMap(map: MutableMap<String, StateDef>) {
@@ -78,22 +76,24 @@ class Generator(
     }
 
     @ExperimentalStdlibApi
-    val mapStateDefQualifiedNameStateDef = mutableMapOf<String, StateDef>().apply {
-        rootState?.addToMap(this)
-    }
+    val mapStateDefQualifiedNameStateDef =
+        mutableMapOf<String, StateDef>().apply {
+            rootState?.addToMap(this)
+        }
 
     @ExperimentalStdlibApi
     fun KCallable<*>.stateDef() =
         mapStateDefQualifiedNameStateDef[returnType.jvmErasure.qualifiedName]
 
+    val components =
+        mutableSetOf<KClass<out SKComponentVC>>().apply {
+            addLinkedComponents(startClass, appPackage)
+        }.map { it.def() }
 
-    val components = mutableSetOf<KClass<out SKComponentVC>>().apply {
-        addLinkedComponents(startClass, appPackage)
-    }.map { it.def() }
-
-    val componentsWithModel = components.filter {
-        it.modelClass != null
-    }
+    val componentsWithModel =
+        components.filter {
+            it.modelClass != null
+        }
 
     @ExperimentalStdlibApi
     fun StateDef.addBmsTo(map: MutableMap<ClassName, StateDef>) {
@@ -126,8 +126,6 @@ class Generator(
     val permissionsImpl = ClassName("$appPackage.view", "PermissionsImpl")
     val permissionsMock = ClassName("$appPackage.view", "PermissionsMock")
 
-
-
     val stringsInstance = ClassName(appPackage, "strings")
     val stringsInterface = ClassName(appPackage, "Strings")
     val stringsImpl = ClassName(appPackage, "StringsImpl")
@@ -153,7 +151,6 @@ class Generator(
     val fontsImpl = ClassName(appPackage, "FontsImpl")
     val fontsMock = ClassName(appPackage, "FontsMock")
 
-
     val stylesInstance = ClassName(appPackage, "styles")
     val stylesInterface = ClassName(appPackage, "Styles")
     val stylesImpl = ClassName(appPackage, "StylesImpl")
@@ -164,13 +161,18 @@ class Generator(
     val dimensImpl = ClassName(appPackage, "DimensImpl")
     val dimensMock = ClassName(appPackage, "DimensMock")
 
-    val initializeView = ClassName("${appPackage}.di", "initializeView")
+    val initializeView = ClassName("$appPackage.di", "initializeView")
 
     val skBuild = ClassName(appPackage, "SKBuild")
     val generatedAppModules = ClassName("$appPackage.di", "generatedAppModules")
     val appFeatureInitializer =
-        ClassName(appPackage, "${appPackage.substringAfterLast(".")
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}Initializer")
+        ClassName(
+            appPackage,
+            "${
+                appPackage.substringAfterLast(".")
+                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+            }Initializer",
+        )
     val viewModelModuleMock = ClassName("$appPackage.di", "moduleMock")
 
     val statePersistenceManager = ClassName("$appPackage.states", "statePersistenceManager")
@@ -189,10 +191,8 @@ class Generator(
         const val VISIBILITY_LISTENER_VAR_NAME = "visibilityListener"
     }
 
-
     @ExperimentalStdlibApi
     fun generate() {
-
         deleteModuleGenerated(modules.app)
         deleteModuleGenerated(modules.viewcontract)
         deleteModuleGenerated(modules.modelcontract)
@@ -237,24 +237,24 @@ class Generator(
 //            }
 //            val text = String(Files.readAllBytes(file))
 //            println("---- ${it.name}")
-////            println(text)
+// //            println(text)
 //
 //            try {
 //                val vFile = LightVirtualFile(
 //                    it.name,KotlinFileType.INSTANCE, text
 //                )
 //
-////                println(project)
+// //                println(project)
 //
 //                val viewProvider = PsiManager.getInstance(project).findViewProvider(vFile)
 //                val ktFile = viewProvider?.getPsi(viewProvider.baseLanguage)  as KtFile
-////
-//////                val viewProvider: FileViewProvider = this.findViewProvider(vFile)
-//////                return viewProvider.getPsi(viewProvider.baseLanguage)
-////
-//////                val ktFile = PsiManager.getInstance(project)
-//////                    .findFile() as KtFile
-////
+// //
+// ////                val viewProvider: FileViewProvider = this.findViewProvider(vFile)
+// ////                return viewProvider.getPsi(viewProvider.baseLanguage)
+// //
+// ////                val ktFile = PsiManager.getInstance(project)
+// ////                    .findFile() as KtFile
+// //
 //                ktFile.children.forEach {
 //                    when (it) {
 //                        is KtClass -> {
@@ -276,34 +276,41 @@ class Generator(
 //            }
 //
 //        }
-
     }
 
-    fun generatedCommonSources(module: String, combinaison: String? = null) =
-        rootPath.resolve("$module/generated${combinaison ?: ""}/commonMain/kotlin")
+    fun generatedCommonSources(
+        module: String,
+        combinaison: String? = null,
+    ): Path = rootPath.resolve("$module/generated${combinaison ?: ""}/commonMain/kotlin")
 
-    fun commonSources(module: String) =
-        rootPath.resolve("$module/src/commonMain/kotlin")
+    fun commonSources(module: String): Path = rootPath.resolve("$module/src/commonMain/kotlin")
 
-    fun jvmTestSources(module: String, combinaison: String? = null) =
-        rootPath.resolve("$module/src${combinaison ?: ""}/jvmTest/kotlin")
+    fun jvmTestSources(
+        module: String,
+        combinaison: String? = null,
+    ): Path = rootPath.resolve("$module/src${combinaison ?: ""}/jvmTest/kotlin")
 
-    fun generatedJvmTestSources(module: String, combinaison: String? = null) =
-        rootPath.resolve("$module/generated${combinaison ?: ""}/jvmTest/kotlin")
+    fun generatedJvmTestSources(
+        module: String,
+        combinaison: String? = null,
+    ): Path = rootPath.resolve("$module/generated${combinaison ?: ""}/jvmTest/kotlin")
 
-    fun generatedAndroidTestSources(module: String, combinaison: String? = null) =
-        rootPath.resolve("$module/generated${combinaison ?: ""}/androidTest/kotlin")
+    fun generatedAndroidTestSources(
+        module: String,
+        combinaison: String? = null,
+    ): Path = rootPath.resolve("$module/generated${combinaison ?: ""}/androidTest/kotlin")
 
-    fun generatedAndroidSources(module: String, combinaison: String? = null) =
-        rootPath.resolve("$module/generated${combinaison ?: ""}/androidMain/kotlin")
+    fun generatedAndroidSources(
+        module: String,
+        combinaison: String? = null,
+    ): Path = rootPath.resolve("$module/generated${combinaison ?: ""}/androidMain/kotlin")
 
-    fun androidSources(module: String) =
-        rootPath.resolve("$module/src/androidMain/kotlin")
+    fun androidSources(module: String): Path = rootPath.resolve("$module/src/androidMain/kotlin")
 
-    fun androidTestSources(module: String) =
+    fun androidTestSources(module: String): Path =
         rootPath.resolve("$module/src/androidTest/kotlin")
 
-    fun deleteModuleGenerated(module: String) {
+    private fun deleteModuleGenerated(module: String) {
         rootPath.resolve("$module/generated").toFile().deleteRecursively()
     }
 
@@ -317,92 +324,98 @@ class Generator(
                             ParameterSpec.builder(
                                 "initialize",
                                 LambdaTypeName.get(returnType = Unit::class.asTypeName())
-                                    .copy(suspending = true)
+                                    .copy(suspending = true),
                             )
-                                .build()
+                                .build(),
                         )
                         .addParameter(
                             ParameterSpec.builder(
                                 "onDeepLink",
                                 LambdaTypeName.get(
                                     null,
-                                    parameters = listOf(
+                                    parameters =
+                                    listOf(
                                         ParameterSpec.builder(
                                             name = "uri",
-                                            type = FrameworkClassNames.skUri
+                                            type = FrameworkClassNames.skUri,
                                         ).build(),
                                         ParameterSpec.builder(
                                             name = "fromWebView",
-                                            type = Boolean::class.asTypeName()
-                                        ).build()
+                                            type = Boolean::class.asTypeName(),
+                                        ).build(),
                                     ),
-                                    returnType = Boolean::class.asTypeName()
-                                )
+                                    returnType = Boolean::class.asTypeName(),
+                                ),
                             )
-                                .build()
+                                .build(),
                         )
                         .addParameter(
                             ParameterSpec.builder(
                                 "start",
                                 LambdaTypeName.get(
                                     returnType = Unit::class.asTypeName(),
-                                    parameters = listOf(
-                                        ParameterSpec(name = "action", type = String::class.asTypeName().nullable())
-                                    ))
-                                    .copy(suspending = true)
+                                    parameters =
+                                    listOf(
+                                        ParameterSpec(
+                                            name = "action",
+                                            type = String::class.asTypeName().nullable()
+                                        ),
+                                    ),
+                                )
+                                    .copy(suspending = true),
                             )
-                                .build()
+                                .build(),
                         )
                         .addParameter(
                             ParameterSpec.builder(
                                 "resetToRoot",
-                                LambdaTypeName.get(returnType = Unit::class.asTypeName())
+                                LambdaTypeName.get(returnType = Unit::class.asTypeName()),
                             )
-                                .build()
+                                .build(),
                         )
-                        .build()
+                        .build(),
                 )
                 superclass(ClassName("tech.skot.core", "SKFeatureInitializer"))
                 superclassConstructorParameters.add(CodeBlock.of("initialize, onDeepLink, start, resetToRoot"))
             }.writeTo(generatedCommonSources(modules.viewcontract))
         }
-
     }
 
     private fun generateViewInjector() {
         FileSpec.builder(
             viewInjectorInterface.packageName,
-            viewInjectorInterface.simpleName
-
-        ).addType(TypeSpec.interfaceBuilder(viewInjectorInterface.simpleName)
-            .addFunctions(
-                components.map {
-                    FunSpec.builder(it.name.decapitalizeAsciiOnly())
-                        .addModifiers(KModifier.ABSTRACT)
-                        .apply {
-                            if (it.isScreen) {
-                                addParameter(
-                                    name = VISIBILITY_LISTENER_VAR_NAME,
-                                    type = FrameworkClassNames.skVisiblityListener
-                                )
+            viewInjectorInterface.simpleName,
+        ).addType(
+            TypeSpec.interfaceBuilder(viewInjectorInterface.simpleName)
+                .addFunctions(
+                    components.map {
+                        FunSpec.builder(it.name.decapitalizeAsciiOnly())
+                            .addModifiers(KModifier.ABSTRACT)
+                            .apply {
+                                if (it.isScreen) {
+                                    addParameter(
+                                        name = VISIBILITY_LISTENER_VAR_NAME,
+                                        type = FrameworkClassNames.skVisiblityListener,
+                                    )
+                                }
                             }
-                        }
-                        .addParameters(
-                            it.subComponents.map { it.asParam() }
-                        )
-                        .addParameters(
-                            it.fixProperties.map { it.asParam() }
-                        )
-                        .addParameters(
-                            it.mutableProperties.map {
-                                it.initial().asParam(withDefaultNullIfNullable = true)
-                            }
-                        )
-                        .returns(it.vc)
-                        .build()
-                }
-            )
-            .build())
+                            .addParameters(
+                                it.subComponents.map { it.asParam() },
+                            )
+                            .addParameters(
+                                it.fixProperties.map { it.asParam() },
+                            )
+                            .addParameters(
+                                it.mutableProperties.map {
+                                    it.initial().asParam(withDefaultNullIfNullable = true)
+                                },
+                            )
+                            .returns(it.vc)
+                            .build()
+                    },
+                )
+                .build(),
+        )
             .build().writeTo(generatedCommonSources(modules.viewcontract))
     }
 
@@ -420,20 +433,20 @@ class Generator(
                         .addParameter(
                             ParameterSpec.builder(
                                 "coroutineContext",
-                                FrameworkClassNames.coroutineContext
+                                FrameworkClassNames.coroutineContext,
                             )
-                                .build()
+                                .build(),
                         )
                         .addParameters(
                             it.states.map {
                                 ParameterSpec.builder(it.name, it.stateDef()!!.contractClassName)
                                     .build()
-                            }
+                            },
                         )
                         .addModifiers(KModifier.ABSTRACT)
                         .returns(it.modelContract())
                         .build()
-                }
+                },
             )
         }.writeTo(generatedCommonSources(modules.modelcontract))
     }
@@ -441,33 +454,34 @@ class Generator(
     fun ClassName.existsAndroidInModule(module: String) =
         Files.exists(
             androidSources(module).resolve(packageName.packageToPathFragment())
-                .resolve("$simpleName.kt")
+                .resolve("$simpleName.kt"),
         )
 
     fun ClassName.existsAndroidTestInModule(module: String) =
         Files.exists(
             androidTestSources(module).resolve(packageName.packageToPathFragment())
-                .resolve("$simpleName.kt")
+                .resolve("$simpleName.kt"),
         )
 
     fun ClassName.existsCommonInModule(module: String) =
         Files.exists(
             commonSources(module).resolve(packageName.packageToPathFragment())
-                .resolve("$simpleName.kt")
+                .resolve("$simpleName.kt"),
         )
 
     fun ClassName.existsJvmTestInModule(module: String) =
         Files.exists(
             jvmTestSources(module).resolve(packageName.packageToPathFragment())
-                .resolve("$simpleName.kt")
+                .resolve("$simpleName.kt"),
         )
 
-    fun androidResLayoutPath(module: String, name: String) =
-        rootPath.resolve("$module/src/androidMain/res/layout/$name.xml")
+    fun androidResLayoutPath(
+        module: String,
+        name: String,
+    ): Path = rootPath.resolve("$module/src/androidMain/res/layout/$name.xml")
 
     val viewR = ClassName("$appPackage.view", "R")
     val appR = ClassName("$appPackage.android", "R")
-
 
     @ExperimentalStdlibApi
     fun generateApp() {
@@ -475,9 +489,7 @@ class Generator(
             generateAppModule()
             generateStartsIfNeeded()
         }
-
     }
-
 
     @ExperimentalStdlibApi
     fun generateAppModule() {
@@ -486,70 +498,64 @@ class Generator(
                 PropertySpec.builder(
                     generatedAppModules.simpleName,
                     ClassName("kotlin.collections", "List").parameterizedBy(
-                        module.parameterizedBy(baseInjector)
-                    )
+                        module.parameterizedBy(baseInjector),
+                    ),
                 )
-                    .initializer(CodeBlock.builder()
-                        .beginControlFlow("listOf(module")
-                        .addStatement("single<${stringsInterface.simpleName}> { ${stringsImpl.simpleName}(androidApplication)}")
-                        .addStatement("single<${pluralsInterface.simpleName}> { ${pluralsImpl.simpleName}(androidApplication)}")
-                        .addStatement("single<${iconsInterface.simpleName}> { ${iconsImpl.simpleName}(androidApplication)}")
-                        .addStatement("single<${colorsInterface.simpleName}> { ${colorsImpl.simpleName}(androidApplication)}")
-                        .addStatement("single<${fontsInterface.simpleName}> { ${fontsImpl.simpleName}()}")
-                        .addStatement("single<${stylesInterface.simpleName}> { ${stylesImpl.simpleName}()}")
-                        .addStatement("single<${dimensInterface.simpleName}> { ${dimensImpl.simpleName}()}")
-                        .addStatement("single<${viewInjectorInterface.simpleName}> { ${viewInjectorImpl.simpleName}()}")
-                        .addStatement("single<${modelInjectorInterface.simpleName}> { ${modelInjectorImpl.simpleName}()}")
-                        .addStatement("single<${transitionsInterface.simpleName}> { ${transitionsImpl.simpleName}()}")
-                        .addStatement("single<${permissionsInterface.simpleName}> { ${permissionsImpl.simpleName}()}")
-                        .beginControlFlow("single")
-                        .addStatement("${appFeatureInitializer.simpleName}(")
-
-                        .beginControlFlow("initialize = ")
-                        .apply {
-                            rootState?.let {
-                                beginControlFlow("restoreState().let")
-                                addStatement("$appPackage.states.${it.nameAsProperty} = it")
-                                addStatement("${shortCuts.packageName}.${it.nameAsProperty} = it")
-                                endControlFlow()
-                            }
-                        }
-                        .addStatement("initializeView(androidApplication)")
-                        .endControlFlow()
-                        .addStatement(",")
-                        .beginControlFlow("onDeepLink = { uri, fromWebView ->")
-                        .addStatement("onDeeplink(uri, fromWebView)")
-                        .endControlFlow()
-                        .addStatement(",")
-
-                        .beginControlFlow("start = { action ->")
-                        .addStatement("start(startModel(action), action)")
-                        .endControlFlow()
-                        .addStatement(",")
-
-                        .beginControlFlow("resetToRoot = ")
-                        .addStatement("SKRootStack.resetToRoot()")
-                        .endControlFlow()
-
-                        .addStatement(")")
-
-                        .endControlFlow()
-                        .endControlFlow()
-
-                        .addStatement(",")
-                        .addStatement("modelFrameworkModule,")
-                        .addStatement("coreViewModule,")
-                        .apply {
-                            getUsedSKLibrariesModules()
-                                .forEach {
-                                    addStatement("$it,")
+                    .initializer(
+                        CodeBlock.builder()
+                            .beginControlFlow("listOf(module")
+                            .addStatement("single<${stringsInterface.simpleName}> { ${stringsImpl.simpleName}(androidApplication)}")
+                            .addStatement("single<${pluralsInterface.simpleName}> { ${pluralsImpl.simpleName}(androidApplication)}")
+                            .addStatement("single<${iconsInterface.simpleName}> { ${iconsImpl.simpleName}(androidApplication)}")
+                            .addStatement("single<${colorsInterface.simpleName}> { ${colorsImpl.simpleName}(androidApplication)}")
+                            .addStatement("single<${fontsInterface.simpleName}> { ${fontsImpl.simpleName}()}")
+                            .addStatement("single<${stylesInterface.simpleName}> { ${stylesImpl.simpleName}()}")
+                            .addStatement("single<${dimensInterface.simpleName}> { ${dimensImpl.simpleName}()}")
+                            .addStatement("single<${viewInjectorInterface.simpleName}> { ${viewInjectorImpl.simpleName}()}")
+                            .addStatement("single<${modelInjectorInterface.simpleName}> { ${modelInjectorImpl.simpleName}()}")
+                            .addStatement("single<${transitionsInterface.simpleName}> { ${transitionsImpl.simpleName}()}")
+                            .addStatement("single<${permissionsInterface.simpleName}> { ${permissionsImpl.simpleName}()}")
+                            .beginControlFlow("single")
+                            .addStatement("${appFeatureInitializer.simpleName}(")
+                            .beginControlFlow("initialize = ")
+                            .apply {
+                                rootState?.let {
+                                    beginControlFlow("restoreState().let")
+                                    addStatement("$appPackage.states.${it.nameAsProperty} = it")
+                                    addStatement("${shortCuts.packageName}.${it.nameAsProperty} = it")
+                                    endControlFlow()
                                 }
-
-                        }
-                        .addStatement(")")
-                        .build())
-                    .build()
-
+                            }
+                            .addStatement("initializeView(androidApplication)")
+                            .endControlFlow()
+                            .addStatement(",")
+                            .beginControlFlow("onDeepLink = { uri, fromWebView ->")
+                            .addStatement("onDeeplink(uri, fromWebView)")
+                            .endControlFlow()
+                            .addStatement(",")
+                            .beginControlFlow("start = { action ->")
+                            .addStatement("start(startModel(action), action)")
+                            .endControlFlow()
+                            .addStatement(",")
+                            .beginControlFlow("resetToRoot = ")
+                            .addStatement("SKRootStack.resetToRoot()")
+                            .endControlFlow()
+                            .addStatement(")")
+                            .endControlFlow()
+                            .endControlFlow()
+                            .addStatement(",")
+                            .addStatement("modelFrameworkModule,")
+                            .addStatement("coreViewModule,")
+                            .apply {
+                                getUsedSKLibrariesModules()
+                                    .forEach {
+                                        addStatement("$it,")
+                                    }
+                            }
+                            .addStatement(")")
+                            .build(),
+                    )
+                    .build(),
             )
 //                .addImportClassName(getFun)
             .addImportClassName(FrameworkClassNames.skRootStack)
@@ -583,7 +589,6 @@ class Generator(
                     addImport("$appPackage.states", "restoreState")
                 }
             }
-
 //            .apply {
 //                getUsedSKLibrariesGroups().map {
 //                    addImport("$it.di", it.libraryModuleName())
@@ -651,45 +656,42 @@ class Generator(
             .mapNotNull {
                 val split = it.split(",")
                 if (split.size > 1) {
-                    split[1].let { if (it.isNotBlank()) it else null }
+                    split[1].let { it.ifBlank { null } }
                 } else {
-                    "${it}.di.${it.substringAfterLast(".")}Module"
+                    "$it.di.${it.substringAfterLast(".")}Module"
                 }
             }
     }
 
     fun ComponentDef.hasModel() = componentsWithModel.contains(this)
 
-
-    //Regarde si le fichier existe déjà, dans main ou dans une variante de main
-    fun existsPath(path: Path, patternConbinable: String): Boolean {
-        return Files.exists(path)
-                ||
+    // Regarde si le fichier existe déjà, dans main ou dans une variante de main
+    fun existsPath(
+        path: Path,
+        patternConbinable: String,
+    ): Boolean {
+        return Files.exists(path) ||
                 variantsCombinaison.any {
                     Files.exists(path.replaceSegment(patternConbinable, "$patternConbinable$it"))
                 }
     }
-
 
     fun migrate() {
         migrateTo29()
     }
 }
 
-
 fun getAndroidPackageName(path: Path): String {
     val manifest = path.resolve("AndroidManifest.xml")
     return manifest.getDocumentElement().getAttribute("package")
 }
 
-//fun List<String>.packageToPath() = map { it.replace('.','/') }.joinToString(separator = "/")
-
+// fun List<String>.packageToPath() = map { it.replace('.','/') }.joinToString(separator = "/")
 
 fun Path.getDocument(): Document =
     DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(this.toFile())
 
-fun Path.getDocumentElement(): Element =
-    getDocument().documentElement
+fun Path.getDocumentElement(): Element = getDocument().documentElement
 
 fun Element.childElements(): List<Element> {
     val elements: MutableList<Element> = mutableListOf()
@@ -702,7 +704,7 @@ fun Element.childElements(): List<Element> {
 fun Document.getElementsWithTagName(tagName: String): List<Element> {
     val list = getElementsByTagName(tagName)
     val res = mutableListOf<Element>()
-    (0..(list.length - 1)).forEach {
+    (0..<list.length).forEach {
         (list.item(it) as? Element)?.let { res.add(it) }
     }
     return res

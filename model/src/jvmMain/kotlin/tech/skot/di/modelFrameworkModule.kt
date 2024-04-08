@@ -5,22 +5,26 @@ import tech.skot.core.di.module
 import tech.skot.model.Device
 import tech.skot.model.JvmSKPersistor
 import tech.skot.model.PersistorFactory
-import tech.skot.model.SKPersistor
 
-val mockDevice = object : Device {
-    private var localeInfos: Device.Locale = Device.Locale(language = "FR", country = "FR")
-    override fun getLocaleInfos(): Device.Locale = localeInfos
+val mockDevice =
+    object : Device {
+        private var localeInfos: Device.Locale = Device.Locale(language = "FR", country = "FR")
 
-    override var osVersion: String = "30"
-}
+        override fun getLocaleInfos(): Device.Locale = localeInfos
 
-actual val modelFrameworkModule = module<BaseInjector> {
-    factory<PersistorFactory> {
-        object : PersistorFactory {
-            override fun getPersistor(dbFileName: String, cache: Boolean) =
-                JvmSKPersistor(dbFileName)
-        }
+        override var osVersion: String = "30"
     }
 
-    factory<Device> { mockDevice }
-}
+actual val modelFrameworkModule =
+    module<BaseInjector> {
+        factory<PersistorFactory> {
+            object : PersistorFactory {
+                override fun getPersistor(
+                    dbFileName: String,
+                    cache: Boolean,
+                ) = JvmSKPersistor(dbFileName)
+            }
+        }
+
+        factory<Device> { mockDevice }
+    }

@@ -1,19 +1,16 @@
 package tech.skot.tools.gradle
 
 import com.android.build.gradle.LibraryExtension
-import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.model.KotlinAndroidExtension
 import tech.skot.Versions
 
-//open class SKPluginLibraryViewLegacyExtension {
-//}
+// open class SKPluginLibraryViewLegacyExtension {
+// }
 
-class PluginLibraryViewLegacy: Plugin<Project> {
-
+class PluginLibraryViewLegacy : Plugin<Project> {
     override fun apply(project: Project) {
 //        val extension = project.extensions.create<SKPluginLibraryViewLegacyExtension>("skot")
         project.plugins.apply("com.android.library")
@@ -28,12 +25,9 @@ class PluginLibraryViewLegacy: Plugin<Project> {
         project.dependencies {
             dependencies(project)
         }
-
     }
 
-
     private fun LibraryExtension.android(project: Project) {
-
         sourceSets.getByName("main") {
             java.srcDir("src/androidMain/kotlin")
             res.srcDir("src/androidMain/res")
@@ -45,14 +39,10 @@ class PluginLibraryViewLegacy: Plugin<Project> {
         }
 
         androidBaseConfig(project)
-        
 
         buildFeatures {
             viewBinding = true
         }
-
-
-
     }
 
     private fun KotlinMultiplatformExtension.conf() {
@@ -60,7 +50,6 @@ class PluginLibraryViewLegacy: Plugin<Project> {
             publishLibraryVariants("release")
         }
     }
-
 
     private fun DependencyHandlerScope.dependencies(project: Project) {
         add("implementation", "${Versions.group}:viewlegacy:${Versions.skot}")
@@ -70,5 +59,4 @@ class PluginLibraryViewLegacy: Plugin<Project> {
 
         add("androidTestImplementation", "${Versions.group}:viewlegacyTests:${Versions.skot}")
     }
-
 }

@@ -5,25 +5,24 @@ data class SKUri(
     val host: String?,
     val pathSegments: List<String>,
     val parameters: Map<String, List<String>>,
-    val url:String
+    val url: String,
 ) {
-    fun urlWithoutParameters():String {
+    fun urlWithoutParameters(): String {
         return "$scheme://$host/${pathSegments.joinToString("/")}"
     }
 
     val shortHost: String? by lazy {
         host?.let {
             val tab = it.split(".")
-            if (tab.size>2) {
+            if (tab.size > 2) {
                 tab.takeLast(2).joinToString(".")
-            }
-            else {
+            } else {
                 it
             }
         }
     }
 
-    val path:String by lazy {
+    val path: String by lazy {
         pathSegments.joinToString("/", prefix = "/")
     }
 }

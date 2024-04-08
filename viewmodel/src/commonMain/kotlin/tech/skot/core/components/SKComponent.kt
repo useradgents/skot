@@ -16,38 +16,39 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
             null
     }
 
-
     protected val job = SupervisorJob()
     final override val coroutineContext = CoroutineScope(Dispatchers.Main + job).coroutineContext
 
     open fun onRemove() {
-        //remove des Pokers
+        // remove des Pokers
         removeObservers.forEach { it.invoke() }
         view.onRemove()
         job.cancel()
     }
 
-
-    private val noCrashExceptionHandler = CoroutineExceptionHandler { _, e ->
-        SKLog.i("launchNoCrash ${e.message}")
-    }
+    private val noCrashExceptionHandler =
+        CoroutineExceptionHandler { _, e ->
+            SKLog.i("launchNoCrash ${e.message}")
+        }
 
     fun launchNoCrash(
         start: CoroutineStart = CoroutineStart.DEFAULT,
         block: suspend CoroutineScope.() -> Unit,
-    ): Job =
-        launch(noCrashExceptionHandler, start, block)
-
+    ): Job = launch(noCrashExceptionHandler, start, block)
 
     open val loader: SKLoader? = null
 
     open val onSwipe: (() -> Unit)? = null
 
-    open fun treatError(exception: Exception, errorMessage: String?) {
+    open fun treatError(
+        exception: Exception,
+        errorMessage: String?,
+    ) {
         errorTreatment?.invoke(this, exception, errorMessage)
-            ?: throw IllegalStateException("Valorise SKComponent.errorTreatment or override treatError function to use method treating errors")
+            ?: throw IllegalStateException(
+                "Valorise SKComponent.errorTreatment or override treatError function to use method treating errors",
+            )
     }
-
 
     fun requestPermissions(
         permissions: List<SKPermission>,
@@ -56,7 +57,11 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
         view.requestPermissions(permissions = permissions, onResult = onResult)
     }
 
-    fun doWithPermission(permission: SKPermission, onKo: (() -> Unit)? = null, onOk: () -> Unit) {
+    fun doWithPermission(
+        permission: SKPermission,
+        onKo: (() -> Unit)? = null,
+        onOk: () -> Unit,
+    ) {
         requestPermissions(listOf(permission)) { grantedPermissions ->
             if (grantedPermissions.isNotEmpty()) {
                 onOk()
@@ -143,7 +148,6 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
                         (specificLoader ?: loader)?.workEnded()
                     }
                 }
-
             }
         }
 
@@ -160,11 +164,11 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
             errorMessage = errorMessage,
             withLoader = true,
             specificLoader = specificLoader,
-            block = block
+            block = block,
         )
 
-
     private var removeObservers: MutableSet<() -> Unit> = mutableSetOf()
+
     private fun addRemoveObserver(observer: () -> Unit) {
         removeObservers.add(observer)
     }
@@ -173,7 +177,10 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
         removeObservers.remove(observer)
     }
 
-    fun observe(poker: Poker, onPoke: () -> Unit) {
+    fun observe(
+        poker: Poker,
+        onPoke: () -> Unit,
+    ) {
         poker.addObserver(onPoke)
         addRemoveObserver { poker.removeObserver(onPoke) }
     }
@@ -182,12 +189,14 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
         SKLog.d("${this::class.simpleName} -- $message")
     }
 
-    fun logE(throwable: Throwable, message: Any? = "") {
+    fun logE(
+        throwable: Throwable,
+        message: Any? = "",
+    ) {
         SKLog.e(throwable, "${this::class.simpleName} -- $message")
     }
 
     fun <D : Any?> SKData<D>.onChange(lambda: (d: D) -> Unit) {
-
         class Treatment(val data: D)
 
         var lastTreatedData: Treatment? = null
@@ -223,7 +232,6 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
         defaultErrorMessage: String? = null,
         block: (d: D) -> Unit,
     ) {
-
         class Treatment(val data: D)
 
         var lastTreatedData: Treatment? = null
@@ -235,7 +243,6 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
                     lastTreatedData = Treatment(data)
                 }
             }
-
         }
 
         fun fallBack(): Job =
@@ -243,7 +250,7 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
                 withLoader = withLoaderForFirstData,
                 specificErrorTreatment = { ex ->
                     logE(ex, "SKData onData fallBackDataBeforeFirstDataLoaded error")
-                }
+                },
             ) {
                 fallBackValue()?.let { treatData(it) }
             }
@@ -263,8 +270,7 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
                 if (treatErrors) {
                     treatError(ex, defaultErrorMessage)
                 }
-            }
-
+            },
         ) {
             try {
                 get(validity).let {
@@ -294,31 +300,26 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
                     if (ex !is CancellationException) {
                         SKLog.e(
                             ex,
-                            "Error in collect of an SKComponent.onData may be un treatment or in a map"
+                            "Error in collect of an SKComponent.onData may be un treatment or in a map",
                         )
                     }
-
                 }
-
             }
         }
-
-
     }
 
     open fun computeItemId(): Any {
         return this
     }
 
-    operator fun plus(otherComponent: SKComponent<*>?): List<SKComponent<*>> =
-        listOfNotNull(this, otherComponent)
+    operator fun plus(otherComponent: SKComponent<*>?): List<SKComponent<*>> = listOfNotNull(this, otherComponent)
 
     operator fun plus(otherComponents: List<SKComponent<*>>?): List<SKComponent<*>> =
         if (otherComponents != null) {
             listOf(this) + otherComponents
-        } else listOf(this)
-
-
+        } else {
+            listOf(this)
+        }
 }
 
 fun List<SKComponent<*>>.plusIfNotNull(otherComponent: SKComponent<*>?): List<SKComponent<*>> =
@@ -346,7 +347,7 @@ fun List<SKComponent<*>>.join(separator: () -> SKComponent<*>): List<SKComponent
 
 fun List<SKComponent<*>>.joinByGroups(
     count: Int,
-    separator: () -> SKComponent<*>
+    separator: () -> SKComponent<*>,
 ): List<SKComponent<*>> {
     val listByGroup = this.chunked(count)
     val list = mutableListOf<SKComponent<*>>()
@@ -363,19 +364,18 @@ fun List<SKComponent<*>>.joinByGroups(
 fun List<SKComponent<*>>.joinByGroup(
     count: Int,
     offset: Int = 0,
-    separator: () -> SKComponent<*>
+    separator: () -> SKComponent<*>,
 ): List<SKComponent<*>> {
     val list = this.toMutableList()
     val firsts = this.subList(0, offset)
     list.removeAll(firsts)
     val all = list.chunked(count)
     return all.toMutableList().apply {
-        if(firsts.isNotEmpty()) {
+        if (firsts.isNotEmpty()) {
             this.add(0, firsts)
         }
     }.joinGroups(separator)
 }
-
 
 fun List<List<SKComponent<*>>>.joinGroups(separator: () -> SKComponent<*>): List<SKComponent<*>> {
     val list = mutableListOf<SKComponent<*>>()

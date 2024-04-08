@@ -2,7 +2,7 @@ package tech.skot.core.components
 
 import tech.skot.core.view.Color
 
-open class SKScreenViewMock: SKComponentViewMock(), SKScreenVC {
+open class SKScreenViewMock : SKComponentViewMock(), SKScreenVC {
     override var onBackPressed: (() -> Unit)? = null
 
     fun backPressed() {

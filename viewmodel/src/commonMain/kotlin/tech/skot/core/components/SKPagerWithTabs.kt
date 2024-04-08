@@ -10,36 +10,43 @@ class SKPagerWithTabs(
     onUserTabClick: ((index: Int) -> Unit)? = null,
     initialSelectedPageIndex: Int = 0,
     swipable: Boolean = false,
-    initialTabsVisibility: SKPagerWithTabsVC.Visibility = SKPagerWithTabsVC.Visibility.Visible
+    initialTabsVisibility: SKPagerWithTabsVC.Visibility = SKPagerWithTabsVC.Visibility.Visible,
 ) : SKComponent<SKPagerWithTabsVC>() {
     sealed class TabPage(val screen: SKScreen<*>)
+
     class Page(screen: SKScreen<*>, val label: String) : TabPage(screen)
+
     class ConfigurableTabPage(
         screen: SKScreen<*>,
-        val tabConfig: TabConfig
+        val tabConfig: TabConfig,
     ) : TabPage(screen)
 
     sealed class TabConfig {
         class CustomTab(val component: SKComponent<*>) : TabConfig()
+
         class SpannableTitleTab(val title: SKSpannedString) : TabConfig()
+
         class TitleTab(val title: String) : TabConfig()
+
         class IconTitleTab(val title: SKSpannedString, val icon: Icon) : TabConfig()
+
         class IconTab(val icon: Icon) : TabConfig()
     }
 
-
-    val pager = SKPager(
-        initialScreens = initialPages.map { it.screen },
-        onUserSwipeToPage = onUserSwipeToPage,
-        initialSelectedPageIndex = initialSelectedPageIndex,
-        swipable = swipable
-    )
+    val pager =
+        SKPager(
+            initialScreens = initialPages.map { it.screen },
+            onUserSwipeToPage = onUserSwipeToPage,
+            initialSelectedPageIndex = initialSelectedPageIndex,
+            swipable = swipable,
+        )
 
     var pages: List<TabPage> = initialPages
         set(value) {
-            val newComponents = value
-                .filterIsInstance<ConfigurableTabPage>().map { it.tabConfig }
-                .filterIsInstance<TabConfig.CustomTab>().map { it.component }
+            val newComponents =
+                value
+                    .filterIsInstance<ConfigurableTabPage>().map { it.tabConfig }
+                    .filterIsInstance<TabConfig.CustomTab>().map { it.component }
 
             field.filterIsInstance<ConfigurableTabPage>().map { it.tabConfig }
                 .filterIsInstance<TabConfig.CustomTab>().forEach {
@@ -93,11 +100,10 @@ class SKPagerWithTabs(
             pager = pager.view,
             onUserTabClick = onUserTabClick,
             tabConfigs = mapTabConfig(initialPages),
-            tabsVisibility = initialTabsVisibility
+            tabsVisibility = initialTabsVisibility,
         )
 
     override fun onRemove() {
         pager.onRemove()
     }
-
 }

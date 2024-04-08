@@ -1,7 +1,7 @@
 package tech.skot.core.test
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -16,8 +16,8 @@ import tech.skot.core.di.Module
 import tech.skot.core.di.injector
 import kotlin.test.fail
 
+@OptIn(ExperimentalCoroutinesApi::class)
 abstract class SKTestViewModel(vararg modules: Module<InjectorMock>) {
-
     private val _modules: List<Module<InjectorMock>> = modules.asList()
     private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
@@ -43,10 +43,9 @@ abstract class SKTestViewModel(vararg modules: Module<InjectorMock>) {
         mainThreadSurrogate.close()
     }
 
-
     fun SKScreen<*>.isRemoved(): Boolean = (view as SKScreenViewMock).removed
-    fun SKScreenVC.isRemoved(): Boolean = (this as SKScreenViewMock).removed
 
+    fun SKScreenVC.isRemoved(): Boolean = (this as SKScreenViewMock).removed
 
     val screenOnTop: SKScreen<*>?
         get() = SKRootStack.state.screens.lastOrNull()
@@ -64,8 +63,6 @@ abstract class SKTestViewModel(vararg modules: Module<InjectorMock>) {
         if (withAdvanceUntilIdle) scheduler.advanceUntilIdle()
         test?.invoke()
     }
-
 }
 
-inline fun <reified C : Any> Any.assertAs(): C =
-    (this as? C) ?: fail("not a ${C::class.simpleName} (but ${this::class.simpleName})")
+inline fun <reified C : Any> Any.assertAs(): C = (this as? C) ?: fail("not a ${C::class.simpleName} (but ${this::class.simpleName})")

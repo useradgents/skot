@@ -1,4 +1,3 @@
 package tech.skot.viewmodel
 
-
-actual fun String?.formatPhoneNumber():String? = TODO()
+actual fun String?.formatPhoneNumber(): String? = TODO()

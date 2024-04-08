@@ -14,11 +14,12 @@ object AndroidClassNames {
     val build = ClassName("android.os", "Build")
     val viewGroup = ClassName("android.view", "ViewGroup")
     val intent = ClassName("android.content", "Intent")
-    val manifest = ClassName("android","Manifest")
+    val manifest = ClassName("android", "Manifest")
 
     val runBlocking = ClassName("kotlinx.coroutines", "runBlocking")
     val applicationProvider = ClassName("androidx.test.core.app", "ApplicationProvider")
+
     object Annotations {
-        val before = ClassName("org.junit","Before")
+        val before = ClassName("org.junit", "Before")
     }
 }

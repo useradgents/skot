@@ -9,10 +9,8 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class TestWrapper {
-
     @Test
     fun trivial() {
-
         class ConteneurDeSKData(val name: String, val sk: SKData<String>)
 
         val metaSK = SKManualData<ConteneurDeSKData?>(null)
@@ -20,13 +18,14 @@ class TestWrapper {
         val manual1 = ConteneurDeSKData(name = "manual1", SKManualData<String>("val1"))
         val manual2 = ConteneurDeSKData(name = "manual2", SKManualData<String>("val2"))
         runBlocking {
-            val wrapped = wrap(
-                stepData = metaSK,
-                defaultValue = "Rien"
-            ) {
-                Log.d("SKLog", "new conteneur de SK : ${this?.name}")
-                this?.sk
-            }
+            val wrapped =
+                wrap(
+                    stepData = metaSK,
+                    defaultValue = "Rien",
+                ) {
+                    Log.d("SKLog", "new conteneur de SK : ${this?.name}")
+                    this?.sk
+                }
 
             delay(500)
             Log.d("SKLog", "1->" + wrapped.get())
@@ -42,14 +41,10 @@ class TestWrapper {
             delay(500)
             wrapped.cancel()
         }
-
-
     }
-
 
     @Test
     fun testCollect() {
-
         class ConteneurDeSKData(val name: String, val sk: SKManualData<String>)
 
         val metaSK = SKManualData<ConteneurDeSKData?>(null)
@@ -57,14 +52,14 @@ class TestWrapper {
         val manual1 = ConteneurDeSKData(name = "manual1", SKManualData<String>("val1"))
         val manual2 = ConteneurDeSKData(name = "manual2", SKManualData<String>("val2"))
         runBlocking {
-            val wrapped = wrap(
-                stepData = metaSK,
-                defaultValue = "Rien"
-            ) {
-                Log.d("SKLog", "new conteneur de SK : ${this?.name}")
-                this?.sk
-            }
-
+            val wrapped =
+                wrap(
+                    stepData = metaSK,
+                    defaultValue = "Rien",
+                ) {
+                    Log.d("SKLog", "new conteneur de SK : ${this?.name}")
+                    this?.sk
+                }
 
             GlobalScope.launch {
                 wrapped.flow.collect {
@@ -85,8 +80,6 @@ class TestWrapper {
             delay(1000)
             manual1.sk.value = "test4"
 
-
-
             delay(3000L)
             println("-------   @@@ ${wrapped.get()}")
             wrapped.cancel()
@@ -104,7 +97,5 @@ class TestWrapper {
 //            delay(500)
 //            wrapped.cancel()
         }
-
-
     }
 }

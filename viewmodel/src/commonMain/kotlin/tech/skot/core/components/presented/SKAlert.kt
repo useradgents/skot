@@ -9,7 +9,6 @@ import tech.skot.core.di.coreViewInjector
  *
  */
 class SKAlert : SKComponent<SKAlertVC>() {
-
     override val view = coreViewInjector.alert()
 
     /**
@@ -24,17 +23,18 @@ class SKAlert : SKComponent<SKAlertVC>() {
         withInput: Boolean = false,
         mainButton: SKAlertVC.Button = SKAlertVC.Button(label = "Ok", action = null),
         secondaryButton: SKAlertVC.Button? = null,
-        neutralButton: SKAlertVC.Button? = null
+        neutralButton: SKAlertVC.Button? = null,
     ) {
-        view.state = SKAlertVC.Shown(
-            title = title,
-            message = message,
-            cancelable = cancelable,
-            withInput = withInput,
-            mainButton = mainButton,
-            secondaryButton = secondaryButton,
-            neutralButton = neutralButton
-        )
+        view.state =
+            SKAlertVC.Shown(
+                title = title,
+                message = message,
+                cancelable = cancelable,
+                withInput = withInput,
+                mainButton = mainButton,
+                secondaryButton = secondaryButton,
+                neutralButton = neutralButton,
+            )
     }
 
     var inputText: String?

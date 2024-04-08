@@ -10,8 +10,8 @@ fun Generator.generateModel() {
     println("-----generateModel")
     components.forEach {
         if (it.hasModel()) {
-            //un model a été défini (par convention de nommage)
-            //on va générer l'implémenation si elle n'existe pas encore et l'intégrer au modelInjector
+            // un model a été défini (par convention de nommage)
+            // on va générer l'implémenation si elle n'existe pas encore et l'intégrer au modelInjector
 
 //            println("Un Model contract trouvé pour ${it.name}")
 
@@ -26,44 +26,47 @@ fun Generator.generateModel() {
                             ParamInfos(
                                 "coroutineContext",
                                 FrameworkClassNames.coroutineContext,
-                                listOf(KModifier.OVERRIDE)
-                            )
-                        )
-                                + it.states.map {
-                            ParamInfos(
-                                it.name,
-                                it.stateDef()!!.modelClassName,
-                                listOf(KModifier.OVERRIDE)
+                                listOf(KModifier.OVERRIDE),
+                            ),
+                        ) +
+                            it.states.map {
+                                ParamInfos(
+                                    it.name,
+                                    it.stateDef()!!.modelClassName,
+                                    listOf(KModifier.OVERRIDE),
+                                )
+                            },
+                    )
+                    it.modelClass?.let { modelClass ->
+                        modelClass.ownProperties().forEach {
+                            addProperty(
+                                PropertySpec.builder(it.name, it.returnType.asTypeName())
+                                    .addModifiers(KModifier.OVERRIDE)
+                                    .build(),
                             )
                         }
-                    )
 
-                    it.modelClass!!.ownProperties().forEach {
-                        addProperty(
-                            PropertySpec.builder(it.name, it.returnType.asTypeName())
-                                .addModifiers(KModifier.OVERRIDE)
-                                .build()
-                        )
+                        modelClass.ownFuncs().forEach {
+                            addFunction(
+                                FunSpec.builder(it.name)
+                                    .apply {
+                                        if (it.isSuspend) {
+                                            addModifiers(KModifier.SUSPEND)
+                                        }
+                                    }
+                                    .addParameters(
+                                        it.parameters.filter { it.kind == KParameter.Kind.VALUE }.map {
+                                            ParameterSpec(it.name!!, it.type.asTypeName())
+                                        },
+                                    )
+                                    .returns(it.returnType.asTypeName())
+                                    .addModifiers(KModifier.OVERRIDE)
+                                    .build(),
+                            )
+                        }
                     }
 
-                    it.modelClass!!.ownFuncs().forEach {
-                        addFunction(
-                            FunSpec.builder(it.name)
-                                .apply {
-                                    if (it.isSuspend) {
-                                        addModifiers(KModifier.SUSPEND)
-                                    }
-                                }
-                                .addParameters(
-                                    it.parameters.filter { it.kind == KParameter.Kind.VALUE }.map {
-                                        ParameterSpec(it.name!!, it.type.asTypeName())
-                                    }
-                                )
-                                .returns(it.returnType.asTypeName())
-                                .addModifiers(KModifier.OVERRIDE)
-                                .build()
-                        )
-                    }
+
                 }
                     .writeTo(commonSources(modules.model))
             }
@@ -77,11 +80,11 @@ fun Generator.generateModel() {
         if (!className.existsCommonInModule(modules.model)) {
             FileSpec.builder(
                 className.packageName,
-                className.simpleName
+                className.simpleName,
             )
                 .addType(
                     TypeSpec.interfaceBuilder(className.simpleName)
-                        .build()
+                        .build(),
                 )
                 .addType(
                     TypeSpec.classBuilder(className.simpleName + "Impl")
@@ -91,41 +94,42 @@ fun Generator.generateModel() {
                                     ParamInfos(
                                         "key",
                                         String::class.asTypeName().nullable(),
-                                        isVal = false
-                                    )
+                                        isVal = false,
+                                    ),
                                 ) +
-                                        state.parentsList.map {
-                                            ParamInfos(
-                                                it.name.decapitalizeAsciiOnly(),
-                                                it.modelClassName,
-                                                isPrivate = true
-                                            )
-                                        } + ParamInfos(
-                                    state.name.decapitalizeAsciiOnly(),
-                                    state.modelClassName,
-                                    isPrivate = true
-                                )
+                                    state.parentsList.map {
+                                        ParamInfos(
+                                            it.name.decapitalizeAsciiOnly(),
+                                            it.modelClassName,
+                                            isPrivate = true,
+                                        )
+                                    } +
+                                    ParamInfos(
+                                        state.name.decapitalizeAsciiOnly(),
+                                        state.modelClassName,
+                                        isPrivate = true,
+                                    ),
                             )
                             superclass(FrameworkClassNames.bm)
                             addSuperinterface(className)
                             addSuperclassConstructorParameter("key")
                         }
-                        .build()
+                        .build(),
                 )
-
                 .build()
-
                 .writeTo(commonSources(modules.model))
         }
     }
 
     modelInjectorImpl.fileClassBuilder(
-        imports = componentsWithModel.map { it.model() } + componentsWithModel.flatMap {
-            it.states.map {
-                it.stateDef()!!.modelClassName
-            }
-        })
-    {
+        imports =
+            componentsWithModel.map { it.model() } +
+                componentsWithModel.flatMap {
+                    it.states.map {
+                        it.stateDef()!!.modelClassName
+                    }
+                },
+    ) {
         addSuperinterface(modelInjectorInterface)
         addFunctions(
             componentsWithModel.map {
@@ -134,28 +138,30 @@ fun Generator.generateModel() {
                     .addParameter(
                         ParameterSpec.builder(
                             "coroutineContext",
-                            FrameworkClassNames.coroutineContext
+                            FrameworkClassNames.coroutineContext,
                         )
-                            .build()
+                            .build(),
                     )
                     .addParameters(
                         it.states.map {
                             ParameterSpec.builder(it.name, it.stateDef()!!.contractClassName)
                                 .build()
-                        }
+                        },
                     )
                     .returns(it.modelContract())
                     .addCode(
                         "return ${it.model().simpleName}(${
-                            (listOf("coroutineContext") + it.states.map {
-                                "${it.name} as ${it.stateDef()!!.modelClassName.simpleName}"
-                            }).joinToString(separator = ", ")
-                        })"
+                            (
+                                listOf("coroutineContext") +
+                                    it.states.map {
+                                        "${it.name} as ${it.stateDef()!!.modelClassName.simpleName}"
+                                    }
+                            ).joinToString(separator = ", ")
+                        })",
                     )
                     .build()
-            }
+            },
         )
-
     }.writeTo(generatedCommonSources(modules.model))
 
     generateModelTests()

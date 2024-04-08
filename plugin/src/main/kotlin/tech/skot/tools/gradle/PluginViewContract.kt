@@ -5,19 +5,16 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.get
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
 import tech.skot.tools.gradle.SKLibrary.Companion.addDependenciesToLibraries
 
-//open class SKPluginViewContractExtension {
-//}
+// open class SKPluginViewContractExtension {
+// }
 
-@Suppress("UnstableApiUsage")
 class PluginViewContract : Plugin<Project> {
-
     override fun apply(project: Project) {
-
-
 //        val extension = project.extensions.create<SKPluginContractExtension>("skot")
         project.plugins.apply("com.android.library")
         project.plugins.apply("maven-publish")
@@ -26,13 +23,9 @@ class PluginViewContract : Plugin<Project> {
         project.extensions.findByType(LibraryExtension::class)?.conf(project)
 
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
-
-
     }
 
-
-    private fun LibraryExtension.conf(project:Project) {
-
+    private fun LibraryExtension.conf(project: Project) {
         androidBaseConfig(project)
 
         sourceSets {
@@ -41,27 +34,24 @@ class PluginViewContract : Plugin<Project> {
             getByName("main").manifest.srcFile("src/androidMain/AndroidManifest.xml")
             getByName("main").res.srcDir("src/androidMain/res")
         }
-
-
-
     }
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
+        jvmToolchain(17)
+
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+        }
         jvm()
         androidTarget {
-            compilations.all {
-                kotlinOptions {
-                    jvmTarget = "1.8"
-                }
-            }
         }
-
 
         sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
         sourceSets["commonMain"].dependencies {
             api("${Versions.group}:viewcontract:${Versions.skot}")
 
-            //utilisé souvent par les projets et inclu à core de toutes façons
+            // utilisé souvent par les projets et inclu à core de toutes façons
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:${Versions.kotlinxDateTime}")
         }
 
@@ -69,12 +59,11 @@ class PluginViewContract : Plugin<Project> {
         addDependenciesToLibraries(
             this,
             (project.parent?.projectDir ?: project.rootDir).toPath(),
-                "commonMain",
-            "viewcontract"
+            "commonMain",
+            "viewcontract",
         )
 
         sourceSets["androidMain"].kotlin.srcDir("src/androidMain/kotlin")
-
 
         skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
             sourceSets["commonMain"].kotlin.srcDir("src/commonMain/kotlin$it")
@@ -82,10 +71,5 @@ class PluginViewContract : Plugin<Project> {
             sourceSets["commonMain"].kotlin.srcDir("generated$it/commonMain/kotlin")
             sourceSets["androidMain"].kotlin.srcDir("generated$it/androidMain/kotlin")
         }
-
     }
-
 }
-
-
-

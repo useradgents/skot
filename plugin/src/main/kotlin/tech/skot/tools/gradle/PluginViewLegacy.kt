@@ -4,45 +4,35 @@ import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
 import tech.skot.tools.gradle.SKLibrary.Companion.addDependenciesToViewLegacy
 
-
-
 @Suppress("UNUSED_PARAMETER")
-class PluginViewLegacy: Plugin<Project> {
-
+class PluginViewLegacy : Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.apply("com.android.library")
 
         project.extensions.findByType(LibraryExtension::class)?.android(project)
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
 
-
         project.dependencies {
             dependencies(project)
             addDependenciesToViewLegacy(this, project.rootDir.toPath())
         }
-
     }
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
-        androidTarget {
-           jvm()
-            compilations.all {
-                kotlinOptions {
-                    jvmTarget = "1.8"
-                }
-            }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
         }
+        androidTarget()
+        jvm()
     }
 
-
-
-        private fun LibraryExtension.android(project: Project) {
-
-
+    private fun LibraryExtension.android(project: Project) {
         sourceSets.getByName("main") {
             java.srcDir("src/androidMain/kotlin")
             java.srcDir("generated/androidMain/kotlin")
@@ -50,14 +40,12 @@ class PluginViewLegacy: Plugin<Project> {
             res.srcDir("src/androidMain/res_referenced")
             manifest.srcFile("src/androidMain/AndroidManifest.xml")
 
-
             skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
                 res.srcDir("src/androidMain/res$it")
                 res.srcDir("src/androidMain/res${it}_referenced")
                 java.srcDir("src/androidMain/kotlin$it")
             }
             res.srcDir("src/androidMain/res")
-
         }
 
         sourceSets.getByName("androidTest") {
@@ -69,29 +57,16 @@ class PluginViewLegacy: Plugin<Project> {
 
         androidBaseConfig(project)
 
-
         buildFeatures {
             viewBinding = true
         }
-
-
-
-
-
-
     }
 
-
-
-
-        private fun DependencyHandlerScope.dependencies(project: Project) {
-
+    private fun DependencyHandlerScope.dependencies(project: Project) {
         val parentProjectPath = project.parent?.path ?: ""
 
         add("api", "${Versions.group}:viewlegacy:${Versions.skot}")
         add("api", project("$parentProjectPath:viewcontract"))
         add("androidTestImplementation", "${Versions.group}:viewlegacyTests:${Versions.skot}")
-
     }
-
 }

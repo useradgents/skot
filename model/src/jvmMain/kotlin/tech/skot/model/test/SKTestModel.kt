@@ -9,7 +9,6 @@ import tech.skot.model.globalPersistor
 import tech.skot.model.userCachePersistor
 
 abstract class SKTestModel(vararg modules: Module<BaseInjector>) {
-
     private val _modules: List<Module<BaseInjector>> = modules.asList()
 
     @Before
@@ -20,6 +19,4 @@ abstract class SKTestModel(vararg modules: Module<BaseInjector>) {
         globalCachePersistor.clearSync()
         userCachePersistor.clearSync()
     }
-
-
 }

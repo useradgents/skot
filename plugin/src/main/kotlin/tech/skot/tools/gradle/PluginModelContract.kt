@@ -6,6 +6,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.get
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
 import tech.skot.Versions.kotlin
@@ -14,9 +15,8 @@ open class SKPluginModelContractExtension {
     var buildFiles: List<Any>? = null
 }
 
-@Suppress("UnstableApiUsage","UNUSED_PARAMETER")
+@Suppress( "UNUSED_PARAMETER")
 class PluginModelContract : Plugin<Project> {
-
     override fun apply(project: Project) {
         val extension = project.extensions.create<SKPluginModelContractExtension>("skot")
         project.plugins.apply("com.android.library")
@@ -31,30 +31,46 @@ class PluginModelContract : Plugin<Project> {
             project.tasks.getByName("preDebugBuild").doFirst {
                 extension.buildFiles?.let {
                     it.forEach {
-                        copyBuildFileToImplementation(it, project, true, true)
+                        copyBuildFileToImplementation(
+                            build = it,
+                            project = project,
+                            addingVersionCodeAndDebug = true,
+                            debug = true
+                        )
                     }
                 }
             }
             project.tasks.getByName("preReleaseBuild").doFirst {
                 extension.buildFiles?.let {
                     it.forEach {
-                        copyBuildFileToImplementation(it, project, true, false)
+                        copyBuildFileToImplementation(
+                            build = it,
+                            project = project,
+                            addingVersionCodeAndDebug = true,
+                            debug = false
+                        )
                     }
                 }
             }
             project.tasks.getByName("compileKotlinJvm").doFirst {
                 extension.buildFiles?.let {
                     it.forEach {
-                        copyBuildFileToImplementation(it, project, true, false)
+                        copyBuildFileToImplementation(
+                            build = it,
+                            project = project,
+                            addingVersionCodeAndDebug = true,
+                            debug = false
+                        )
                     }
                 }
             }
         }
     }
 
-
-    private fun LibraryExtension.conf(project:Project, extension: SKPluginModelContractExtension) {
-
+    private fun LibraryExtension.conf(
+        project: Project,
+        extension: SKPluginModelContractExtension,
+    ) {
         androidBaseConfig(project)
 
         sourceSets {
@@ -66,13 +82,13 @@ class PluginModelContract : Plugin<Project> {
     }
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
+        jvmToolchain(17)
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+        }
         jvm()
         androidTarget {
-            compilations.all {
-                kotlinOptions {
-                    jvmTarget = "1.8"
-                }
-            }
         }
 
         sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
@@ -85,8 +101,4 @@ class PluginModelContract : Plugin<Project> {
             sourceSets["androidMain"].kotlin.srcDir("src/androidMain/kotlin$it")
         }
     }
-
 }
-
-
-

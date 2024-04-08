@@ -15,15 +15,14 @@ import tech.skot.core.view.ColorRef
 import tech.skot.core.view.Style
 
 class SKTestActivity : SKActivity() {
-
-    override val featureInitializer = object : SKFeatureInitializer(
-        initialize = {},
-        onDeepLink = null,
-        start = {},
-        resetToRoot = {
-        }
-    ) {}
-
+    override val featureInitializer =
+        object : SKFeatureInitializer(
+            initialize = {},
+            onDeepLink = null,
+            start = {},
+            resetToRoot = {
+            },
+        ) {}
 }
 
 fun testScreen(
@@ -31,14 +30,15 @@ fun testScreen(
     duration: Long = 5 * 60 * 1000L,
     block: (suspend CoroutineScope.(scenario: ActivityScenario<SKTestActivity>) -> Unit)? = null,
 ) {
-    SKRootStackViewProxy.state = SKStackVC.State(
-        screens = listOf(screenViewProxy)
-    )
+    SKRootStackViewProxy.state =
+        SKStackVC.State(
+            screens = listOf(screenViewProxy),
+        )
     launchActivity<SKTestActivity>(
         Intent(
             ApplicationProvider.getApplicationContext(),
-            SKTestActivity::class.java
-        )
+            SKTestActivity::class.java,
+        ),
     ).use { scenario ->
         runBlocking {
             withContext(Dispatchers.Main) {
@@ -59,10 +59,9 @@ fun testComponent(
     testScreen(
         SKTestScreenViewProxy(listOf(componentViewProxy), vertical, backgroundColor),
         duration,
-        block
+        block,
     )
 }
-
 
 fun testComponents(
     vararg componentsViewProxy: SKComponentViewProxy<*>,
@@ -73,11 +72,14 @@ fun testComponents(
 ) {
     testScreen(
         SKTestScreenViewProxy(
-            componentsViewProxy.toList(), vertical, backgroundColor
-        ), duration, block
+            componentsViewProxy.toList(),
+            vertical,
+            backgroundColor,
+        ),
+        duration,
+        block,
     )
 }
-
 
 fun testDialog(
     screen: SKScreenViewProxy<*>,
@@ -90,11 +92,12 @@ fun testDialog(
     val button = SKButtonViewProxy(labelInitial = "open dialog")
     val skScreenTest = SKTestScreenViewProxy(listOf(button), vertical, backgroundColor)
     button.onTap = {
-        skScreenTest.dialog.state = SKDialogVC.Shown(
-            screen = screen,
-            cancelable = false,
-            style = style
-        )
+        skScreenTest.dialog.state =
+            SKDialogVC.Shown(
+                screen = screen,
+                cancelable = false,
+                style = style,
+            )
     }
 
     testScreen(skScreenTest, duration, block)
@@ -114,13 +117,14 @@ fun testBottomSheet(
     val button = SKButtonViewProxy(labelInitial = "open bottomSheet")
     val skScreenTest = SKTestScreenViewProxy(listOf(button), vertical, backgroundColor)
     button.onTap = {
-        skScreenTest.bottomSheet.state = SKBottomSheetVC.Shown(
-            screen = screen,
-            expanded = expanded,
-            skipCollapsed = skipCollapsed,
-            fullHeight = fullHeight,
-            resizeOnKeyboard = resizeOnKeyboard
-        )
+        skScreenTest.bottomSheet.state =
+            SKBottomSheetVC.Shown(
+                screen = screen,
+                expanded = expanded,
+                skipCollapsed = skipCollapsed,
+                fullHeight = fullHeight,
+                resizeOnKeyboard = resizeOnKeyboard,
+            )
     }
 
     testScreen(skScreenTest, duration, block)

@@ -5,7 +5,6 @@ import tech.skot.core.components.SKLayoutNo
 
 @SKLayoutNo
 interface SKAlertVC : SKComponentVC {
-
     data class Shown(
         val title: String? = null,
         val message: String? = null,

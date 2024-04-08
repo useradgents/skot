@@ -9,16 +9,15 @@ abstract class SKDistantDataWithCacheAndLiveKey<D : Any>(
     validity: Long? = null,
     private val fixKey: String?,
     private val liveKey: () -> String,
-    fetchData: suspend () -> D
+    fetchData: suspend () -> D,
 ) : SKDistantDataWithCache<D>(
-    name = name,
-    serializer = serializer,
-    key = "${fixKey}_${liveKey()}",
-    cache = cache,
-    validity = validity,
-    fetchData = fetchData
-) {
-
+        name = name,
+        serializer = serializer,
+        key = "${fixKey}_${liveKey()}",
+        cache = cache,
+        validity = validity,
+        fetchData = fetchData,
+    ) {
     override suspend fun get(validity: Long?): D {
         if (_current != null && liveKeyOfCurrentValue != liveKey()) {
             update()
@@ -30,6 +29,7 @@ abstract class SKDistantDataWithCacheAndLiveKey<D : Any>(
         get() = "${fixKey}_${liveKey()}"
 
     private var liveKeyOfCurrentValue: String? = null
+
     override fun setDatedData(newDatedData: DatedData<D>) {
         liveKeyOfCurrentValue = liveKey()
         super.setDatedData(newDatedData)
@@ -40,10 +40,10 @@ abstract class SKDistantDataWithCacheAndLiveKey<D : Any>(
     }
 
     override suspend fun fallBackValue(): D? {
-        if (liveKeyOfCurrentValue == liveKey()) {
-            return super.fallBackValue()
+        return if (liveKeyOfCurrentValue == liveKey()) {
+            super.fallBackValue()
         } else {
-            return null
+            null
         }
     }
 }

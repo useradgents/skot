@@ -7,10 +7,8 @@ import tech.skot.view.tests.SKTestView
 import tech.skot.view.tests.testComponents
 
 class TestSKButtonView : SKTestView() {
-
     @Test
     fun testDebounce() {
-
         var compteur500 = 0
         val button500 =
             SKButtonViewProxy(labelInitial = "debounce standard (500ms)", onTapInitial = {
@@ -33,8 +31,9 @@ class TestSKButtonView : SKTestView() {
             })
 
         testComponents(
-            button500, buttonNoDebounce, button2000
+            button500,
+            buttonNoDebounce,
+            button2000,
         )
-
     }
 }

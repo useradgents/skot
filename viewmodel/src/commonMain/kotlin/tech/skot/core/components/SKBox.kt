@@ -3,8 +3,7 @@ package tech.skot.core.components
 import tech.skot.core.di.coreViewInjector
 
 open class SKBox(items: List<SKComponent<*>>?) : SKComponent<SKBoxVC>() {
-    constructor(vararg item:SKComponent<*>) : this(item.asList())
-
+    constructor(vararg item: SKComponent<*>) : this(item.asList())
 
     override val view =
         coreViewInjector.skBox(items?.map { it.view } ?: emptyList(), hiddenInitial = null)
@@ -27,7 +26,6 @@ open class SKBox(items: List<SKComponent<*>>?) : SKComponent<SKBoxVC>() {
             field = value
             items = value?.let { listOf(it) } ?: emptyList()
         }
-
 
     var hidden: Boolean? = null
         set(value) {

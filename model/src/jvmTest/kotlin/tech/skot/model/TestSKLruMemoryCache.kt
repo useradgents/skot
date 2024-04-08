@@ -1,26 +1,28 @@
 package tech.skot.model
 
-import io.ktor.util.*
 import kotlinx.coroutines.*
+import java.util.Locale
 import kotlin.system.measureTimeMillis
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class TestSKLruMemoryCache {
-
-    class SimpleCacheTest(dataValidity:Long? = null) {
+    class SimpleCacheTest(dataValidity: Long? = null) {
         var nbLoad = 0
 
-        val cache = SKLruMemoryCache<String, String>(4, dataValidity) {
-            delay(100)
-            nbLoad++
-            it.toUpperCase()
-        }
+        val cache =
+            SKLruMemoryCache<String, String>(4, dataValidity) {
+                delay(100)
+                nbLoad++
+                it.uppercase(Locale.getDefault())
+            }
     }
 
-
-    private fun simpleTest(dataValidity:Long? = null, work: SimpleCacheTest.() -> Unit) {
+    private fun simpleTest(
+        dataValidity: Long? = null,
+        work: SimpleCacheTest.() -> Unit,
+    ) {
         SimpleCacheTest(dataValidity).apply {
             work.invoke(this)
         }
@@ -48,30 +50,29 @@ class TestSKLruMemoryCache {
                 assertTrue { nbLoad == 3 }
 
                 joinAll(
-                        launch(Dispatchers.Default) {
-                            println(measureTimeMillis {
+                    launch(Dispatchers.Default) {
+                        println(
+                            measureTimeMillis {
                                 println("first start")
                                 cache.get("dd")
                                 println("first end")
-                            })
-
-
-                        },
-                        launch(Dispatchers.Default) {
-                            println(measureTimeMillis {
+                            },
+                        )
+                    },
+                    launch(Dispatchers.Default) {
+                        println(
+                            measureTimeMillis {
                                 println("second start")
                                 cache.get("dd")
                                 println("second end")
-                            })
-                        }
+                            },
+                        )
+                    },
                 )
                 assertTrue("parralel get give no double refresh") { nbLoad == 4 }
-
             }
         }
-
     }
-
 
     @Test
     fun `slot are well used with just one access`() {
@@ -130,56 +131,52 @@ class TestSKLruMemoryCache {
         }
     }
 
-
     @Test
     fun `test ok with nullable data`() {
         var nbLoad = 0
-        val cache = SKLruMemoryCache<Int, String?>(4, 500) {
-            nbLoad++
-            delay(100)
-            if (it%2 == 0) {
-                null
+        val cache =
+            SKLruMemoryCache<Int, String?>(4, 500) {
+                nbLoad++
+                delay(100)
+                if (it % 2 == 0) {
+                    null
+                } else {
+                    it.toString()
+                }
             }
-            else {
-                it.toString()
-            }
-
-        }
         runBlocking {
             assertEquals(
                 actual = cache.get(1),
-                expected = "1"
+                expected = "1",
             )
             assertEquals(
                 actual = cache.get(2),
-                expected = null
+                expected = null,
             )
             assertEquals(
                 actual = cache.get(3),
-                expected = "3"
+                expected = "3",
             )
             assertEquals(
                 actual = nbLoad,
-                expected = 3
+                expected = 3,
             )
             cache.get(1)
             assertEquals(
                 actual = nbLoad,
-                expected = 3
+                expected = 3,
             )
             cache.get(4)
             cache.get(5)
             assertEquals(
                 actual = nbLoad,
-                expected = 5
+                expected = 5,
             )
             cache.get(1)
             assertEquals(
                 actual = nbLoad,
-                expected = 6
+                expected = 6,
             )
         }
     }
-
-
 }

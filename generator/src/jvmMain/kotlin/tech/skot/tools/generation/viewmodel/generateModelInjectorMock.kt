@@ -6,14 +6,15 @@ import tech.skot.tools.generation.*
 
 @ExperimentalStdlibApi
 fun Generator.generateModelInjectorMock() {
-
     modelInjectorMock.fileClassBuilder(
-        imports = componentsWithModel.map { it.modelMock() } + componentsWithModel.flatMap {
-            it.states.map {
-                it.stateDef()!!.mockClassName
-            }
-        })
-    {
+        imports =
+            componentsWithModel.map { it.modelMock() } +
+                componentsWithModel.flatMap {
+                    it.states.map {
+                        it.stateDef()!!.mockClassName
+                    }
+                },
+    ) {
         addSuperinterface(modelInjectorInterface)
 
         componentsWithModel.forEach {
@@ -21,12 +22,14 @@ fun Generator.generateModelInjectorMock() {
             addProperty(
                 PropertySpec.builder(
                     initName,
-                    type = LambdaTypeName.get(
-                        receiver = it.modelMock(),
-                        returnType = UNIT).nullable(),
+                    type =
+                        LambdaTypeName.get(
+                            receiver = it.modelMock(),
+                            returnType = UNIT,
+                        ).nullable(),
                 ).mutable(true)
                     .initializer("null")
-                    .build()
+                    .build(),
             )
             addFunction(
                 FunSpec.builder(it.name.decapitalizeAsciiOnly())
@@ -34,29 +37,31 @@ fun Generator.generateModelInjectorMock() {
                     .addParameter(
                         ParameterSpec.builder(
                             "coroutineContext",
-                            FrameworkClassNames.coroutineContext
+                            FrameworkClassNames.coroutineContext,
                         )
-                            .build()
+                            .build(),
                     )
                     .addParameters(
                         it.states.map {
                             ParameterSpec.builder(it.name, it.stateDef()!!.contractClassName)
                                 .build()
-                        }
+                        },
                     )
                     .returns(it.modelContract())
                     .beginControlFlow(
                         "return ${it.modelMock().simpleName}(${
-                            (listOf("coroutineContext") + it.states.map {
-                                "${it.name} as ${it.stateDef()!!.mockClassName.simpleName}"
-                            }).joinToString(separator = ", ")
-                        }).apply"
+                            (
+                                listOf("coroutineContext") +
+                                    it.states.map {
+                                        "${it.name} as ${it.stateDef()!!.mockClassName.simpleName}"
+                                    }
+                            ).joinToString(separator = ", ")
+                        }).apply",
                     )
                     .addStatement("$initName?.invoke(this)")
                     .endControlFlow()
-                    .build())
+                    .build(),
+            )
         }
-
-
     }.writeTo(generatedJvmTestSources(modules.viewmodel))
 }

@@ -14,10 +14,8 @@ abstract class SKDistantDataWithCache<D : Any>(
     protected open val key: String?,
     private val cache: SKPersistor = globalPersistor,
     validity: Long? = null,
-    private val fetchData: suspend () -> D
+    private val fetchData: suspend () -> D,
 ) : SKDistantData<D>(validity, fetchData) {
-
-
     override suspend fun newDatedData(): DatedData<D> {
         val fetchedData = DatedData(fetchData(), currentTimeMillis())
         saveInCache(fetchedData)
@@ -33,7 +31,7 @@ abstract class SKDistantDataWithCache<D : Any>(
             } catch (ex: Exception) {
                 SKLog.e(
                     ex,
-                    "SKDistantDataWithCache Problème à la mise en cache de la donnée $name $key"
+                    "SKDistantDataWithCache Problème à la mise en cache de la donnée $name $key",
                 )
             }
         }
@@ -48,18 +46,17 @@ abstract class SKDistantDataWithCache<D : Any>(
 
                 if (cacheDate != null) {
                     try {
-                        flow.value = cache.getData(serializer, name, completeKey)?.let {
-                            DatedData(it, cacheDate)
-                        }
+                        flow.value =
+                            cache.getData(serializer, name, completeKey)?.let {
+                                DatedData(it, cacheDate)
+                            }
                     } catch (ex: Exception) {
                         SKLog.e(
                             ex,
-                            "SKDistantDataWithCache Problème à la récupération du cache de la donnée $name $key"
+                            "SKDistantDataWithCache Problème à la récupération du cache de la donnée $name $key",
                         )
                     }
-
                 }
-
             }
         }
     }
@@ -82,5 +79,4 @@ abstract class SKDistantDataWithCache<D : Any>(
         super.setDatedData(newDatedData)
         saveInCache(newDatedData)
     }
-
 }

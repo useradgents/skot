@@ -5,14 +5,11 @@ import tech.skot.tools.generation.writeLinesTo
 import java.nio.file.Files
 import java.nio.file.Path
 
-
 class ModuleGenerator(
     val name: String,
     val configuration: StarterConfiguration,
-    val rootDir: Path
+    val rootDir: Path,
 ) {
-
-
     companion object {
         const val activityTemplateSimple = """        <activity
             android:name="%s"
@@ -46,8 +43,8 @@ class ModuleGenerator(
         </activity>"""
     }
 
-
     private val buildGradle = BuildGradleGenerator()
+
     fun buildGradle(block: BuildGradleGenerator.() -> Unit) {
         buildGradle.block()
     }
@@ -62,11 +59,13 @@ class ModuleGenerator(
     }
 
     var androidPackage: String? = null
+
     fun android(packageName: String) {
         androidPackage = packageName
     }
 
     var androidAppTheme: String? = null
+
     fun androidAppTheme(appTheme: String) {
         androidAppTheme = appTheme
     }
@@ -78,79 +77,87 @@ class ModuleGenerator(
     var androidActivities: List<Activity>? = null
 
     var androidStrings = mutableMapOf<String, String>()
-    fun androidString(key: String, value: String) {
+
+    fun androidString(
+        key: String,
+        value: String,
+    ) {
         androidStrings[key] = value
     }
 
     var androidPermissions = mutableListOf<String>()
+
     fun androidPermission(permission: String) {
         androidPermissions.add(permission)
     }
 
-
     fun generate() {
-
         rootDir.writeLinesTo("$name/build.gradle.kts", buildGradle.generate())
 
         val main = if (justAndroid) "androidMain" else "commonMain"
 
         mainPackage?.let { buildDir("$name/src/$main/kotlin/${it.replace(".", "/")}") }
 
-
-
-
-
         androidPackage?.let {
             println("------generate manifest")
 
-            val applicationOpenTag: List<String> = when {
-                androidApplicationClass != null -> {
-                    listOf("\t<application", "\t\tandroid:name=\".$androidApplicationClass\"") +
-                            (androidAppTheme?.let { listOf("\t\tandroid:theme=\"@style/$it\"") }
-                                ?: emptyList<String>()) +
-                            (appName?.let { listOf("\t\tandroid:label=\"$it\"") }
-                                ?: emptyList<String>()) +
+            val applicationOpenTag: List<String> =
+                when {
+                    androidApplicationClass != null -> {
+                        listOf("\t<application", "\t\tandroid:name=\".$androidApplicationClass\"") +
+                            (
+                                androidAppTheme?.let { listOf("\t\tandroid:theme=\"@style/$it\"") }
+                                    ?: emptyList<String>()
+                            ) +
+                            (
+                                appName?.let { listOf("\t\tandroid:label=\"$it\"") }
+                                    ?: emptyList<String>()
+                            ) +
                             "\t\t>"
+                    }
+                    !androidActivities.isNullOrEmpty() -> {
+                        listOf("\t<application>")
+                    }
+                    else -> emptyList<String>()
                 }
-                !androidActivities.isNullOrEmpty() -> {
-                    listOf("\t<application>")
+            val applicationCloseTag =
+                when {
+                    androidApplicationClass != null || !androidActivities.isNullOrEmpty() -> {
+                        listOf("\t</application>")
+                    }
+                    else -> emptyList<String>()
                 }
-                else -> emptyList<String>()
-            }
-            val applicationCloseTag = when {
-                androidApplicationClass != null || !androidActivities.isNullOrEmpty() -> {
-                    listOf("\t</application>")
-                }
-                else -> emptyList<String>()
-            }
 
-
-            rootDir.writeLinesTo("$name/src/androidMain/AndroidManifest.xml", listOfNotNull(
-                "<?xml version=\"1.0\" encoding=\"utf-8\"?>",
-                "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"",
-                "\tpackage=\"$it\">"
-            ) +
+            rootDir.writeLinesTo(
+                "$name/src/androidMain/AndroidManifest.xml",
+                listOfNotNull(
+                    "<?xml version=\"1.0\" encoding=\"utf-8\"?>",
+                    "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"",
+                    "\tpackage=\"$it\">",
+                ) +
                     androidPermissions.map { "\t<uses-permission android:name=\"android.permission.$it\" />" } +
                     applicationOpenTag +
-                    (androidActivities?.flatMap { activity ->
-                        activity.template.format(
-                            activity.className.canonicalName,
-                            activity.theme
-                        ).split("\n")
-                    } ?: emptyList<String>()) +
+                    (
+                        androidActivities?.flatMap { activity ->
+                            activity.template.format(
+                                activity.className.canonicalName,
+                                activity.theme,
+                            ).split("\n")
+                        } ?: emptyList<String>()
+                    ) +
                     applicationCloseTag +
-                    "</manifest>"
+                    "</manifest>",
             )
         }
 
         if (androidStrings.isNotEmpty()) {
             println("------ generate strings")
-            rootDir.writeLinesTo("$name/src/androidMain/res/values/strings.xml",
-                listOf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "<resources>")
-                        + androidStrings.map { "\t<string name=\"${it.key}\">\"${it.value}\"</string>" }
-                        + "</resources>"
+            rootDir.writeLinesTo(
+                "$name/src/androidMain/res/values/strings.xml",
+                listOf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "<resources>") +
+                    androidStrings.map { "\t<string name=\"${it.key}\">\"${it.value}\"</string>" } +
+                    "</resources>",
             )
         }
     }
-
 }

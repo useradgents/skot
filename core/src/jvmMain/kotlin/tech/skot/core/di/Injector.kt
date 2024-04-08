@@ -3,6 +3,6 @@
 package tech.skot.core.di
 
 actual class BaseInjector(modules: List<Module<BaseInjector>>) :
-        Injector<BaseInjector>(modules) {
-    override val context = this
+    Injector<BaseInjector>(modules) {
+    actual override val context = this
 }

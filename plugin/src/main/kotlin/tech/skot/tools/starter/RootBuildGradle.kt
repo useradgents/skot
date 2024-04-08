@@ -2,7 +2,7 @@ package tech.skot.tools.starter
 
 import tech.skot.Versions
 
-val rootBuildGradle = """buildscript {
+const val rootBuildGradle = """buildscript {
     repositories {
         google()
         mavenCentral()

@@ -6,27 +6,30 @@ import tech.skot.core.view.Style
 abstract class SKComponentViewMock : SKComponentVC {
     override var style: Style? = null
 
-
     var closeKeyBoardCounter = 0
+
     override fun closeKeyboard() {
         closeKeyBoardCounter++
     }
 
     val displayMessageMessages: MutableList<SKComponentVC.Message> = mutableListOf()
+
     override fun displayMessage(message: SKComponentVC.Message) {
         displayMessageMessages.add(message)
     }
 
-    @Deprecated("Use displayMessageMessages and filter on type SKComponentVC.Message.Error")
+    @Deprecated("Use displayMessage and filter on type SKComponentVC.Message.Error", replaceWith = ReplaceWith("displayMessage"))
     val displayErrorMessages: List<String>
-        get() = displayMessageMessages.filterIsInstance<SKComponentVC.Message.Error>()
-            .map { it.content }
+        get() =
+            displayMessageMessages.filterIsInstance<SKComponentVC.Message.Error>()
+                .map { it.content }
 
     override fun displayErrorMessage(message: String) {
         displayMessageMessages.add(SKComponentVC.Message.Error(message))
     }
 
     var permissionsOk = emptyList<SKPermission>()
+
     override fun requestPermissions(
         permissions: List<SKPermission>,
         onResult: (permissionsOk: List<SKPermission>) -> Unit,
@@ -47,11 +50,15 @@ abstract class SKComponentViewMock : SKComponentVC {
     }
 
     var hasNotificationsPermission: Boolean = false
+
     override fun hasNotificationsPermission(): Boolean {
         return hasNotificationsPermission
     }
 
-    override fun requestNotificationsPermissions(onOk: () -> Unit, onKo: (() -> Unit)?) {
+    override fun requestNotificationsPermissions(
+        onOk: () -> Unit,
+        onKo: (() -> Unit)?,
+    ) {
         if (hasNotificationsPermission) {
             onOk()
         } else {
@@ -60,6 +67,7 @@ abstract class SKComponentViewMock : SKComponentVC {
     }
 
     var removed = false
+
     override fun onRemove() {
         removed = true
     }

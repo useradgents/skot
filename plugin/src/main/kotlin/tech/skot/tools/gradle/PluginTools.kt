@@ -17,18 +17,17 @@ data class App(
     val rootState: String? = null,
     val baseActivity: String = ".android.BaseActivity",
     val feature: String? = null,
-    //le fullname d'une variable globale donnant la classe de base
+    // le fullname d'une variable globale donnant la classe de base
     val baseActivityVar: String? = null,
-    val initializationPlans:List<String> = emptyList(),
-    val iOs:Boolean = false,
+    val initializationPlans: List<String> = emptyList(),
+    val iOs: Boolean = false,
     val referenceIconsByVariant: Boolean = false,
-    val ktlintOnGeneratedFiles:Boolean = true
+    val ktlintOnGeneratedFiles: Boolean = true,
 )
 
 data class FeatureModule(val packageName: String, val startScreen: String)
 
 class PluginTools : Plugin<Project> {
-
     override fun apply(project: Project) {
         val extension = project.extensions.create<SKPluginToolsExtension>("skot")
         project.plugins.apply("java-library")
@@ -41,7 +40,6 @@ class PluginTools : Plugin<Project> {
         val javaPluginExtension = project.extensions.getByType(JavaPluginExtension::class)
         val sourceSet = javaPluginExtension.sourceSets["main"]
 
-
         val trueProjectDir = project.parent?.projectDir ?: project.rootDir
         project.task("skClearGenerated", type = Delete::class) {
             doLast {
@@ -51,17 +49,17 @@ class PluginTools : Plugin<Project> {
                     println("--------------- one feature to delete: $trueProjectDir/$it/generated")
                     trueProjectDir.toPath().resolve("$it/generated").toFile().deleteRecursively()
                 }
-
             }
             group = "Skot"
-            delete = setOf(
-                "$trueProjectDir/viewcontract/generated",
-                "$trueProjectDir/modelcontract/generated",
-                "$trueProjectDir/androidApp/generated",
-                "$trueProjectDir/model/generated",
-                "$trueProjectDir/view/generated",
-                "$trueProjectDir/viewmodel/generated",
-            )
+            delete =
+                setOf(
+                    "$trueProjectDir/viewcontract/generated",
+                    "$trueProjectDir/modelcontract/generated",
+                    "$trueProjectDir/androidApp/generated",
+                    "$trueProjectDir/model/generated",
+                    "$trueProjectDir/view/generated",
+                    "$trueProjectDir/viewmodel/generated",
+                )
         }
 
         project.task("skGenerate") {
@@ -74,24 +72,25 @@ class PluginTools : Plugin<Project> {
                 } else {
                     println("génération .........")
                     project.javaexec {
-                        mainClass.set( "tech.skot.tools.generation.GenerateKt")
+                        mainClass.set("tech.skot.tools.generation.GenerateKt")
                         classpath = sourceSet.runtimeClasspath
-                        args = listOf(
-                            app.packageName,
-                            app.startScreen,
-                            app.rootState.toString(),
-                            app.baseActivity,
-                            (project.parent?.projectDir ?: project.rootDir).toPath().toString(),
-                            app.feature ?: "null",
-                            app.baseActivityVar ?: "null",
-                            if (app.initializationPlans.isEmpty()) {
-                                "null"
-                            } else {
-                                app.initializationPlans.joinToString("_")
-                            },
-                            app.iOs.toString(),
-                            app.referenceIconsByVariant.toString()
-                        )
+                        args =
+                            listOf(
+                                app.packageName,
+                                app.startScreen,
+                                app.rootState.toString(),
+                                app.baseActivity,
+                                (project.parent?.projectDir ?: project.rootDir).toPath().toString(),
+                                app.feature ?: "null",
+                                app.baseActivityVar ?: "null",
+                                if (app.initializationPlans.isEmpty()) {
+                                    "null"
+                                } else {
+                                    app.initializationPlans.joinToString("_")
+                                },
+                                app.iOs.toString(),
+                                app.referenceIconsByVariant.toString(),
+                            )
                     }
 
                     if (app.ktlintOnGeneratedFiles) {
@@ -106,25 +105,19 @@ class PluginTools : Plugin<Project> {
                                 args = listOf("-F", srcs)
                                 jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
                             }
-                        }
-                        catch (ex:Exception) {
+                        } catch (ex: Exception) {
                             println("@@@@@@@@@@@   erreur ktlint")
                             ex.printStackTrace()
                         }
                     }
                 }
-
-
             }
             val compileTask = project.tasks.getByName("compileKotlin")
             dependsOn(compileTask)
 
             group = "Skot"
-
         }
-
     }
-
 
     private fun DependencyHandlerScope.dependencies(project: Project) {
         val parentProjectPath = project.parent?.path ?: ""
@@ -134,8 +127,4 @@ class PluginTools : Plugin<Project> {
         this.add("api", "${Versions.group}:generator:${Versions.skot}")
         this.add("implementation", "com.pinterest.ktlint:ktlint-cli:1.1.0")
     }
-
 }
-
-
-

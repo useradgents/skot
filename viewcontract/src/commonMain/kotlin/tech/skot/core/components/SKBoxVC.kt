@@ -1,9 +1,9 @@
 package tech.skot.core.components
 
 @SKLayoutIsSimpleView
-interface SKBoxVC:SKComponentVC {
-    var items:List<SKComponentVC>
-    var hidden:Boolean?
+interface SKBoxVC : SKComponentVC {
+    var items: List<SKComponentVC>
+    var hidden: Boolean?
 
     /**
      * when put in a SKBox or an SKList
@@ -11,5 +11,5 @@ interface SKBoxVC:SKComponentVC {
      * false (default value) if you want horizontal layout
      * no effect if your are not in a SKBox or SKList
      */
-    val asItemVertical:Boolean?
+    val asItemVertical: Boolean?
 }

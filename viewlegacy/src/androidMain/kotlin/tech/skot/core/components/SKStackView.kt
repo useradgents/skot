@@ -4,15 +4,12 @@ import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import tech.skot.view.SKTransitionAndroidLegacy
 
-
 class SKStackView(
     proxy: SKStackViewProxy,
     activity: SKActivity,
     fragment: Fragment?,
-    private val frameLayout: FrameLayout
+    private val frameLayout: FrameLayout,
 ) : SKComponentView<FrameLayout>(proxy, activity, fragment, frameLayout) {
-
-
     fun onLastScreen(lastScreen: Pair<SKScreenViewProxy<*>, SKTransitionAndroidLegacy?>?) {
         fragmentManager.apply {
             beginTransaction().apply {
@@ -30,5 +27,4 @@ class SKStackView(
             }
         }
     }
-
 }

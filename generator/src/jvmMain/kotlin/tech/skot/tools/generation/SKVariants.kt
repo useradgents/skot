@@ -7,11 +7,12 @@ import java.nio.file.Path
 import java.util.*
 
 data class SKVariants(val variants: List<String>, val env: String?) {
-    fun toList(): List<String> = if (env != null) {
-        variants + env
-    } else {
-        variants
-    }
+    fun toList(): List<String> =
+        if (env != null) {
+            variants + env
+        } else {
+            variants
+        }
 }
 
 fun skReadVariants(path: Path): SKVariants {
@@ -21,12 +22,12 @@ fun skReadVariants(path: Path): SKVariants {
         properties.load(FileInputStream(propertiesPath.toFile()))
         SKVariants(
             variants = properties.getProperty("variants").split(",").filter { it.isNotBlank() },
-            env = properties.getProperty("environment").let { if (it.isBlank()) null else it }
+            env = properties.getProperty("environment").let { it.ifBlank { null } },
         )
     } else {
         SKVariants(
             variants = emptyList(),
-            env = null
+            env = null,
         )
     }
 }

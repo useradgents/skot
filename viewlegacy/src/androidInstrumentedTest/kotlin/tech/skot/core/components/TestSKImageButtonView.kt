@@ -3,17 +3,14 @@ package tech.skot.core.components
 import android.R
 import org.junit.Test
 import tech.skot.core.SKLog
-import tech.skot.core.components.inputs.SKButtonViewProxy
 import tech.skot.core.components.inputs.SKImageButtonViewProxy
 import tech.skot.core.view.Icon
 import tech.skot.view.tests.SKTestView
 import tech.skot.view.tests.testComponents
 
 class TestSKImageButtonView : SKTestView() {
-
     @Test
     fun testDebounce() {
-
         var compteur500 = 0
         val button500 =
             SKImageButtonViewProxy(iconInitial = Icon(R.drawable.ic_delete), onTapInitial = {
@@ -36,8 +33,9 @@ class TestSKImageButtonView : SKTestView() {
             })
 
         testComponents(
-            button500, buttonNoDebounce, button2000
+            button500,
+            buttonNoDebounce,
+            button2000,
         )
-
     }
 }

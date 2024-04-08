@@ -12,7 +12,6 @@ import androidx.core.widget.ImageViewCompat
 import tech.skot.core.view.*
 import android.graphics.Color as AndroidColor
 
-
 fun Color.toColor(context: Context): Int {
     return when (this) {
         is ColorHex -> AndroidColor.parseColor(this.color)
@@ -36,7 +35,10 @@ fun ImageView.setImageTint(color: Color?) {
     ImageViewCompat.setImageTintList(this, color?.let { ColorStateList.valueOf(color.toColor(this.context)) })
 }
 
-fun Drawable.setTint(context: Context, color: Color): Drawable {
+fun Drawable.setTint(
+    context: Context,
+    color: Color,
+): Drawable {
     val wrappedDrawable = DrawableCompat.wrap(this)
     DrawableCompat.setTint(wrappedDrawable, color.toColor(context))
     return wrappedDrawable
@@ -47,7 +49,9 @@ fun Dimen.toPixelSize(context: Context): Int {
         is DimenDP -> (this.dp * Resources.getSystem().displayMetrics.density).toInt()
         is DimenRef -> context.resources.getDimensionPixelSize(this.res)
         else -> {
-            throw Exception("Dimen.toPixelSize can only be used with ${DimenDP::class.qualifiedName} and ${DimenRef::class.qualifiedName}, create a custom extension for custom dimen ${this::class.simpleName}")
+            throw Exception(
+                "Dimen.toPixelSize can only be used with ${DimenDP::class.qualifiedName} and ${DimenRef::class.qualifiedName}, create a custom extension for custom dimen ${this::class.simpleName}",
+            )
         }
     }
 }

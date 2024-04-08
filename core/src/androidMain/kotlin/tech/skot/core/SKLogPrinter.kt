@@ -1,27 +1,43 @@
 @file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
 package tech.skot.core
 
 import timber.log.Timber
 
 actual object SKLogPrinter {
-    actual fun d(tag: String, message: String) {
+    actual fun d(
+        tag: String,
+        message: String,
+    ) {
         Timber.tag(tag).d(message)
     }
 
-    actual fun i(tag: String, message: String) {
+    actual fun i(
+        tag: String,
+        message: String,
+    ) {
         Timber.tag(tag).i(message)
     }
 
-    actual fun v(tag: String, message: String) {
+    actual fun v(
+        tag: String,
+        message: String,
+    ) {
         Timber.tag(tag).v(message)
     }
 
-    actual fun w(tag: String, message: String) {
+    actual fun w(
+        tag: String,
+        message: String,
+    ) {
         Timber.tag(tag).w(message)
     }
 
-    actual fun e(e: Throwable, tag: String, message: String?) {
+    actual fun e(
+        e: Throwable,
+        tag: String,
+        message: String?,
+    ) {
         Timber.tag(tag).e(Throwable(e), message)
     }
-
 }

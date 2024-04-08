@@ -4,7 +4,6 @@ import tech.skot.core.di.coreViewInjector
 
 class SKWebView(config: SKWebViewVC.Config, launch: SKWebViewVC.Launch?) :
     SKComponent<SKWebViewVC>() {
-
     constructor(url: String) : this(SKWebViewVC.Config(null), SKWebViewVC.Launch.OpenUrl(url))
 
     override val view = coreViewInjector.webView(config, launch)
@@ -13,10 +12,12 @@ class SKWebView(config: SKWebViewVC.Config, launch: SKWebViewVC.Launch?) :
         view.goBack = SKWebViewVC.BackRequest(onCantBack)
     }
 
-    fun evaluateJavascript(js : String, onResult :(String)-> Unit){
+    fun evaluateJavascript(
+        js: String,
+        onResult: (String) -> Unit,
+    )  {
         view.evaluateJavascript(js, onResult)
     }
-
 
     fun forward() {
         view.requestGoForward()
@@ -25,4 +26,4 @@ class SKWebView(config: SKWebViewVC.Config, launch: SKWebViewVC.Launch?) :
     fun reload() {
         view.requestReload()
     }
- }
+}

@@ -6,7 +6,6 @@ import tech.skot.tools.starter.ModuleGenerator
 import tech.skot.tools.starter.StarterGenerator
 import java.util.Locale
 
-
 const val startGradleAndroidBlock = """android {
 
     defaultConfig {
@@ -45,15 +44,15 @@ const val startGradleAndroidBlock = """android {
 
 }"""
 
-fun StarterGenerator.androidApp(){
+fun StarterGenerator.androidApp()  {
     ModuleGenerator("androidApp", configuration, rootDir).apply {
-
-        val applicationClassPrefix = configuration.appPackage.substringAfterLast(".")
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+        val applicationClassPrefix =
+            configuration.appPackage.substringAfterLast(".")
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
         androidApplicationClass = "${applicationClassPrefix}Application"
 
-        val androidApplicationId = configuration.appPackage+".android"
+        val androidApplicationId = configuration.appPackage + ".android"
 
         androidPackage = androidApplicationId
         mainPackage = configuration.appPackage
@@ -68,38 +67,36 @@ fun StarterGenerator.androidApp(){
             plugin(BuildGradleGenerator.Plugin.Kotlin("android"))
 
             androidBlock = startGradleAndroidBlock.replace("###APPLICATION_ID###", androidApplicationId)
-
         }
-
 
         println("------generate Application")
 
-        FileSpec.builder(configuration.appPackage+".android", androidApplicationClass!!)
-                .addType(
-                        TypeSpec.classBuilder(androidApplicationClass!!)
-                                .superclass(ClassName("android.app", "Application"))
-                                .addFunction(FunSpec.builder("onCreate")
-                                        .addModifiers(KModifier.OVERRIDE)
-                                        .addCode(
+        FileSpec.builder(configuration.appPackage + ".android", androidApplicationClass!!)
+            .addType(
+                TypeSpec.classBuilder(androidApplicationClass!!)
+                    .superclass(ClassName("android.app", "Application"))
+                    .addFunction(
+                        FunSpec.builder("onCreate")
+                            .addModifiers(KModifier.OVERRIDE)
+                            .addCode(
 """super.onCreate()
 Timber.plant(Timber.DebugTree())
 injector = BaseInjector(this,
                     generatedAppModules +
                     listOf(
                     ))
-"""
-                                        )
-                                        .build())
-                                .build()
-                )
-                .addImport("timber.log","Timber")
-                .addImport("tech.skot.core.di","BaseInjector")
-                .addImport("tech.skot.core.di","injector")
-                .addImport("${configuration.appPackage}.di","generatedAppModules")
-                .build()
-                .writeTo(rootDir.resolve("androidApp/src/androidMain/kotlin"))
-
-
+""",
+                            )
+                            .build(),
+                    )
+                    .build(),
+            )
+            .addImport("timber.log", "Timber")
+            .addImport("tech.skot.core.di", "BaseInjector")
+            .addImport("tech.skot.core.di", "injector")
+            .addImport("${configuration.appPackage}.di", "generatedAppModules")
+            .build()
+            .writeTo(rootDir.resolve("androidApp/src/androidMain/kotlin"))
     }.generate()
     modules.add("androidApp")
 }

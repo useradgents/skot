@@ -7,25 +7,24 @@ import tech.skot.core.di.getByName
 import tech.skot.core.view.Style
 
 class SKDialog : SKComponent<SKDialogVC>() {
-
     override val view = coreViewInjector.dialog()
 
     var shownScreen: SKScreen<*>? = null
 
-
     fun show(
         screen: SKScreen<*>,
         cancelable: Boolean,
         onDismiss: (() -> Unit)? = null,
-        style: Style? = null
+        style: Style? = null,
     ) {
         shownScreen?.presenterDialog = null
-        view.state = SKDialogVC.Shown(
-            screen = screen.view,
-            cancelable = cancelable,
-            onDismiss = onDismiss,
-            style
-        )
+        view.state =
+            SKDialogVC.Shown(
+                screen = screen.view,
+                cancelable = cancelable,
+                onDismiss = onDismiss,
+                style,
+            )
         screen.presenterDialog = this
         shownScreen = screen
     }
@@ -34,20 +33,20 @@ class SKDialog : SKComponent<SKDialogVC>() {
         screen: SKScreen<*>,
         cancelable: Boolean,
         onDismiss: (() -> Unit)? = null,
-        fullScreen: Boolean
+        fullScreen: Boolean,
     ) {
         shownScreen?.presenterDialog = null
-        val style = if(fullScreen) fullScreenStyle else null
-        view.state = SKDialogVC.Shown(
-            screen = screen.view,
-            cancelable = cancelable,
-            onDismiss = onDismiss,
-            style
-        )
+        val style = if (fullScreen) fullScreenStyle else null
+        view.state =
+            SKDialogVC.Shown(
+                screen = screen.view,
+                cancelable = cancelable,
+                onDismiss = onDismiss,
+                style,
+            )
         screen.presenterDialog = this
         shownScreen = screen
     }
-
 
     fun dismiss() {
         shownScreen?.presenterDialog = null
@@ -56,6 +55,6 @@ class SKDialog : SKComponent<SKDialogVC>() {
     }
 
     companion object {
-         val fullScreenStyle = getByName<Style>("skFullScreenDialogStyle")
+        val fullScreenStyle = getByName<Style>("skFullScreenDialogStyle")
     }
 }

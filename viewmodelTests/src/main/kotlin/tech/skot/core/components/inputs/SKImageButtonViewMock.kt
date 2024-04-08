@@ -8,8 +8,8 @@ class SKImageButtonViewMock(
     iconInitial: Icon,
     enabledInitial: Boolean?,
     hiddenInitial: Boolean?,
-    override val debounce: Long? = 500
-): SKComponentViewMock(), SKImageButtonVC {
+    override val debounce: Long? = 500,
+) : SKComponentViewMock(), SKImageButtonVC {
     override var icon: Icon = iconInitial
     override var onTap: (() -> Unit)? = onTapInitial
     override var enabled: Boolean? = enabledInitial

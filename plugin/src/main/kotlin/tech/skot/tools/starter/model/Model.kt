@@ -8,14 +8,14 @@ import tech.skot.tools.starter.BuildGradleGenerator
 import tech.skot.tools.starter.ModuleGenerator
 import tech.skot.tools.starter.StarterGenerator
 
-fun StarterGenerator.model(){
+fun StarterGenerator.model()  {
     ModuleGenerator("model", configuration, rootDir).apply {
         buildGradle {
             plugin(BuildGradleGenerator.Plugin.Kotlin("multiplatform"))
             plugin(BuildGradleGenerator.Plugin.Id("tech.skot.model"))
         }
 
-        androidPackage = configuration.appPackage+".model"
+        androidPackage = configuration.appPackage + ".model"
         androidPermission("INTERNET")
         androidPermission("ACCESS_NETWORK_STATE")
         androidPermission("ACCESS_WIFI_STATE")
@@ -30,15 +30,10 @@ fun StarterGenerator.model(){
             .addFunction(
                 FunSpec.builder(startModel.simpleName)
                     .addModifiers(KModifier.SUSPEND)
-                    .build()
+                    .build(),
             )
             .build()
             .writeTo(rootDir.resolve("$name/src/commonMain/kotlin"))
-
     }.generate()
     modules.add("model")
-
-
-
-
 }

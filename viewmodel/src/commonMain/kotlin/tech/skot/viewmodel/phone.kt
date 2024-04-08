@@ -1,3 +1,3 @@
 package tech.skot.viewmodel
 
-expect fun String?.formatPhoneNumber():String?
+expect fun String?.formatPhoneNumber(): String?

@@ -13,24 +13,21 @@ import tech.skot.core.SKLog
 
 @Serializable
 @SerialName("Nullable")
-data class Nullable<D:Any>(val value:D?)
-
+data class Nullable<D : Any>(val value: D?)
 
 abstract class SKNullableManualDataWithCache<D : Any>(
     private val name: String,
     dataSerializer: KSerializer<D>,
     private val key: String? = null,
     private val cache: SKPersistor = globalPersistor,
-    private val initialDefaultValue: D?
+    private val initialDefaultValue: D?,
 ) : SKData<D?> {
-
     private val serializer: KSerializer<Nullable<D>> = Nullable.serializer(dataSerializer)
 
     override val flow: MutableStateFlow<DatedData<D?>?> = MutableStateFlow(null)
     override val defaultValidity = Long.MAX_VALUE
     override val _current: DatedData<D?>?
         get() = flow.value
-
 
     private val initMutex = Mutex()
 
@@ -41,13 +38,11 @@ abstract class SKNullableManualDataWithCache<D : Any>(
                 if (cacheDate != null) {
                     try {
                         flow.value = cache.getData(serializer, name, key)?.let { DatedData(it.value, cacheDate) }
-                    }
-                    catch (ex:Exception) {
+                    } catch (ex: Exception) {
                         SKLog.e(ex, "SKManualDataWithCache Problème à la récupération du cache de la donnée $name $key")
                     }
-                }
-                else {
-                    flow.value = DatedData(initialDefaultValue,0)
+                } else {
+                    flow.value = DatedData(initialDefaultValue, 0)
                 }
             }
         }
@@ -67,7 +62,6 @@ abstract class SKNullableManualDataWithCache<D : Any>(
         return super.get(validity)
     }
 
-
     fun setValue(newValue: D?) {
         flow.value = DatedData(newValue)
         CoroutineScope(Dispatchers.Default).launch {
@@ -76,15 +70,12 @@ abstract class SKNullableManualDataWithCache<D : Any>(
                     serializer = serializer,
                     name = name,
                     data = Nullable(newValue),
-                    key = key
+                    key = key,
                 )
-            }
-            catch (ex:Exception) {
+            } catch (ex: Exception) {
                 SKLog.e(ex, "SKManualDataWithCache Problème à la mise en cache de la donnée $name $key")
             }
         }
-
-
     }
 
     override suspend fun update(): D? {
@@ -93,8 +84,4 @@ abstract class SKNullableManualDataWithCache<D : Any>(
         }
         return _current?.data ?: initialDefaultValue
     }
-
-
 }
-
-

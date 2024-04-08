@@ -1,7 +1,6 @@
 package tech.skot.core
 
-open class SKLogger(val tag:String) {
-
+open class SKLogger(val tag: String) {
     var enabled = true
 
     fun d(message: String) {
@@ -9,22 +8,29 @@ open class SKLogger(val tag:String) {
             SKLogPrinter.d(tag, message)
         }
     }
-    fun i(message:String) {
+
+    fun i(message: String) {
         if (enabled) {
             SKLogPrinter.i(tag, message)
         }
     }
-    fun v(message:String) {
+
+    fun v(message: String) {
         if (enabled) {
             SKLogPrinter.v(tag, message)
         }
     }
-    fun w(message:String) {
+
+    fun w(message: String) {
         if (enabled) {
             SKLogPrinter.w(tag, message)
         }
     }
-    fun e(e:Throwable, message:String? = null) {
+
+    fun e(
+        e: Throwable,
+        message: String? = null,
+    ) {
         if (enabled) {
             SKLogPrinter.e(e, tag, message)
         }

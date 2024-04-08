@@ -10,7 +10,6 @@ import tech.skot.tools.generation.fileClassBuilder
 
 @ExperimentalStdlibApi
 fun Generator.generateModelTests() {
-
     val abstractTestModel = ClassName(packageName = "$appPackage.screens", "TestModel")
     if (!abstractTestModel.existsJvmTestInModule(modules.model)) {
         abstractTestModel.fileClassBuilder(
@@ -20,7 +19,8 @@ fun Generator.generateModelTests() {
                 FrameworkClassNames.mockHttp,
                 rootState?.modelClassName,
                 rootState?.infosClassName,
-                rootState?.let { ClassName("$appPackage.states", rootStatePropertyName!!) })
+                rootState?.let { ClassName("$appPackage.states", rootStatePropertyName!!) },
+            ),
         ) {
             superclass(FrameworkClassNames.skTestModel)
             addModifiers(KModifier.ABSTRACT)
@@ -32,19 +32,21 @@ fun Generator.generateModelTests() {
                         .addAnnotation(AndroidClassNames.Annotations.before)
                         .addStatement("mockHttp.init()")
                         .addStatement("$rootStatePropertyName = ${it.modelClassName.simpleName}(${it.infosClassName.simpleName}())")
-                        .build()
+                        .build(),
                 )
             }
-
         }.writeTo(jvmTestSources(modules.model))
     }
     components.forEach {
         // do not create class with suffix if prefix class already exists
-        if (it.hasModel() && !it.testModel().existsJvmTestInModule(modules.model) && !it.oldTestModel().existsJvmTestInModule(modules.model)) {
+        if (it.hasModel() &&
+            !it.testModel().existsJvmTestInModule(
+                modules.model,
+            ) && !it.oldTestModel().existsJvmTestInModule(modules.model)
+        ) {
             it.testModel().fileClassBuilder {
                 superclass(abstractTestModel)
             }.writeTo(jvmTestSources(modules.model))
         }
-
     }
 }

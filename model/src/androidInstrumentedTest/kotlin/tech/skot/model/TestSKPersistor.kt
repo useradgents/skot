@@ -3,12 +3,11 @@ package tech.skot.model
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
 import org.junit.Test
 import kotlin.test.assertTrue
-import kotlinx.serialization.Serializable
 
 class TestSKPersistor {
-
     @Test
     fun testBasicKeyStringJobs() {
         runBlocking {
@@ -39,10 +38,8 @@ class TestSKPersistor {
                     it == settedSecondData
                 }
             }
-
         }
     }
-
 
     @Test
     fun testStringJobsWithKeys() {
@@ -81,10 +78,8 @@ class TestSKPersistor {
                     it == value2
                 }
             }
-
         }
     }
-
 
     @Test
     fun testPersistedOnDisk() {
@@ -104,8 +99,6 @@ class TestSKPersistor {
             }
         }
     }
-
-
 
     @Test
     fun testClearAll() {
@@ -182,7 +175,6 @@ class TestSKPersistor {
                     it == value2
                 }
             }
-
         }
     }
 
@@ -192,22 +184,22 @@ class TestSKPersistor {
     @Serializable
     data class TestObject(val field1: String, val field2: Int, val field3: SubObject)
 
-
     @Test
     fun testSavingObjects() {
         runBlocking {
             val name = "name"
-            val value = TestObject(
+            val value =
+                TestObject(
                     field1 = "test",
                     field2 = 3,
-                    field3 = SubObject("coucou")
-            )
+                    field3 = SubObject("coucou"),
+                )
 
             val key = "key"
             val otherKey = "otherKey"
 
             val fileName = "testSavingObjects"
-            val persistor:SKPersistor = AndroidSKPersistor(InstrumentationRegistry.getInstrumentation().context, fileName)
+            val persistor: SKPersistor = AndroidSKPersistor(InstrumentationRegistry.getInstrumentation().context, fileName)
 
             persistor.putData(TestObject.serializer(), name, value)
 
@@ -245,20 +237,17 @@ class TestSKPersistor {
                     it == null
                 }
             }
-
         }
     }
 
     @Serializable
-    data class Data1(val field1:String, val field2:Int)
+    data class Data1(val field1: String, val field2: Int)
 
     @Serializable
-    data class Data1Mod(val field1:String, val field2:String)
+    data class Data1Mod(val field1: String, val field2: String)
 
     @Test
     fun testChangingModel() {
-
-
         val persistor = AndroidSKPersistor(InstrumentationRegistry.getInstrumentation().context, "testChangingModel")
 
         val name = "NAME"
@@ -273,13 +262,10 @@ class TestSKPersistor {
         }
     }
 
-
-
-
     @Serializable
-    open class TestSer(open val test:String)
+    open class TestSer(open val test: String)
 
-    class TestSerImpl(override var test: String):TestSer(test)
+    class TestSerImpl(override var test: String) : TestSer(test)
 
     @Test
     fun testSerialization() {
@@ -292,23 +278,21 @@ class TestSKPersistor {
             persistor.putData(
                 serializer = TestSer.serializer(),
                 name = name,
-                essai
+                essai,
             )
 
             val restored =
                 persistor.getData(
                     serializer = TestSer.serializer(),
-                    name = name
+                    name = name,
                 )
 
             assert(restored?.test == essai.test)
         }
     }
 
-
     @Test
     fun testBlobLimit() {
-
         runBlocking {
             val testBigStr = "@".repeat(3000000)
 
@@ -316,8 +300,6 @@ class TestSKPersistor {
             cache.putString("testBlobLimit", testBigStr)
             assert(cache.getString("testBlobLimit") == testBigStr)
         }
-
-
     }
 
     @Test
@@ -331,14 +313,11 @@ class TestSKPersistor {
 
             delay(1000)
 
-
-
 //            val sb = StringBuilder()
 //            (1..2000000).forEach {
 //                sb.append("1234567890")
 //            }
 //            Log.d("SKOT",sb.toString())
-
 
 //            assert(cache.getStringValue("testBlobLimit") == testBigStr)
 //
@@ -347,5 +326,4 @@ class TestSKPersistor {
 //            assert(cache.getString("testBlobLimit")?.data == null)
         }
     }
-
 }

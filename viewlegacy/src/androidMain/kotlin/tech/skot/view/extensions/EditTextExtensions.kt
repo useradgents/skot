@@ -8,17 +8,16 @@ fun EditText.setOnDone(onDone: ((str: String?) -> Unit)?) {
     if (onDone != null) {
         imeOptions = EditorInfo.IME_ACTION_DONE
         setOnEditorActionListener { tv, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH
-                || actionId == EditorInfo.IME_ACTION_DONE
-                || event?.action == KeyEvent.ACTION_DOWN
-                && event.keyCode == KeyEvent.KEYCODE_ENTER
+            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                actionId == EditorInfo.IME_ACTION_DONE ||
+                event?.action == KeyEvent.ACTION_DOWN &&
+                event.keyCode == KeyEvent.KEYCODE_ENTER
             ) {
                 onDone(tv?.text?.toString())
                 true
             } else {
                 false
             }
-
         }
     } else {
         setOnEditorActionListener { _, _, _ ->
@@ -28,9 +27,11 @@ fun EditText.setOnDone(onDone: ((str: String?) -> Unit)?) {
 }
 
 fun EditText.setOnNotNullDone(onDone: ((str: String) -> Unit)?) {
-    setOnDone(onDone?.let { action ->
-        {
-            it?.let { action(it) }
-        }
-    })
+    setOnDone(
+        onDone?.let { action ->
+            {
+                it?.let { action(it) }
+            }
+        },
+    )
 }

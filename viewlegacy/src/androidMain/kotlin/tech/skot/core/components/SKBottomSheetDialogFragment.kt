@@ -2,9 +2,6 @@ package tech.skot.core.components
 
 import android.app.Dialog
 import android.content.DialogInterface
-import android.content.res.ColorStateList
-import android.graphics.Color
-import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,9 +19,7 @@ const val SK_BOTTOM_SHEET_DIALOG_FULL_HEIGHT = "SK_BOTTOM_SHEET_DIALOG_FULL_HEIG
 const val SK_BOTTOM_SHEET_DIALOG_RESIZE_ON_KEYBOARD = "SK_BOTTOM_SHEET_DIALOG_RESIZE_ON_KEYBOARD"
 
 class SKBottomSheetDialogFragment() : BottomSheetDialogFragment() {
-
     private var screen: SKScreenView<*>? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +38,6 @@ class SKBottomSheetDialogFragment() : BottomSheetDialogFragment() {
                 (this as? BottomSheetDialog)?.behavior?.skipCollapsed =
                     arguments?.getBoolean(SK_BOTTOM_SHEET_DIALOG_SKIP_COLLAPSED, true) ?: true
 
-
                 if (arguments?.getBoolean(SK_BOTTOM_SHEET_DIALOG_FULL_HEIGHT, true) == true) {
                     this.setOnShowListener {
                         val bottomSheetDialog = it as BottomSheetDialog
@@ -54,13 +48,8 @@ class SKBottomSheetDialogFragment() : BottomSheetDialogFragment() {
                         }
                     }
                 }
-
-
-
-
             }
     }
-
 
     private fun setupFullHeight(bottomSheet: View) {
         val layoutParams = bottomSheet.layoutParams
@@ -68,21 +57,10 @@ class SKBottomSheetDialogFragment() : BottomSheetDialogFragment() {
         bottomSheet.layoutParams = layoutParams
     }
 
-
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-//        (view?.parent as? View?)?.apply {
-//            backgroundTintMode = PorterDuff.Mode.CLEAR
-//            backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
-//            setBackgroundColor(Color.TRANSPARENT)
-//        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return arguments?.getLong(ScreensManager.SK_ARGUMENT_VIEW_KEY)?.let { viewKey ->
             ScreensManager.getInstance(viewKey)?.bindTo(activity as SKActivity, this, inflater)
@@ -112,6 +90,4 @@ class SKBottomSheetDialogFragment() : BottomSheetDialogFragment() {
         super.onDismiss(dialog)
         onDismiss?.invoke()
     }
-
-
 }

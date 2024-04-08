@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 group = Versions.group
 version = Versions.version
@@ -8,7 +9,6 @@ plugins {
     id("maven-publish")
     signing
 }
-
 
 dependencies {
     api(libs.core)
@@ -23,7 +23,6 @@ dependencies {
     androidTestImplementation(project(":viewlegacyTests"))
 }
 
-
 android {
     lint {
         baseline = file("lint-baseline.xml")
@@ -34,21 +33,19 @@ android {
     }
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     namespace = "tech.skot.viewlegacy"
-    testNamespace= "tech.skot.viewlegacytests"
+    testNamespace = "tech.skot.viewlegacytests"
 }
 
-
 kotlin {
+    jvmToolchain(17)
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    compilerOptions {
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+    }
     androidTarget("android") {
         publishLibraryVariants("release", "debug")
         publishLibraryVariantsGroupedByFlavor = true
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
-        }
     }
-
 
     sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
     sourceSets["commonMain"].dependencies {
@@ -56,12 +53,10 @@ kotlin {
         api(project(":viewcontract"))
     }
 
-
     sourceSets["androidMain"].dependencies {
     }
 
-    //sourceSets["androidInstrumentedTest"].resources.srcDir("src/androidMain/res_test")
+    // sourceSets["androidInstrumentedTest"].resources.srcDir("src/androidMain/res_test")
 
     println("-----@@@@@@@---- ${sourceSets.asMap}")
-
 }

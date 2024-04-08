@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.roundToInt
 
-
 fun RecyclerView.setSnapWithIndicators(
     indicatorsGroup: LinearLayout,
     indicatorSpacingDp: Int,
@@ -19,11 +18,13 @@ fun RecyclerView.setSnapWithIndicators(
     LinearSnapHelper().attachToRecyclerView(this)
 
     val marginDp = (resources.displayMetrics.density * indicatorSpacingDp / 2).roundToInt()
-    val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-        LinearLayout.LayoutParams.WRAP_CONTENT)
+    val params =
+        LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+        )
     params.leftMargin = marginDp
     params.rightMargin = marginDp
-
 
     val drawableNotSelected = ContextCompat.getDrawable(context, unSelectedIndicator)
     val drawableSelected = ContextCompat.getDrawable(context, selectedIndicator)
@@ -32,17 +33,17 @@ fun RecyclerView.setSnapWithIndicators(
 
     fun setIndicators() {
         indicatorsGroup.removeAllViews()
-        indicatorsViews = adapter?.itemCount?.let {
-            (1..it).map {
-                ImageView(context).apply {
-                    setImageDrawable(drawableNotSelected)
-                    layoutParams = params
-                }.also {
-                    indicatorsGroup.addView(it)
+        indicatorsViews =
+            adapter?.itemCount?.let {
+                (1..it).map {
+                    ImageView(context).apply {
+                        setImageDrawable(drawableNotSelected)
+                        layoutParams = params
+                    }.also {
+                        indicatorsGroup.addView(it)
+                    }
                 }
-
             }
-        }
     }
 
     fun updateIndicators() {
@@ -52,25 +53,30 @@ fun RecyclerView.setSnapWithIndicators(
             imageView.setImageDrawable(if (index == selectedIndex) drawableSelected else drawableNotSelected)
         }
     }
-    addOnChildAttachStateChangeListener(object :
-        RecyclerView.OnChildAttachStateChangeListener {
-        override fun onChildViewAttachedToWindow(view: View) {
-            setIndicators()
-            updateIndicators()
-        }
+    addOnChildAttachStateChangeListener(
+        object :
+            RecyclerView.OnChildAttachStateChangeListener {
+            override fun onChildViewAttachedToWindow(view: View) {
+                setIndicators()
+                updateIndicators()
+            }
 
-        override fun onChildViewDetachedFromWindow(view: View) {
-            setIndicators()
-            updateIndicators()
-        }
+            override fun onChildViewDetachedFromWindow(view: View) {
+                setIndicators()
+                updateIndicators()
+            }
+        },
+    )
 
-    })
-
-    addOnScrollListener(object : RecyclerView.OnScrollListener() {
-        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-            super.onScrollStateChanged(recyclerView, newState)
-            updateIndicators()
-        }
-
-    })
+    addOnScrollListener(
+        object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(
+                recyclerView: RecyclerView,
+                newState: Int,
+            ) {
+                super.onScrollStateChanged(recyclerView, newState)
+                updateIndicators()
+            }
+        },
+    )
 }

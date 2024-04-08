@@ -11,20 +11,25 @@ open class SKListViewProxy(
     private val layoutMode: SKListVC.LayoutMode = SKListVC.LayoutMode.Linear(true),
     private val reverse: Boolean = false,
     private val animate: Boolean = true,
-    private val animateItem: Boolean = false
+    private val animateItem: Boolean = false,
 ) : SKComponentViewProxy<RecyclerView>(), SKListVC {
+    private val itemsLD: MutableSKLiveData<List<Triple<SKComponentViewProxy<*>, Any, (() -> Unit)?>>> = MutableSKLiveData(emptyList())
 
-    private val itemsLD: MutableSKLiveData<List<Triple<SKComponentViewProxy<*>, Any, (()->Unit)?>>> = MutableSKLiveData(emptyList())
-
-    override var items: List<Triple<SKComponentVC, Any, (()->Unit)?>>
+    override var items: List<Triple<SKComponentVC, Any, (() -> Unit)?>>
         get() = itemsLD.value
         set(newVal) {
-            itemsLD.postValue(newVal as List<Triple<SKComponentViewProxy<*>, Any, (()->Unit)?>>)
+            @Suppress("UNCHECKED_CAST")
+            itemsLD.postValue(newVal as List<Triple<SKComponentViewProxy<*>, Any, (() -> Unit)?>>)
         }
 
-    data class ScrollRequest(val position:Int, val mode:SKListVC.ScrollMode)
+    data class ScrollRequest(val position: Int, val mode: SKListVC.ScrollMode)
+
     private val srollToPositionMessage = SKMessage<ScrollRequest>()
-    override fun scrollToPosition(position: Int, mode:SKListVC.ScrollMode) {
+
+    override fun scrollToPosition(
+        position: Int,
+        mode: SKListVC.ScrollMode,
+    ) {
         srollToPositionMessage.post(ScrollRequest(position, mode))
     }
 
@@ -37,23 +42,22 @@ open class SKListViewProxy(
 
     override val layoutId = R.layout.sk_list
 
-    override fun bindTo(activity: SKActivity, fragment: Fragment?, binding: RecyclerView) =
-            SKListView(layoutMode, reverse, animate, animateItem, this, activity, fragment, binding).apply {
-                itemsLD.observe {
-                    onItems(it)
-                }
-                saveSignal.observe {
-                    _state = saveState()
-                }
-                srollToPositionMessage.observe {
-                    scrollToPosition(it)
-                }
-                _state?.let {
-                    restoreState(it)
-                }
-            }
-
-
-
-
+    override fun bindTo(
+        activity: SKActivity,
+        fragment: Fragment?,
+        binding: RecyclerView,
+    ) = SKListView(layoutMode, reverse, animate, animateItem, this, activity, fragment, binding).apply {
+        itemsLD.observe {
+            onItems(it)
+        }
+        saveSignal.observe {
+            _state = saveState()
+        }
+        srollToPositionMessage.observe {
+            scrollToPosition(it)
+        }
+        _state?.let {
+            restoreState(it)
+        }
+    }
 }

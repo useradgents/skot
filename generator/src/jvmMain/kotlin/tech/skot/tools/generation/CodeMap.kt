@@ -5,20 +5,19 @@ import com.squareup.kotlinpoet.TypeSpec
 
 @ExperimentalStdlibApi
 fun Generator.generateCodeMap() {
-
     fun buildMap(): String {
         val builder = StringBuilder()
-        //on groupe les composants par package:
+        // on groupe les composants par package:
         components
-                .groupBy { it.packageName }
-                .forEach { (pack, comps) ->
-                    val tab = pack.split(".").map { '_' }.joinToString("")
-                    val biggestNameLength = comps.map { it.name.length }.maxOrNull() ?: 20
-                    builder.appendLine(pack)
-                    comps
-                        .sortedBy { it.name }.forEach { comp ->
+            .groupBy { it.packageName }
+            .forEach { (pack, comps) ->
+                val tab = pack.split(".").map { '_' }.joinToString("")
+                val biggestNameLength = comps.maxOfOrNull { it.name.length } ?: 20
+                builder.appendLine(pack)
+                comps
+                    .sortedBy { it.name }.forEach { comp ->
                         builder.appendLine("")
-                        val endTab = (comp.name.length..biggestNameLength+3).map { '_' }.joinToString("")
+                        val endTab = (comp.name.length..biggestNameLength + 3).map { '_' }.joinToString("")
                         builder.appendLine("$tab ${comp.name} $endTab")
                         builder.appendLine("[View][${comp.viewImpl()}]")
                         builder.appendLine("[VC][${comp.viewContract()}]")
@@ -27,13 +26,9 @@ fun Generator.generateCodeMap() {
                             builder.appendLine("[MC][${comp.modelContract()}]")
                             builder.appendLine("[Model][${comp.model()}]")
                         }
-
-
-
                     }
-                    builder.appendLine("")
-
-                }
+                builder.appendLine("")
+            }
 
         if (bmsMap.isNotEmpty()) {
             builder.appendLine("")
@@ -49,15 +44,11 @@ fun Generator.generateCodeMap() {
     }
 
     FileSpec.builder(packageName = appPackage, "CodeMap")
-            .addType(
-                    TypeSpec.classBuilder("CodeMap")
-                            .addKdoc(buildMap())
-                            .build()
-            )
-            .build()
-            .writeTo(commonSources(feature ?: modules.app))
-
+        .addType(
+            TypeSpec.classBuilder("CodeMap")
+                .addKdoc(buildMap())
+                .build(),
+        )
+        .build()
+        .writeTo(commonSources(feature ?: modules.app))
 }
-
-
-

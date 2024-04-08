@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import java.util.Locale
 
 plugins {
@@ -12,9 +13,12 @@ plugins {
 group = Versions.group
 version = Versions.version
 
-
-
 kotlin {
+    jvmToolchain(17)
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    compilerOptions {
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+    }
     iosX64()
     iosArm64()
     iosSimulatorArm64()
@@ -22,14 +26,9 @@ kotlin {
     jvm()
 
     androidTarget {
-        publishLibraryVariants("release")
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
-        }
-    }
 
+        publishLibraryVariants("release")
+    }
 
     sourceSets {
 
@@ -67,9 +66,7 @@ kotlin {
                 implementation(libs.jetbrains.kotlin.test.junit)
                 implementation(libs.kotlinx.coroutines.test)
             }
-
         }
-
 
         val androidInstrumentedTest by getting {
             dependencies {
@@ -82,15 +79,11 @@ kotlin {
 
         val androidUnitTest by getting {
             dependencies {
-               implementation(libs.jetbrains.kotlin.test.junit)
+                implementation(libs.jetbrains.kotlin.test.junit)
             }
         }
-
     }
-
-
 }
-
 
 android {
     defaultConfig {
@@ -100,17 +93,14 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     namespace = "tech.skot.model"
 
-
-
     packaging {
         if (gradle.startParameter.taskNames.any {
                 it.uppercase(Locale.getDefault()).contains("ANDROIDTEST")
-            }) {
+            }
+        ) {
             resources.excludes.add("META-INF/*")
         }
     }
-
-
 }
 
 dependencies {

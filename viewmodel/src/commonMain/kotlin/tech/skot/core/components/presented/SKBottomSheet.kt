@@ -5,7 +5,6 @@ import tech.skot.core.components.SKScreen
 import tech.skot.core.di.coreViewInjector
 
 class SKBottomSheet : SKComponent<SKBottomSheetVC>() {
-
     override val view = coreViewInjector.bottomSheet()
 
     var shownScreen: SKScreen<*>? = null
@@ -16,7 +15,7 @@ class SKBottomSheet : SKComponent<SKBottomSheetVC>() {
         expanded: Boolean = true,
         skipCollapsed: Boolean = true,
         fullHeight: Boolean = false,
-        resizeOnKeyboard: Boolean = false
+        resizeOnKeyboard: Boolean = false,
     ) {
         shownScreen?.presenterBottomSheet = null
         view.state =
@@ -26,7 +25,7 @@ class SKBottomSheet : SKComponent<SKBottomSheetVC>() {
                 expanded = expanded,
                 skipCollapsed = skipCollapsed,
                 fullHeight = fullHeight,
-                resizeOnKeyboard = resizeOnKeyboard
+                resizeOnKeyboard = resizeOnKeyboard,
             )
         screen.presenterBottomSheet = this
         shownScreen = screen

@@ -9,13 +9,11 @@ class SKFrameView(
     activity: SKActivity,
     fragment: Fragment?,
     binding: FrameLayout,
-    private val screens: Set<SKScreenViewProxy<*>>
+    private val screens: Set<SKScreenViewProxy<*>>,
 ) : SKComponentView<FrameLayout>(proxy, activity, fragment, binding) {
-
-
     init {
         fragmentManager.apply {
-            val fragmentsToRemove = fragments.filter { it is SKFragment }
+            val fragmentsToRemove = fragments.filterIsInstance<SKFragment>()
             if (fragmentsToRemove.isNotEmpty()) {
                 beginTransaction().let { trans ->
                     fragmentsToRemove.forEach {
@@ -35,10 +33,8 @@ class SKFrameView(
             val trans = beginTransaction()
 
             if (screen != null) {
-
                 val tag = screen.key.toString()
                 val alreadyAddedFragment = findFragmentByTag(tag)
-
 
                 fragments.forEach {
                     if (it.tag != tag && !it.isHidden) {
@@ -54,19 +50,13 @@ class SKFrameView(
                     screen.createFragment().let { frag ->
                         trans.add(binding.id, frag, tag)
                     }
-
                 }
-
             } else {
                 fragments.forEach {
                     trans.hide(it)
                 }
-
             }
             trans.commit()
-
         }
     }
-
-
 }

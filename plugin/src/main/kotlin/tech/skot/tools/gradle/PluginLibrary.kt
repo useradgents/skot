@@ -5,16 +5,15 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.get
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
 
-//open class SKPluginLibraryExtension {
+// open class SKPluginLibraryExtension {
 //    var message: String? = null
-//}
+// }
 
-@Suppress("UnstableApiUsage")
-class PluginLibrary: Plugin<Project> {
-
+class PluginLibrary : Plugin<Project> {
     override fun apply(project: Project) {
 //        val extension = project.extensions.create<SKPluginLibraryExtension>("skot")
         project.plugins.apply("com.android.library")
@@ -24,12 +23,9 @@ class PluginLibrary: Plugin<Project> {
         project.extensions.findByType(LibraryExtension::class)?.conf()
 
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf()
-
     }
 
-
     private fun LibraryExtension.conf() {
-
         defaultConfig {
             minSdk = Versions.android_minSdk
         }
@@ -44,17 +40,16 @@ class PluginLibrary: Plugin<Project> {
     }
 
     private fun KotlinMultiplatformExtension.conf() {
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+        }
 
         jvm()
 
-        //ios()
+        // ios()
 
         androidTarget {
-                compilations.all {
-                    kotlinOptions {
-                        jvmTarget = "1.8"
-                    }
-                }
             publishLibraryVariants("release")
         }
 
@@ -62,13 +57,8 @@ class PluginLibrary: Plugin<Project> {
             api(project(":viewcontract"))
         }
 
-
         sourceSets["commonMain"].dependencies {
             implementation("${Versions.group}:viewmodel:${Versions.skot}")
         }
-
-
     }
-
-
 }

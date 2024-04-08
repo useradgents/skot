@@ -7,25 +7,27 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
 @ExperimentalStdlibApi
-fun buildGenerator(args: Array<String>):Generator {
+fun buildGenerator(args: Array<String>): Generator {
     val appPackage = args[0]
 
-    val startClassFullName = args[1].let {
-        if (it.startsWith(".")) {
-            "$appPackage$it"
-        } else {
-            it
+    val startClassFullName =
+        args[1].let {
+            if (it.startsWith(".")) {
+                "$appPackage$it"
+            } else {
+                it
+            }
         }
-    }
     val startClass = Class.forName(startClassFullName).kotlin
 
-    val rootStateClassFullName = args[2].let {
-        when {
-            it == "null" -> null
-            it.startsWith(".") ->  "$appPackage$it"
-            else -> it
+    val rootStateClassFullName =
+        args[2].let {
+            when {
+                it == "null" -> null
+                it.startsWith(".") -> "$appPackage$it"
+                else -> it
+            }
         }
-    }
     val rootStateClass = rootStateClassFullName?.let { Class.forName(it).kotlin }
 
     val strBaseActivity = args[3]
@@ -59,11 +61,10 @@ fun buildGenerator(args: Array<String>):Generator {
     val argBaseActVar = args[6]
     val baseActivityVar =
         if (argBaseActVar != "null") {
-            println("########   baseActivityVar = ${argBaseActVar}")
+            println("########   baseActivityVar = $argBaseActVar")
             if (argBaseActVar.startsWith(".")) {
                 "$appPackage$argBaseActVar"
-            }
-            else {
+            } else {
                 argBaseActVar
             }
         } else {
@@ -78,7 +79,6 @@ fun buildGenerator(args: Array<String>):Generator {
                 .map { Class.forName(it).kotlin.createInstance() as InitializationPlan }
         }
 
-
     return Generator(
         appPackage,
         startClass as KClass<SKScreenVC>,
@@ -89,9 +89,8 @@ fun buildGenerator(args: Array<String>):Generator {
         baseActivityVar,
         initializationPlans = initPlans,
         iOs = args[8].toBoolean(),
-        referenceIconsByVariant = args[9].toBoolean()
+        referenceIconsByVariant = args[9].toBoolean(),
     )
-
 }
 
 @ExperimentalStdlibApi

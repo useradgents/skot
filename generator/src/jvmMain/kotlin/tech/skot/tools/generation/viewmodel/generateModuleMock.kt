@@ -15,7 +15,7 @@ fun Generator.generateModuleMock() {
         .addProperty(
             PropertySpec.builder(
                 viewModelModuleMock.simpleName,
-                module.parameterizedBy(mockInjector)
+                module.parameterizedBy(mockInjector),
             )
                 .initializer(
                     CodeBlock.builder()
@@ -34,10 +34,9 @@ fun Generator.generateModuleMock() {
                         .addStatement("single<${permissionsInterface.simpleName}> { ${permissionsMock.simpleName}()}")
                         .addStatement("byName[\"skFullScreenDialogStyle\"] = ${style.simpleName}(\"sk_fullScreen_dialog\".hashCode())\n")
                         .endControlFlow()
-                        .build()
+                        .build(),
                 )
-                .build()
-
+                .build(),
         )
         .addImportClassName(coreViewInjector)
         .addImportClassName(coreViewInjectorMock)

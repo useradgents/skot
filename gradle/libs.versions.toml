@@ -8,10 +8,10 @@ constraintlayout = "2.1.4"
 core = "1.13.1"
 core-ktx = "1.5.0"
 espresso = "3.5.1"
-gradle = "8.2.2"
+gradle = "8.4.1"
 activityKtx = "1.9.0"
 junit-ktx = "1.1.5"
-kotlin = "1.9.23"
+kotlin = "2.0.0"
 kotlinpoet = "1.16.0"
 kotlinx-coroutines = "1.8.0"
 kotlinx-coroutines-test = "1.8.0"
@@ -69,11 +69,11 @@ sqldelight-android-driver = { module = "com.squareup.sqldelight:android-driver",
 sqldelight-runtime = { module = "com.squareup.sqldelight:runtime", version.ref = "sqldelight" }
 sqldelight-sqlite-driver = { module = "com.squareup.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 sqldelight-plugin = { module = "com.squareup.sqldelight:gradle-plugin", version.ref = "sqldelight" }
-
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
 
 [bundles]
-kotlinx-coroutines = ["kotlinx-coroutines-android", "kotlinx-coroutines-core"]
-
-[plugins]
+kotlinx-coroutines = [
+    "kotlinx-coroutines-android",
+    "kotlinx-coroutines-core",
+]

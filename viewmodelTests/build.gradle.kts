@@ -8,11 +8,8 @@ plugins {
 group = Versions.group
 version = Versions.version
 
-
-
 kotlin {
     jvm("jvm")
-
 
     sourceSets {
         val jvmMain by getting {
@@ -29,12 +26,5 @@ kotlin {
                 implementation(project(":modelcontract"))
             }
         }
-
     }
-}
-
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
 }

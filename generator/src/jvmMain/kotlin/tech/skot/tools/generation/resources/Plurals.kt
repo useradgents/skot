@@ -9,12 +9,8 @@ import tech.skot.tools.generation.*
 import java.nio.file.Files
 import java.util.stream.Collectors
 
-
 fun Generator.generatePlurals() {
-
     val values = rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/values")
-
-
 
     println("plurals .........")
     val plurals =
@@ -27,28 +23,27 @@ fun Generator.generatePlurals() {
             }.collect(Collectors.toList())
         }
 
-
     fun String.toPluralsFunNAme() = decapitalizeAsciiOnly().replace('.', '_')
-
 
     FileSpec.builder(
         pluralsInterface.packageName,
-        pluralsInterface.simpleName
-    ).addType(TypeSpec.interfaceBuilder(pluralsInterface.simpleName)
-        .addFunctions(
-            plurals.map {
-                FunSpec.builder(it.toPluralsFunNAme())
-                    .addModifiers(KModifier.ABSTRACT)
-                    .addParameter("quantity", Int::class)
-                    .addParameter("formatArgs", Any::class, KModifier.VARARG)
-                    .returns(String::class)
-                    .build()
-            }
-        )
-        .build())
+        pluralsInterface.simpleName,
+    ).addType(
+        TypeSpec.interfaceBuilder(pluralsInterface.simpleName)
+            .addFunctions(
+                plurals.map {
+                    FunSpec.builder(it.toPluralsFunNAme())
+                        .addModifiers(KModifier.ABSTRACT)
+                        .addParameter("quantity", Int::class)
+                        .addParameter("formatArgs", Any::class, KModifier.VARARG)
+                        .returns(String::class)
+                        .build()
+                },
+            )
+            .build(),
+    )
         .build()
         .writeTo(generatedCommonSources(modules.modelcontract))
-
 
     fun TypeSpec.Builder.pluralsImplTypeSpec(override: Boolean) {
         if (override) {
@@ -59,9 +54,9 @@ fun Generator.generatePlurals() {
                 ParamInfos(
                     "applicationContext",
                     AndroidClassNames.context,
-                    listOf(KModifier.PRIVATE)
-                )
-            )
+                    listOf(KModifier.PRIVATE),
+                ),
+            ),
         )
         addFunction(
             FunSpec.builder("compute")
@@ -76,7 +71,7 @@ fun Generator.generatePlurals() {
                 .beginControlFlow("else")
                 .addStatement("applicationContext.resources.getQuantityString(pluralId, quantity, *formatArgs)")
                 .endControlFlow()
-                .build()
+                .build(),
         )
         addFunctions(
             plurals.map {
@@ -93,12 +88,12 @@ fun Generator.generatePlurals() {
                         "return compute(R.plurals.${
                             it.replace(
                                 '.',
-                                '_'
+                                '_',
                             )
-                        }, quantity, *formatArgs)"
+                        }, quantity, *formatArgs)",
                     )
                     .build()
-            }
+            },
         )
     }
 
@@ -116,9 +111,8 @@ fun Generator.generatePlurals() {
             writeTo(generatedAndroidTestSources(modules.view))
         }
 
-
     println("generate Plurals jvm mock .........")
-    pluralsMock.fileClassBuilder() {
+    pluralsMock.fileClassBuilder {
         addSuperinterface(pluralsInterface)
         addFunctions(
             plurals.map {
@@ -129,7 +123,7 @@ fun Generator.generatePlurals() {
                     .returns(String::class)
                     .addCode("return \"${it.toPluralsFunNAme()}_\${quantity}_\${formatArgs.joinToString(\"_\")}\"")
                     .build()
-            }
+            },
         )
     }
         .writeTo(generatedJvmTestSources(feature ?: modules.viewmodel))

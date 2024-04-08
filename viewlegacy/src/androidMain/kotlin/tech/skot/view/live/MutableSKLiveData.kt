@@ -7,9 +7,16 @@ open class MutableSKLiveData<D>(initialValue: D) : SKLiveData<D>(initialValue) {
         this.value = newVal
     }
 
-    operator fun setValue(thisObj: Any?, property: KProperty<*>, value: D) {
+    operator fun setValue(
+        thisObj: Any?,
+        property: KProperty<*>,
+        value: D,
+    ) {
         this.value = value
     }
 
-    operator fun getValue(thisObj: Any?, property: KProperty<*>) = this.value
+    operator fun getValue(
+        thisObj: Any?,
+        property: KProperty<*>,
+    ) = this.value
 }

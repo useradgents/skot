@@ -9,7 +9,6 @@ import tech.skot.core.view.SKSpannedString
 
 @SKLayoutIsRoot
 interface SKSnackBarVC : SKComponentVC {
-
     data class Shown(
         val message: SKSpannedString,
         val action: Action? = null,
@@ -21,20 +20,22 @@ interface SKSnackBarVC : SKComponentVC {
         val infiniteLines: Boolean = false,
         val centerText: Boolean = false,
         val slideAnimation: Boolean = false,
-        val isGestureInsetBottomIgnored : Boolean = false
+        val isGestureInsetBottomIgnored: Boolean = false,
     )
 
     data class Action(val label: String, val action: () -> Unit)
 
     sealed class Position {
-        object Bottom : Position()
-        object TopWithInsetMargin : Position()
-        object TopWithInsetPadding : Position()
+        data object Bottom : Position()
+
+        data object TopWithInsetMargin : Position()
+
+        data object TopWithInsetPadding : Position()
+
         class TopWithCustomMargin(val margin: Int) : Position()
+
         class BottomWithCustomMargin(val margin: Int) : Position()
     }
 
-
     var state: Shown?
-
 }

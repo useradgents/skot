@@ -1,7 +1,6 @@
 package tech.skot.core
 
 open class Poker {
-
     protected var observers: MutableSet<() -> Unit> = mutableSetOf()
 
     fun addObserver(observer: () -> Unit) {
@@ -11,7 +10,6 @@ open class Poker {
     fun removeObserver(observer: () -> Unit) {
         observers.remove(observer)
     }
-
 }
 
 open class MutablePoker : Poker() {
@@ -20,16 +18,13 @@ open class MutablePoker : Poker() {
     }
 }
 
-class PokerWrapper:MutablePoker() {
-
+class PokerWrapper : MutablePoker() {
     private val actualPokerObserver = { poke() }
 
-    var actualPoker:Poker? = null
+    var actualPoker: Poker? = null
         set(value) {
             field?.removeObserver(actualPokerObserver)
             field = value
             value?.addObserver(actualPokerObserver)
         }
-
-
 }

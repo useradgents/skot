@@ -18,7 +18,6 @@ abstract class ServicesMock {
         override val respond: suspend PipelineContext<Unit, ApplicationCall>.() -> Unit = {
             call.respond(status, content)
         }
-
     }
 
     val httpRequestModifier: HttpRequestBuilder.() -> Unit = {
@@ -34,16 +33,27 @@ abstract class ServicesMock {
 
     object Error404 : Respond(HttpStatusCode.NotFound, "Erreur 404 générique")
 
-
     abstract class Service {
-        abstract fun matches(host: String, path: String, queryParameters: Map<String, List<String>>): Boolean
+        abstract fun matches(
+            host: String,
+            path: String,
+            queryParameters: Map<String, List<String>>,
+        ): Boolean
+
         var mock: Mocker? = null
 
-        fun willMock(host: String, path: String, queryParameters: Map<String, List<String>>) =
-                if (mock != null) matches(host, path, queryParameters) else false
+        fun willMock(
+            host: String,
+            path: String,
+            queryParameters: Map<String, List<String>>,
+        ) = if (mock != null) matches(host, path, queryParameters) else false
 
         class EndsWith(private val suffix: String) : Service() {
-            override fun matches(host: String, path: String, queryParameters: Map<String, List<String>>): Boolean {
+            override fun matches(
+                host: String,
+                path: String,
+                queryParameters: Map<String, List<String>>,
+            ): Boolean {
                 return path.endsWith(suffix)
             }
 
@@ -53,7 +63,11 @@ abstract class ServicesMock {
         }
 
         class WithParameter(private val name: String, private val value: String) : Service() {
-            override fun matches(host: String, path: String, queryParameters: Map<String, List<String>>): Boolean {
+            override fun matches(
+                host: String,
+                path: String,
+                queryParameters: Map<String, List<String>>,
+            ): Boolean {
                 return queryParameters[name]?.contains(value) == true
             }
 
@@ -65,17 +79,22 @@ abstract class ServicesMock {
 
     abstract val services: List<Service>
 
-    fun willMock(url: URLBuilder) = services.any {
-        it.willMock(url.host, url.encodedPath, url.parameters.entries().map { it.key to it.value }.toMap())
-    }
+    fun willMock(url: URLBuilder) =
+        services.any {
+            it.willMock(url.host, url.encodedPath, url.parameters.entries().map { it.key to it.value }.toMap())
+        }
 
-    suspend fun respond(pipeline: PipelineContext<Unit, ApplicationCall>, host: String, path: String, queryParameters: Map<String, List<String>>) {
+    suspend fun respond(
+        pipeline: PipelineContext<Unit, ApplicationCall>,
+        host: String,
+        path: String,
+        queryParameters: Map<String, List<String>>,
+    ) {
         services.forEach {
             if (it.willMock(host, path, queryParameters)) {
                 return@forEach it.mock?.let { it.respond.invoke(pipeline) }
-                        ?: pipeline.call.respond(HttpStatusCode.BadRequest, "Service non mocké pas normal")
+                    ?: pipeline.call.respond(HttpStatusCode.BadRequest, "Service non mocké pas normal")
             }
         }
     }
-
 }

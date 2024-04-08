@@ -13,9 +13,8 @@ import tech.skot.core.components.SKComponentViewProxy
 class SKWindowPopupView(
     override val proxy: SKWindowPopupViewProxy,
     activity: SKActivity,
-    fragment: Fragment?
+    fragment: Fragment?,
 ) : SKComponentView<Unit>(proxy, activity, fragment, Unit) {
-
     data class State(val state: SKWindowPopupVC.Shown, val popup: PopupWindow)
 
     private var current: State? = null
@@ -24,9 +23,7 @@ class SKWindowPopupView(
     var widthSize: Int = ViewGroup.LayoutParams.WRAP_CONTENT
     var heightSize: Int = ViewGroup.LayoutParams.WRAP_CONTENT
 
-
     fun onState(state: SKWindowPopupVC.Shown?) {
-
         if (state != current?.state) {
             if (state != null) {
                 current?.popup?.dismiss()
@@ -34,17 +31,19 @@ class SKWindowPopupView(
                 val view =
                     (state.component as SKComponentViewProxy<*>).inflateAndBind(activity, fragment)
 
-                val trueView = when (view) {
-                    is View -> view
-                    is ViewBinding -> view.root
-                    else -> throw UnsupportedOperationException("Use view or viewBinding component")
-                }
+                val trueView =
+                    when (view) {
+                        is View -> view
+                        is ViewBinding -> view.root
+                        else -> throw UnsupportedOperationException("Use view or viewBinding component")
+                    }
 
-                val popupWindow = PopupWindow(
-                    trueView,
-                    widthSize,
-                    heightSize
-                )
+                val popupWindow =
+                    PopupWindow(
+                        trueView,
+                        widthSize,
+                        heightSize,
+                    )
 
                 when (val comportement = state.behavior) {
                     is SKWindowPopupVC.Cancelable -> {
@@ -67,13 +66,11 @@ class SKWindowPopupView(
                                 current = State(state, popupWindow)
                             }
                         }
-                    } catch (e : Exception){
+                    } catch (e: Exception) {
                         SKLog.e(e)
-                        //maybe crash if showAsDropDown is called too early
+                        // maybe crash if showAsDropDown is called too early
                     }
                 }
-
-
             } else {
                 current?.popup?.dismiss()
                 current = null
@@ -81,4 +78,3 @@ class SKWindowPopupView(
         }
     }
 }
-

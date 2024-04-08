@@ -1,8 +1,6 @@
 package tech.skot.core.components.inputs
 
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import com.google.android.material.textfield.TextInputLayout
@@ -23,7 +21,7 @@ abstract class SKInputViewProxyCommon<V : View>(
     hiddenInitial: Boolean?,
     hintInitial: String?,
     textInitial: String?,
-    showPasswordInitial: Boolean?
+    showPasswordInitial: Boolean?,
 ) : SKComponentViewProxy<V>(), SKInputVC {
     private val enabledLD: MutableSKLiveData<Boolean?> = MutableSKLiveData(enabledInitial)
 
@@ -50,6 +48,7 @@ abstract class SKInputViewProxyCommon<V : View>(
     override var showPassword: Boolean? by showPasswordLD
 
     private val requestFocusMessage = SKMessage<Unit>()
+
     override fun requestFocus() {
         requestFocusMessage.post(Unit)
     }
@@ -57,49 +56,48 @@ abstract class SKInputViewProxyCommon<V : View>(
     abstract fun createView(
         activity: SKActivity,
         fragment: Fragment?,
-        binding: V
+        binding: V,
     ): SKInputViewCommon<V>
 
     override fun bindTo(
         activity: SKActivity,
         fragment: Fragment?,
-        binding: V
-    ): SKInputViewCommon<V> = createView(activity, fragment, binding).apply {
-        onMaxSize(maxSize)
-        onOnDone(onDone)
-        onType(type)
-        onOnFocusChange(onFocusChange)
-        onOnInputText(onInputText)
-        enabledLD.observe {
-            onEnabled(it)
+        binding: V,
+    ): SKInputViewCommon<V> =
+        createView(activity, fragment, binding).apply {
+            onMaxSize(maxSize)
+            onOnDone(onDone)
+            onType(type)
+            onOnFocusChange(onFocusChange)
+            onOnInputText(onInputText)
+            enabledLD.observe {
+                onEnabled(it)
+            }
+            errorLD.observe {
+                onError(it)
+            }
+            hiddenLD.observe {
+                onHidden(it)
+            }
+            hintLD.observe {
+                onHint(it)
+            }
+            textLD.observe {
+                onText(it)
+            }
+            showPasswordLD.observe {
+                onShowPassword(it)
+            }
+            requestFocusMessage.observe {
+                requestFocus()
+            }
         }
-        errorLD.observe {
-            onError(it)
-        }
-        hiddenLD.observe {
-            onHidden(it)
-        }
-        hintLD.observe {
-            onHint(it)
-        }
-        textLD.observe {
-            onText(it)
-        }
-        showPasswordLD.observe {
-            onShowPassword(it)
-        }
-        requestFocusMessage.observe {
-            requestFocus()
-        }
-    }
-
 }
-
 
 class SKInputViewProxy(
     maxSize: Int? = null,
     onDone: Function1<String?, Unit>? = null,
-    onFocusChange: ((hasFocus:Boolean) -> Unit)? = null,
+    onFocusChange: ((hasFocus: Boolean) -> Unit)? = null,
     onInputText: Function1<String?, Unit>,
     type: SKInputVC.Type? = null,
     enabledInitial: Boolean? = null,
@@ -107,21 +105,20 @@ class SKInputViewProxy(
     hiddenInitial: Boolean? = null,
     hintInitial: String? = null,
     textInitial: String? = null,
-    showPasswordInitial: Boolean? = null
+    showPasswordInitial: Boolean? = null,
 ) : SKInputViewProxyCommon<TextInputLayout>(
-    maxSize,
-    onDone,
-    onFocusChange,
-    onInputText,
-    type,
-    enabledInitial,
-    errorInitial,
-    hiddenInitial,
-    hintInitial,
-    textInitial,
-    showPasswordInitial,
-) {
-
+        maxSize,
+        onDone,
+        onFocusChange,
+        onInputText,
+        type,
+        enabledInitial,
+        errorInitial,
+        hiddenInitial,
+        hintInitial,
+        textInitial,
+        showPasswordInitial,
+    ) {
     companion object {
         var LAYOUT_ID: Int? = null
     }
@@ -132,15 +129,14 @@ class SKInputViewProxy(
     override fun createView(
         activity: SKActivity,
         fragment: Fragment?,
-        binding: TextInputLayout
+        binding: TextInputLayout,
     ) = SKInputView(this, activity, fragment, binding)
 }
-
 
 class SKSimpleInputViewProxy(
     maxSize: Int? = null,
     onDone: Function1<String?, Unit>? = null,
-    onFocusChange: ((hasFocus:Boolean) -> Unit)? = null,
+    onFocusChange: ((hasFocus: Boolean) -> Unit)? = null,
     onInputText: Function1<String?, Unit>,
     type: SKInputVC.Type? = null,
     enabledInitial: Boolean? = null,
@@ -148,21 +144,21 @@ class SKSimpleInputViewProxy(
     hiddenInitial: Boolean? = null,
     hintInitial: String? = null,
     textInitial: String? = null,
-    showPasswordInitial: Boolean? = null
+    showPasswordInitial: Boolean? = null,
 ) : SKInputViewProxyCommon<EditText>(
-    maxSize,
-    onDone,
-    onFocusChange,
-    onInputText,
-    type,
-    enabledInitial,
-    errorInitial,
-    hiddenInitial,
-    hintInitial,
-    textInitial,
-    showPasswordInitial
-), SKSimpleInputVC {
-
+        maxSize,
+        onDone,
+        onFocusChange,
+        onInputText,
+        type,
+        enabledInitial,
+        errorInitial,
+        hiddenInitial,
+        hintInitial,
+        textInitial,
+        showPasswordInitial,
+    ),
+    SKSimpleInputVC {
     companion object {
         var LAYOUT_ID: Int? = null
     }
@@ -173,12 +169,9 @@ class SKSimpleInputViewProxy(
     override fun createView(
         activity: SKActivity,
         fragment: Fragment?,
-        binding: EditText
+        binding: EditText,
     ) = SKSimpleInputView(this, activity, fragment, binding)
-
-
 }
-
 
 interface SKInputRAI {
     fun onMaxSize(maxSize: Int?)

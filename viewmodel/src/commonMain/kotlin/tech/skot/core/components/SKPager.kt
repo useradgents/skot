@@ -8,14 +8,13 @@ class SKPager(
     initialSelectedPageIndex: Int = 0,
     swipable: Boolean = true,
 ) : SKComponent<SKPagerVC>() {
-
-
-    override val view = coreViewInjector.pager(
-        screens = initialScreens.map { it.view },
-        onUserSwipeToPage = onUserSwipeToPage,
-        initialSelectedPageIndex = initialSelectedPageIndex,
-        swipable = swipable
-    )
+    override val view =
+        coreViewInjector.pager(
+            screens = initialScreens.map { it.view },
+            onUserSwipeToPage = onUserSwipeToPage,
+            initialSelectedPageIndex = initialSelectedPageIndex,
+            swipable = swipable,
+        )
 
     var selectedIndex: Int
         get() = view.selectedPageIndex
@@ -33,5 +32,4 @@ class SKPager(
         super.onRemove()
         screens.forEach { it.onRemove() }
     }
-
 }

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.TypedValue
@@ -19,10 +20,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.transition.ChangeBounds
-import androidx.transition.Fade
-import androidx.transition.TransitionManager
-import androidx.transition.TransitionSet
 import kotlinx.coroutines.launch
 import tech.skot.core.SKFeatureInitializer
 import tech.skot.core.SKLog
@@ -33,7 +30,6 @@ import tech.skot.view.extensions.updatePadding
 
 @Suppress("OVERRIDE_DEPRECATION")
 abstract class SKActivity : AppCompatActivity() {
-
     var screenKey: Long? = null
 
     var fileCallback: ValueCallback<Array<Uri>>? = null
@@ -66,7 +62,6 @@ abstract class SKActivity : AppCompatActivity() {
 
     private val onBackPressedCallback: OnBackPressedCallback =
         object : OnBackPressedCallback(true) {
-
             override fun handleOnBackPressed() {
                 ScreensManager.backPressed.post(Unit)
             }
@@ -82,7 +77,6 @@ abstract class SKActivity : AppCompatActivity() {
             override fun handleOnBackProgressed(backEvent: BackEventCompat) {
                 super.handleOnBackProgressed(backEvent)
             }
-
         }
 
     companion object {
@@ -95,11 +89,9 @@ abstract class SKActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         if (launchActivityClass?.isInstance(this) == true) {
             featureInitializer.resetToRoot()
-            intent?.data?.toSKUri()?.let { featureInitializer.onDeepLink?.invoke(it, false) }
+            intent.data?.toSKUri()?.let { featureInitializer.onDeepLink?.invoke(it, false) }
         }
     }
-
-
 
     var screen: SKScreenView<*>? = null
 
@@ -116,9 +108,7 @@ abstract class SKActivity : AppCompatActivity() {
         theme.resolveAttribute(android.R.attr.windowLightStatusBar, typedValue, true)
         themeWindowLightStatusBar = typedValue.data != 0
 
-
         lifecycleScope.launch {
-
             val alreadyInitialized = featureInitializer.isInitialized()
             featureInitializer.initializeIfNeeded(intent?.data?.toSKUri(), intent?.action)
 
@@ -150,7 +140,6 @@ abstract class SKActivity : AppCompatActivity() {
 
                 oneActivityAlreadyLaunched = true
 
-
                 screenProxy?.run {
                     screenKey = key
                     bindTo(this@SKActivity, null, layoutInflater)
@@ -173,13 +162,11 @@ abstract class SKActivity : AppCompatActivity() {
 
     private var loadingInsetsCounter: Long = 0L
 
-
     fun setFullScreen(
         fullScreen: Boolean,
         lightStatusBar: Boolean?,
         onWindowInsets: ((windowInsets: WindowInsetsCompat) -> Unit)? = null,
     ) {
-
         screen?.view?.let {
             it.post {
                 WindowInsetsControllerCompat(window, it).isAppearanceLightStatusBars =
@@ -189,9 +176,14 @@ abstract class SKActivity : AppCompatActivity() {
                 val loadedInsets = ViewCompat.getRootWindowInsets(it)
                 if (loadedInsets != null) {
                     it.updatePadding(
-                        bottom = if (fullScreen) loadedInsets.getInsets(
-                            WindowInsetsCompat.Type.systemBars()
-                        ).bottom else 0
+                        bottom =
+                            if (fullScreen) {
+                                loadedInsets.getInsets(
+                                    WindowInsetsCompat.Type.systemBars(),
+                                ).bottom
+                            } else {
+                                0
+                            },
                     )
                     onWindowInsets?.invoke(loadedInsets)
                     it.requestApplyInsets()
@@ -201,9 +193,14 @@ abstract class SKActivity : AppCompatActivity() {
                         if (loadingInsetsCounter == loadingIndex) {
                             ViewCompat.setOnApplyWindowInsetsListener(it, null)
                             it.updatePadding(
-                                bottom = if (fullScreen) windowInsets.getInsets(
-                                    WindowInsetsCompat.Type.systemBars()
-                                ).bottom else 0
+                                bottom =
+                                    if (fullScreen) {
+                                        windowInsets.getInsets(
+                                            WindowInsetsCompat.Type.systemBars(),
+                                        ).bottom
+                                    } else {
+                                        0
+                                    },
                             )
                         }
                         onWindowInsets?.invoke(windowInsets)
@@ -213,29 +210,26 @@ abstract class SKActivity : AppCompatActivity() {
                 }
             }
         }
-
     }
-
 
     private fun getKeyForThisActivity(savedInstanceState: Bundle?) =
         when {
             intent.hasExtra(ScreensManager.SK_EXTRA_VIEW_KEY) -> {
                 intent.getLongExtra(
                     ScreensManager.SK_EXTRA_VIEW_KEY,
-                    -1
+                    -1,
                 )
             }
 
             savedInstanceState?.containsKey(ScreensManager.SK_EXTRA_VIEW_KEY) == true -> {
                 savedInstanceState.getLong(
                     ScreensManager.SK_EXTRA_VIEW_KEY,
-                    -1
+                    -1,
                 )
             }
 
             else -> -1
         }
-
 
     private var resumedWithoutScreen = false
 
@@ -262,7 +256,10 @@ abstract class SKActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
+    override fun onSaveInstanceState(
+        outState: Bundle,
+        outPersistentState: PersistableBundle,
+    ) {
         super.onSaveInstanceState(outState, outPersistentState)
         screenKey?.let { outState.putLong(ScreensManager.SK_EXTRA_VIEW_KEY, it) }
     }
@@ -270,47 +267,55 @@ abstract class SKActivity : AppCompatActivity() {
     private var finishedAsked = false
 
     private fun linkToRootStack() {
-
         SKRootStackViewProxy.stateLD.observe(this) { state ->
             if (!finishedAsked) {
-                val thisScreenPosition = state.screens.indexOfFirst {
-                    it.key == screenKey
-                }
+                val thisScreenPosition =
+                    state.screens.indexOfFirst {
+                        it.key == screenKey
+                    }
                 val isTaskRootBeforeFinish = isTaskRoot
                 if (thisScreenPosition == -1) {
                     finishedAsked = true
                     finish()
                     state.transition?.let {
-                        overridePendingTransition(it.enterAnim, it.exitAnim)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                            overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, it.enterAnim, it.exitAnim)
+                        } else {
+                            @Suppress("DEPRECATION")
+                            overridePendingTransition(it.enterAnim, it.exitAnim)
+                        }
                     }
                 } else {
                     if (state.screens.size > thisScreenPosition + 1) {
-                        startActivityForProxy(state.screens.get(thisScreenPosition + 1))
+                        startActivityForProxy(state.screens[thisScreenPosition + 1])
                         state.transition?.let {
-                            overridePendingTransition(
-                                it.enterAnim,
-                                it.exitAnim
-                            )
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                                overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, it.enterAnim, it.exitAnim)
+                            } else {
+                                @Suppress("DEPRECATION")
+                                overridePendingTransition(it.enterAnim, it.exitAnim)
+                            }
                         }
                     }
                 }
 
                 if (finishedAsked && isTaskRootBeforeFinish) {
                     state.screens.firstOrNull()?.let { newScreen ->
-                        val launchClass = launchActivityClass
-                            ?: throw IllegalStateException("You have to set SKActivity.launchActivityClass to be allowed to change root Screen. New root screen will be loaded in this activity even if you have redefined getActivityClas method")
-                        startActivity(Intent(this@SKActivity, launchClass).apply {
-                            flags = flags.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            putExtra(ScreensManager.SK_EXTRA_VIEW_KEY, newScreen.key)
-                        })
+                        val launchClass =
+                            launchActivityClass
+                                ?: throw IllegalStateException(
+                                    "You have to set SKActivity.launchActivityClass to be allowed to change root Screen. New root screen will be loaded in this activity even if you have redefined getActivityClas method",
+                                )
+                        startActivity(
+                            Intent(this@SKActivity, launchClass).apply {
+                                flags = flags.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                putExtra(ScreensManager.SK_EXTRA_VIEW_KEY, newScreen.key)
+                            },
+                        )
                     }
                 }
-
             }
-
-
         }
-
     }
 
     /**
@@ -318,13 +323,14 @@ abstract class SKActivity : AppCompatActivity() {
      * main use is globally, for all activities, for platform specific work (sdk)
      */
     protected open fun linkToCustoms() {
-
     }
 
     private fun startActivityForProxy(proxy: SKScreenViewProxy<*>) {
-        startActivity(Intent(this, proxy.getActivityClass()).apply {
-            putExtra(ScreensManager.SK_EXTRA_VIEW_KEY, proxy.key)
-        })
+        startActivity(
+            Intent(this, proxy.getActivityClass()).apply {
+                putExtra(ScreensManager.SK_EXTRA_VIEW_KEY, proxy.key)
+            },
+        )
     }
 
     override fun onRequestPermissionsResult(
@@ -335,13 +341,12 @@ abstract class SKActivity : AppCompatActivity() {
         ScreensManager.permissionsResults.post(
             SKPermissionsRequestResultAndroid(
                 requestCode = requestCode,
-                grantedPermissions = permissions.filterIndexed { index, _ ->
-                    grantResults[index] == PackageManager.PERMISSION_GRANTED
-                }.map { SKPermissionAndroid(it) }
-            )
-
+                grantedPermissions =
+                    permissions.filterIndexed { index, _ ->
+                        grantResults[index] == PackageManager.PERMISSION_GRANTED
+                    }.map { SKPermissionAndroid(it) },
+            ),
         )
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
-
 }

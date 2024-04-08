@@ -9,8 +9,6 @@ import tech.skot.core.components.SKComponentViewProxy
 import tech.skot.view.live.MutableSKLiveData
 import tech.skot.viewlegacy.R
 import tech.skot.viewlegacy.databinding.SkComboBinding
-import tech.skot.viewlegacy.databinding.SkInputWithSuggestionsBinding
-
 
 class SKComboViewProxy(
     hint: String? = null,
@@ -21,25 +19,26 @@ class SKComboViewProxy(
     enabledInitial: Boolean? = null,
     hiddenInitial: Boolean? = null,
     dropDownDisplayedInitial: Boolean = false,
-    oldSchoolModeHint: Boolean = false
+    oldSchoolModeHint: Boolean = false,
 ) : SKCommonComboViewProxy<SkComboBinding>(
-    hint = hint,
-    errorInitial = errorInitial,
-    onSelected = onSelected,
-    choicesInitial = choicesInitial,
-    selectedInitial = selectedInitial,
-    enabledInitial = enabledInitial,
-    hiddenInitial = hiddenInitial,
-    dropDownDisplayedInitial = dropDownDisplayedInitial,
-    oldSchoolModeHint = oldSchoolModeHint
-) {
+        hint = hint,
+        errorInitial = errorInitial,
+        onSelected = onSelected,
+        choicesInitial = choicesInitial,
+        selectedInitial = selectedInitial,
+        enabledInitial = enabledInitial,
+        hiddenInitial = hiddenInitial,
+        dropDownDisplayedInitial = dropDownDisplayedInitial,
+        oldSchoolModeHint = oldSchoolModeHint,
+    ) {
     override val layoutId: Int = R.layout.sk_combo
+
     override fun bindingOf(view: View) = SkComboBinding.bind(view)
 
     override fun bindTo(
         activity: SKActivity,
         fragment: Fragment?,
-        binding: SkComboBinding
+        binding: SkComboBinding,
     ) = SKComboView(this, activity, fragment, binding).apply {
         bind()
     }
@@ -47,10 +46,11 @@ class SKComboViewProxy(
     override fun inflate(
         layoutInflater: LayoutInflater,
         parent: ViewGroup?,
-        attachToParent: Boolean
-    ): SkComboBinding  = SkComboBinding.inflate(layoutInflater, parent, attachToParent).also {
-        it.root.tag = this.hashCode()
-    }
+        attachToParent: Boolean,
+    ): SkComboBinding =
+        SkComboBinding.inflate(layoutInflater, parent, attachToParent).also {
+            it.root.tag = this.hashCode()
+        }
 }
 
 abstract class SKCommonComboViewProxy<Binding : Any>(
@@ -62,10 +62,8 @@ abstract class SKCommonComboViewProxy<Binding : Any>(
     enabledInitial: Boolean?,
     hiddenInitial: Boolean?,
     dropDownDisplayedInitial: Boolean,
-    override val oldSchoolModeHint:Boolean
+    override val oldSchoolModeHint: Boolean,
 ) : SKComponentViewProxy<Binding>(), SKComboVC {
-
-
     private val choicesLD = MutableSKLiveData(choicesInitial)
     override var choices by choicesLD
 
@@ -81,10 +79,8 @@ abstract class SKCommonComboViewProxy<Binding : Any>(
     private val errorLD = MutableSKLiveData(errorInitial)
     override var error by errorLD
 
-
     private val dropDownDisplayedLD = MutableSKLiveData(dropDownDisplayedInitial)
     override var dropDownDisplayed: Boolean by dropDownDisplayedLD
-
 
     fun SKCommonComboView<Binding>.bind() {
         onHint(hint)
@@ -108,5 +104,4 @@ abstract class SKCommonComboViewProxy<Binding : Any>(
             onDropDownDisplayed(it)
         }
     }
-
 }

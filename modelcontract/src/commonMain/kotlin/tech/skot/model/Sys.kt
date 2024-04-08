@@ -1,3 +1,3 @@
 package tech.skot.model
 
-expect fun currentTimeMillis():Long
+expect fun currentTimeMillis(): Long

@@ -12,7 +12,7 @@ class SKInputWithSuggestionsViewMock(
     hiddenInitial: Boolean?,
     dropDownDisplayedInitial: Boolean,
     onInputText: (input: String?) -> Unit,
-    override val oldSchoolModeHint: Boolean
+    override val oldSchoolModeHint: Boolean,
 ) : SKComponentViewMock(), SKInputWithSuggestionsVC {
     override val onInputText: (input: String?) -> Unit = onInputText
     override var error: String? = errorInitial
@@ -25,10 +25,10 @@ class SKInputWithSuggestionsViewMock(
     override var dropDownDisplayed: Boolean = dropDownDisplayedInitial
 
     var requestFocusCounter = 0
+
     override fun requestFocus() {
         requestFocusCounter++
     }
 }
 
-fun SKInputWithSuggestionsVC.requestFocusCount(): Int =
-    (this as SKInputViewMock).requestFocusCounter
+fun SKInputWithSuggestionsVC.requestFocusCount(): Int = (this as SKInputViewMock).requestFocusCounter

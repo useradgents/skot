@@ -8,7 +8,7 @@ open class SKButtonViewMock(
     labelInitial: String? = null,
     enabledInitial: Boolean? = null,
     hiddenInitial: Boolean? = null,
-    override val debounce: Long? = 500
+    override val debounce: Long? = 500,
 ) : SKComponentViewMock(), SKButtonVC {
     override var enabled: Boolean? = enabledInitial
     override var hidden: Boolean? = hiddenInitial
@@ -21,9 +21,7 @@ open class SKButtonViewMock(
             onTap?.invoke()
         }
     }
-
 }
-
 
 fun SKButtonVC.userTap() {
     (this as SKButtonViewMock).userTap()

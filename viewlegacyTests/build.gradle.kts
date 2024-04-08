@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+
 group = Versions.group
 version = Versions.version
 
@@ -8,16 +10,15 @@ plugins {
     signing
 }
 
-
 kotlin {
+    jvmToolchain(17)
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    compilerOptions {
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+    }
     androidTarget("android") {
         publishLibraryVariants("release", "debug")
         publishLibraryVariantsGroupedByFlavor = true
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
-        }
     }
 }
 
@@ -28,8 +29,6 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     namespace = "tech.skot.viewlegacytests"
 }
-
-
 
 dependencies {
     implementation((project(":viewlegacy")))

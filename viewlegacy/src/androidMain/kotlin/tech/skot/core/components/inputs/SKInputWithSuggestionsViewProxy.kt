@@ -9,7 +9,6 @@ import tech.skot.view.live.SKMessage
 import tech.skot.viewlegacy.R
 import tech.skot.viewlegacy.databinding.SkInputWithSuggestionsBinding
 
-
 class SKInputWithSuggestionsViewProxy(
     hint: String? = null,
     errorInitial: String? = null,
@@ -20,21 +19,21 @@ class SKInputWithSuggestionsViewProxy(
     hiddenInitial: Boolean? = null,
     dropDownDisplayedInitial: Boolean = false,
     override val onInputText: (input: String?) -> Unit,
-    override val oldSchoolModeHint: Boolean = false
+    override val oldSchoolModeHint: Boolean = false,
 ) : SKCommonComboViewProxy<SkInputWithSuggestionsBinding>(
-    hint,
-    errorInitial,
-    onSelected,
-    choicesInitial,
-    selectedInitial,
-    enabledInitial,
-    hiddenInitial,
-    dropDownDisplayedInitial,
-    oldSchoolModeHint
-),
+        hint,
+        errorInitial,
+        onSelected,
+        choicesInitial,
+        selectedInitial,
+        enabledInitial,
+        hiddenInitial,
+        dropDownDisplayedInitial,
+        oldSchoolModeHint,
+    ),
     SKInputWithSuggestionsVC {
+    override val layoutId: Int = R.layout.sk_input_with_suggestions
 
-    override val layoutId: Int =   R.layout.sk_input_with_suggestions
     override fun bindingOf(view: View): SkInputWithSuggestionsBinding {
         return SkInputWithSuggestionsBinding.bind(view)
     }
@@ -42,12 +41,14 @@ class SKInputWithSuggestionsViewProxy(
     override fun inflate(
         layoutInflater: LayoutInflater,
         parent: ViewGroup?,
-        attachToParent: Boolean
-    ): SkInputWithSuggestionsBinding = SkInputWithSuggestionsBinding.inflate(layoutInflater, parent, attachToParent).also {
-        it.root.tag = this.hashCode()
-    }
+        attachToParent: Boolean,
+    ): SkInputWithSuggestionsBinding =
+        SkInputWithSuggestionsBinding.inflate(layoutInflater, parent, attachToParent).also {
+            it.root.tag = this.hashCode()
+        }
 
     private val requestFocusMessage = SKMessage<Unit>()
+
     override fun requestFocus() {
         requestFocusMessage.post(Unit)
     }
@@ -55,13 +56,12 @@ class SKInputWithSuggestionsViewProxy(
     override fun bindTo(
         activity: SKActivity,
         fragment: Fragment?,
-        binding: SkInputWithSuggestionsBinding
+        binding: SkInputWithSuggestionsBinding,
     ) = SKInputWithSuggestionsView(this, activity, fragment, binding).apply {
         bind()
         onOnInputText(onInputText)
         requestFocusMessage.observe {
             requestFocus()
         }
-
     }
 }

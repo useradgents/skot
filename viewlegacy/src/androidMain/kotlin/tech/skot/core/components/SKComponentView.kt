@@ -26,12 +26,11 @@ abstract class SKComponentView<B : Any>(
     open val proxy: SKComponentViewProxy<B>,
     val activity: SKActivity,
     val fragment: Fragment?,
-    val binding: B
-)  {
-
+    val binding: B,
+) {
     val context = fragment?.context ?: activity
 
-    val baseView:View by lazy {
+    val baseView: View by lazy {
         (fragment as? DialogFragment)?.dialog?.window?.decorView ?: activity.window.decorView
     }
 
@@ -41,7 +40,6 @@ abstract class SKComponentView<B : Any>(
     private val baseLifecycle = fragment?.viewLifecycleOwner?.lifecycle ?: activity.lifecycle
 
     var lifecycleOwner: SKLifecycleOwner = SKLifecycleOwner(SKLifecycle(baseLifecycle))
-
 
     val subViews: MutableList<SKComponentView<*>> by lazy {
         mutableListOf()
@@ -53,18 +51,14 @@ abstract class SKComponentView<B : Any>(
 
     @CallSuper
     open fun onRecycle() {
-
         lifecycleOwner.lifecycle.recycled = true
         lifecycleOwner = SKLifecycleOwner(SKLifecycle(baseLifecycle))
         subViews.forEach { it.onRecycle() }
         subViews.clear()
-
     }
 
     open fun onFirstBind() {
-
     }
-
 
     fun <D> SKMessage<D>.observe(onReceive: (D) -> Unit) {
         setObserver(lifecycleOwner = lifecycleOwner, onReceive)
@@ -82,13 +76,11 @@ abstract class SKComponentView<B : Any>(
     fun closeKeyboard() {
         (activity.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager)?.hideSoftInputFromWindow(
             activity.window.decorView.windowToken,
-            0
+            0,
         )
     }
 
-    protected fun setOnWindowInset(
-        onWindowInset: ((windowInsets: WindowInsets) -> Unit)?
-    ) {
+    protected fun setOnWindowInset(onWindowInset: ((windowInsets: WindowInsets) -> Unit)?) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             val loadedInsets = activity.window?.decorView?.rootWindowInsets
             if (loadedInsets != null) {
@@ -103,13 +95,10 @@ abstract class SKComponentView<B : Any>(
         } else {
 //            TODO("VERSION.SDK_INT < M")
         }
-
     }
-
 
     private fun SKPermissionAndroid.isGranted(): Boolean =
         ContextCompat.checkSelfPermission(context, name) == PackageManager.PERMISSION_GRANTED
-
 
     var pendingPermissionsRequests: MutableList<SKComponentViewProxy.PermissionsRequest>? = null
 
@@ -123,15 +112,15 @@ abstract class SKComponentView<B : Any>(
                     addPendingPermissionsRequest(permissionsRequest)
                     activity.requestPermissions(
                         permissionsRequest.permissions.map { it.name }.toTypedArray(),
-                        permissionsRequest.requestCode
+                        permissionsRequest.requestCode,
                     )
                 } else {
                     SKLog.e(
                         Exception("You need to declare some permissions in your manifest"),
-                        permissionsRequest.permissions.filter { !it.isGranted() }.joinToString()
+                        permissionsRequest.permissions.filter { !it.isGranted() }.joinToString(),
                     )
                     permissionsRequest.onResult(
-                        permissionsRequest.permissions.filter { it.isGranted() }
+                        permissionsRequest.permissions.filter { it.isGranted() },
                     )
                 }
             }
@@ -155,7 +144,6 @@ abstract class SKComponentView<B : Any>(
             currentPendingPermissionsRequests.add(permissionsRequest)
         }
     }
-
 
     companion object {
         var displayMessage: (SKComponentView<*>.(message: SKComponentVC.Message) -> Unit)? = null

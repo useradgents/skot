@@ -1,6 +1,6 @@
-package tech.skot.tools.starter
+package tech.skot.tools.starter.buildsrc
 
-val buildSrcBuildGradle = """repositories {
+const val buildSrcBuildGradle = """repositories {
     mavenCentral()
 }
 

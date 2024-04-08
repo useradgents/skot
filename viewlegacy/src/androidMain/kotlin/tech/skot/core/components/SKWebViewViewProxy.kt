@@ -8,9 +8,8 @@ import tech.skot.viewlegacy.R
 
 class SKWebViewViewProxy(
     override val config: SKWebViewVC.Config = SKWebViewVC.Config(null),
-    launchInitial: SKWebViewVC.Launch? = null
+    launchInitial: SKWebViewVC.Launch? = null,
 ) : SKComponentViewProxy<WebView>(), SKWebViewVC {
-
     companion object {
         var LAYOUT_ID: Int? = null
     }
@@ -27,42 +26,46 @@ class SKWebViewViewProxy(
     override var goBack: SKWebViewVC.BackRequest? by goBackLD
 
     private val requestGoForwardMessage = SKMessage<Unit>()
+
     override fun requestGoForward() {
         requestGoForwardMessage.post(Unit)
     }
 
     private val requestReloadMessage = SKMessage<Unit>()
+
     override fun requestReload() {
         requestReloadMessage.post(Unit)
     }
 
-    private val requestEvaluateJavascript = SKMessage<Pair<String,(String) -> Unit>>()
-    override fun evaluateJavascript(js: String, onResult: (String) -> Unit) {
+    private val requestEvaluateJavascript = SKMessage<Pair<String, (String) -> Unit>>()
+
+    override fun evaluateJavascript(
+        js: String,
+        onResult: (String) -> Unit,
+    ) {
         requestEvaluateJavascript.post(Pair(js, onResult))
     }
 
-    override fun bindTo(activity: SKActivity, fragment: Fragment?, binding: WebView) =
-            SKWebViewView(this, activity, fragment, binding).apply {
-                onConfig(config)
-                launchLD.observe {
-                    onLaunch(it)
-                }
-                goBackLD.observe {
-                    onGoBackLD(it)
-                }
-                requestGoForwardMessage.observe {
-                    onRequestGoForward()
-                }
-                requestReloadMessage.observe {
-                    onRequestReload()
-                }
-                requestEvaluateJavascript.observe {
-                    onEvaluateJavascript(it.first, it.second)
-                }
-            }
-
+    override fun bindTo(
+        activity: SKActivity,
+        fragment: Fragment?,
+        binding: WebView,
+    ) = SKWebViewView(this, activity, fragment, binding).apply {
+        onConfig(config)
+        launchLD.observe {
+            onLaunch(it)
+        }
+        goBackLD.observe {
+            onGoBackLD(it)
+        }
+        requestGoForwardMessage.observe {
+            onRequestGoForward()
+        }
+        requestReloadMessage.observe {
+            onRequestReload()
+        }
+        requestEvaluateJavascript.observe {
+            onEvaluateJavascript(it.first, it.second)
+        }
+    }
 }
-
-
-
-

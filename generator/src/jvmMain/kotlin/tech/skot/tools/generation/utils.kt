@@ -16,7 +16,7 @@ class ParamInfos(
     val isVal: Boolean = true,
     val mutable: Boolean = false,
     val isPrivate: Boolean = false,
-    val default:String? = null
+    val default: String? = null,
 )
 
 fun TypeSpec.Builder.addPrimaryConstructorWithParams(vals: List<ParamInfos>): TypeSpec.Builder {
@@ -26,18 +26,23 @@ fun TypeSpec.Builder.addPrimaryConstructorWithParams(vals: List<ParamInfos>): Ty
                 vals
                     .forEach {
                         addParameter(
-                            ParameterSpec.builder(it.name, it.typeName, it.modifiers.filter { it == KModifier.VARARG || it == KModifier.NOINLINE || it == KModifier.CROSSINLINE })
+                            ParameterSpec.builder(
+                                it.name,
+                                it.typeName,
+                                it.modifiers.filter {
+                                    it == KModifier.VARARG || it == KModifier.NOINLINE || it == KModifier.CROSSINLINE
+                                },
+                            )
                                 .apply {
                                     if (it.default != null) {
                                         defaultValue(it.default)
                                     }
                                 }
-                                .build()
+                                .build(),
                         )
-
                     }
             }
-            .build()
+            .build(),
     )
     addProperties(
         vals.filter { it.isVal }.map {
@@ -51,42 +56,40 @@ fun TypeSpec.Builder.addPrimaryConstructorWithParams(vals: List<ParamInfos>): Ty
                     }
                 }
                 .build()
-        }
+        },
     )
     return this
 }
 
-
 fun TypeName.nullable() = this.copy(true)
 
-fun TypeName.simpleName(): String? = when {
-    (this is ClassName) -> simpleName
-    (this is ParameterizedTypeName) -> this.rawType.simpleName
-    else -> null
-}
+fun TypeName.simpleName(): String? =
+    when {
+        (this is ClassName) -> simpleName
+        (this is ParameterizedTypeName) -> this.rawType.simpleName
+        else -> null
+    }
 
-fun FileSpec.Builder.addImportClassName(className: ClassName) =
-    addImport(className.packageName, className.simpleName)
+fun FileSpec.Builder.addImportClassName(className: ClassName) = addImport(className.packageName, className.simpleName)
 
 fun FileSpec.Builder.addImportTypeName(typeName: TypeName) =
-    when(typeName) {
+    when (typeName) {
         is ParameterizedTypeName -> addImportClassName(typeName.rawType)
         else -> addImportClassName(typeName as ClassName)
     }
 
 fun String.packageToPathFragment() = replace('.', '/')
 
-fun String.fullNameAsClassName() =
-    ClassName(substring(0, lastIndexOf('.')), substring(lastIndexOf('.') + 1))
+fun String.fullNameAsClassName() = ClassName(substring(0, lastIndexOf('.')), substring(lastIndexOf('.') + 1))
 
 fun ClassName.fileClassBuilder(
     imports: List<ClassName> = emptyList(),
-    block: TypeSpec.Builder.() -> Unit
+    block: TypeSpec.Builder.() -> Unit,
 ) = FileSpec.builder(packageName, simpleName)
     .addType(
         TypeSpec.classBuilder(simpleName)
             .apply(block)
-            .build()
+            .build(),
     )
     .apply {
         imports.forEach {
@@ -95,15 +98,14 @@ fun ClassName.fileClassBuilder(
     }
     .build()
 
-
 fun ClassName.fileInterfaceBuilder(
     imports: List<ClassName> = emptyList(),
-    block: TypeSpec.Builder.() -> Unit
+    block: TypeSpec.Builder.() -> Unit,
 ) = FileSpec.builder(packageName, simpleName)
     .addType(
         TypeSpec.interfaceBuilder(simpleName)
             .apply(block)
-            .build()
+            .build(),
     )
     .apply {
         imports.forEach {
@@ -114,12 +116,12 @@ fun ClassName.fileInterfaceBuilder(
 
 fun ClassName.fileObjectBuilder(
     imports: List<ClassName> = emptyList(),
-    block: TypeSpec.Builder.() -> Unit
+    block: TypeSpec.Builder.() -> Unit,
 ) = FileSpec.builder(packageName, simpleName)
     .addType(
         TypeSpec.objectBuilder(simpleName)
             .apply(block)
-            .build()
+            .build(),
     )
     .apply {
         imports.forEach {
@@ -128,7 +130,10 @@ fun ClassName.fileObjectBuilder(
     }
     .build()
 
-fun Path.replaceSegment(segment: String, replacement: String): Path =
+fun Path.replaceSegment(
+    segment: String,
+    replacement: String,
+): Path =
     map {
         if (it.toString() == segment) {
             replacement
@@ -139,7 +144,6 @@ fun Path.replaceSegment(segment: String, replacement: String): Path =
         Paths.get(it.joinToString("/", prefix = if (this.startsWith("/")) "/" else ""))
     }
 
-
 fun KClass<*>.ownMembers(): List<KCallable<*>> {
     val superMembersNames = superclasses.flatMap { it.members.map { it.name } }
     return members.filter { !superMembersNames.contains(it.name) }
@@ -147,11 +151,12 @@ fun KClass<*>.ownMembers(): List<KCallable<*>> {
 
 fun KClass<*>.ownProperties(): List<KCallable<*>> {
     val superTypePropertiesNames =
-        superclasses[0].members.filter { it is KProperty }.map { it.name }
-    return members.filter { it is KProperty }.filter { !superTypePropertiesNames.contains(it.name) }
+        superclasses[0].members.filterIsInstance<KProperty<*>>().map { it.name }
+    return members.filterIsInstance<KProperty<*>>().filter { !superTypePropertiesNames.contains(it.name) }
 }
 
 fun KClass<*>.ownFuncs() = ownMembers().filterIsInstance(KFunction::class.java)
+
 fun KClass<*>.funcs() = members.filterIsInstance(KFunction::class.java)
 
-fun ClassName.withSuffix(suffix:String):ClassName = ClassName(packageName, simpleName.suffix(suffix))
+fun ClassName.withSuffix(suffix: String): ClassName = ClassName(packageName, simpleName.suffix(suffix))

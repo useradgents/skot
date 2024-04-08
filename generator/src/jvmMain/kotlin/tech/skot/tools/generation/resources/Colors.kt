@@ -9,13 +9,10 @@ import java.util.stream.Collectors
 
 fun String.toAndroidResourcePropertyName() = replace('.', '_')
 
-
 fun Generator.generateColors() {
-
     println("colors .........")
     println("generate Colors interface .........")
     val values = rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/values")
-
 
     val colors =
         if (!Files.exists(values)) {
@@ -27,55 +24,52 @@ fun Generator.generateColors() {
             }.collect(Collectors.toList())
         }
 
-
     fun String.toColorsPropertyName() = decapitalizeAsciiOnly().replace('.', '_')
-
-
-
-
 
     FileSpec.builder(
         colorsInterface.packageName,
-        colorsInterface.simpleName
-    ).addType(TypeSpec.interfaceBuilder(colorsInterface.simpleName)
-        .addProperties(
-            colors.map {
-                PropertySpec.builder(
-                    it.toColorsPropertyName(),
-                    ColorRef::class
-                )
-                    .build()
-            }
-        )
-        .addFunction(
-            FunSpec.builder("get")
-                .addParameter("key", String::class)
-                .returns(ColorRef::class.asTypeName().copy(nullable = true))
-                .addModifiers(KModifier.ABSTRACT)
-                .build()
-        )
-
-        .build())
+        colorsInterface.simpleName,
+    ).addType(
+        TypeSpec.interfaceBuilder(colorsInterface.simpleName)
+            .addProperties(
+                colors.map {
+                    PropertySpec.builder(
+                        it.toColorsPropertyName(),
+                        ColorRef::class,
+                    )
+                        .build()
+                },
+            )
+            .addFunction(
+                FunSpec.builder("get")
+                    .addParameter("key", String::class)
+                    .returns(ColorRef::class.asTypeName().copy(nullable = true))
+                    .addModifiers(KModifier.ABSTRACT)
+                    .build(),
+            )
+            .build(),
+    )
         .build()
         .writeTo(generatedCommonSources(modules.viewcontract))
 
-    val funGetSpec = FunSpec.builder("get")
-        .addParameter("key", String::class)
-        .returns(ColorRef::class.asTypeName().copy(nullable = true))
-        .addAnnotation(
-            AnnotationSpec.builder(ClassName("android.annotation", "SuppressLint"))
-                .addMember("value = [%S]", "DiscouragedApi")
-                .build()
-        )
-        .addStatement("val id = applicationContext.resources.getIdentifier(key,\"color\",applicationContext.packageName)")
-        .beginControlFlow("return if(id > 0)")
-        .addStatement("ColorRef(id)")
-        .endControlFlow()
-        .beginControlFlow("else")
-        .addStatement("null")
-        .endControlFlow()
-        .addModifiers(KModifier.OVERRIDE)
-        .build()
+    val funGetSpec =
+        FunSpec.builder("get")
+            .addParameter("key", String::class)
+            .returns(ColorRef::class.asTypeName().copy(nullable = true))
+            .addAnnotation(
+                AnnotationSpec.builder(ClassName("android.annotation", "SuppressLint"))
+                    .addMember("value = [%S]", "DiscouragedApi")
+                    .build(),
+            )
+            .addStatement("val id = applicationContext.resources.getIdentifier(key,\"color\",applicationContext.packageName)")
+            .beginControlFlow("return if(id > 0)")
+            .addStatement("ColorRef(id)")
+            .endControlFlow()
+            .beginControlFlow("else")
+            .addStatement("null")
+            .endControlFlow()
+            .addModifiers(KModifier.OVERRIDE)
+            .build()
 
     println("generate Colors android implementation .........")
     colorsImpl.fileClassBuilder(listOf(viewR)) {
@@ -85,9 +79,9 @@ fun Generator.generateColors() {
                 ParamInfos(
                     "applicationContext",
                     AndroidClassNames.context,
-                    listOf(KModifier.PRIVATE)
-                )
-            )
+                    listOf(KModifier.PRIVATE),
+                ),
+            ),
         )
         addProperties(
             colors.map {
@@ -98,7 +92,7 @@ fun Generator.generateColors() {
                 )
                     .initializer("ColorRef(R.color.${it.toAndroidResourcePropertyName()})")
                     .build()
-            }
+            },
         )
             .addFunction(funGetSpec)
     }
@@ -112,45 +106,45 @@ fun Generator.generateColors() {
                 ParamInfos(
                     "applicationContext",
                     AndroidClassNames.context,
-                    listOf(KModifier.PRIVATE)
-                )
-            )
+                    listOf(KModifier.PRIVATE),
+                ),
+            ),
         )
         addProperties(
             colors.map {
                 PropertySpec.builder(
                     it.toColorsPropertyName(),
                     ColorRef::class,
-                    KModifier.OVERRIDE
+                    KModifier.OVERRIDE,
                 )
                     .initializer("ColorRef(R.color.${it.toAndroidResourcePropertyName()})")
                     .build()
-            }
+            },
         )
             .addFunction(funGetSpec)
     }
         .writeTo(generatedAndroidTestSources(modules.view))
 
     println("generate Colors jvm mock .........")
-    colorsMock.fileClassBuilder() {
+    colorsMock.fileClassBuilder {
         addSuperinterface(colorsInterface)
         addProperties(
             colors.map {
                 PropertySpec.builder(
                     it.toColorsPropertyName(),
                     ColorRef::class,
-                    KModifier.OVERRIDE
+                    KModifier.OVERRIDE,
                 )
                     .initializer("ColorRef(\"${it.toColorsPropertyName()}\".hashCode())")
                     .build()
-            }
+            },
         )
 
         addProperty(
             PropertySpec.builder(name = "getReturnsNull", type = Boolean::class)
                 .mutable(true)
                 .initializer("false")
-                .build()
+                .build(),
         )
         addFunction(
             FunSpec.builder("get")
@@ -158,11 +152,8 @@ fun Generator.generateColors() {
                 .returns(ColorRef::class.asTypeName().copy(nullable = true))
                 .addStatement("return if (getReturnsNull) null else ColorRef(key.hashCode())")
                 .addModifiers(KModifier.OVERRIDE)
-                .build()
+                .build(),
         )
-
     }
         .writeTo(generatedJvmTestSources(feature ?: modules.viewmodel))
-
-
 }

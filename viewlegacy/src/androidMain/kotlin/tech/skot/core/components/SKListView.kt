@@ -18,25 +18,29 @@ class SKListView(
     fragment: Fragment?,
     private val recyclerView: RecyclerView,
 ) : SKComponentView<RecyclerView>(proxy, activity, fragment, recyclerView) {
-
-
     inner class ViewHolder(idLayout: Int, parent: ViewGroup) : RecyclerView.ViewHolder(
-        LayoutInflater.from(parent.context).inflate(idLayout, parent, false)
+        LayoutInflater.from(parent.context).inflate(idLayout, parent, false),
     ) {
-        var bindedOnce:Boolean = false
+        var bindedOnce: Boolean = false
         var componentView: SKComponentView<*>? = null
     }
 
     inner class Adapter : RecyclerView.Adapter<ViewHolder>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            ViewHolder(viewType, parent)
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int,
+        ) = ViewHolder(viewType, parent)
 
-        override fun getItemViewType(position: Int) = items[position].first.layoutId
-            ?: throw IllegalStateException("${items[position].first::class.simpleName} can't be in a recyclerview")
+        override fun getItemViewType(position: Int) =
+            items[position].first.layoutId
+                ?: throw IllegalStateException("${items[position].first::class.simpleName} can't be in a recyclerview")
 
         override fun getItemCount() = items.size
 
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        override fun onBindViewHolder(
+            holder: ViewHolder,
+            position: Int,
+        ) {
             items[position].let { proxy ->
                 val componentViewImpl =
                     proxy.first.bindToItemView(activity, fragment, holder.itemView)
@@ -53,10 +57,7 @@ class SKListView(
             super.onViewRecycled(holder)
             holder.componentView?.onRecycle()
             holder.componentView = null
-
         }
-
-
     }
 
     private val mapProxyIndexComponentViewImpl =
@@ -83,28 +84,28 @@ class SKListView(
             DiffUtil.calculateDiff(diffCallBack, true).dispatchUpdatesTo(adapter)
         }
 
-
     init {
         when (layoutMode) {
             is SKListVC.LayoutMode.Linear -> {
-                recyclerView.layoutManager = LinearLayoutManager(
-                    context,
-                    if (layoutMode.vertical) LinearLayoutManager.VERTICAL else LinearLayoutManager.HORIZONTAL,
-                    reverse
-                )
+                recyclerView.layoutManager =
+                    LinearLayoutManager(
+                        context,
+                        if (layoutMode.vertical) LinearLayoutManager.VERTICAL else LinearLayoutManager.HORIZONTAL,
+                        reverse,
+                    )
             }
 
             is SKListVC.LayoutMode.Grid -> {
-                recyclerView.layoutManager = GridLayoutManager(
-                    context,
-                    layoutMode.nbColumns,
-                    if (layoutMode.vertical) RecyclerView.VERTICAL else RecyclerView.HORIZONTAL,
-                    reverse
-                )
+                recyclerView.layoutManager =
+                    GridLayoutManager(
+                        context,
+                        layoutMode.nbColumns,
+                        if (layoutMode.vertical) RecyclerView.VERTICAL else RecyclerView.HORIZONTAL,
+                        reverse,
+                    )
             }
 
             SKListVC.LayoutMode.Manual -> {
-
             }
         }
 
@@ -121,7 +122,6 @@ class SKListView(
         recyclerView.adapter = adapter
     }
 
-
     fun onItems(items: List<Triple<SKComponentViewProxy<*>, Any, (() -> Unit)?>>) {
         this.items = items
     }
@@ -133,7 +133,6 @@ class SKListView(
     fun restoreState(state: Parcelable) {
         recyclerView.layoutManager?.onRestoreInstanceState(state)
     }
-
 
     private class CenterSmoothScroller(context: Context) : LinearSmoothScroller(context) {
         override fun calculateDtToFit(
@@ -151,7 +150,8 @@ class SKListView(
                 binding.post {
                     (binding.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(
                         scrollRequest.position,
-                        0)
+                        0,
+                    )
                 }
             }
 
@@ -169,9 +169,7 @@ class SKListView(
                 }
             }
         }
-
     }
-
 
     class DiffCallBack(
         private val oldList: List<Triple<SKComponentViewProxy<*>, Any, (() -> Unit)?>>,
@@ -185,23 +183,30 @@ class SKListView(
             return newList.size
         }
 
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        override fun areItemsTheSame(
+            oldItemPosition: Int,
+            newItemPosition: Int,
+        ): Boolean {
             val oldItem = oldList[oldItemPosition]
             val newItem = newList[newItemPosition]
             return oldItem.first.layoutId == newItem.first.layoutId && oldItem.second == newItem.second
         }
 
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        override fun areContentsTheSame(
+            oldItemPosition: Int,
+            newItemPosition: Int,
+        ): Boolean {
             return oldList[oldItemPosition].first == newList[newItemPosition].first
         }
-
     }
 }
 
 abstract class SKListItemTouchHelperCallBack(private val listView: SKListView) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-
-    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+    override fun onSwiped(
+        viewHolder: RecyclerView.ViewHolder,
+        direction: Int,
+    ) {
         listView.items[viewHolder.absoluteAdapterPosition].third?.invoke()
     }
 
@@ -220,5 +225,4 @@ abstract class SKListItemTouchHelperCallBack(private val listView: SKListView) :
             0
         }
     }
-
 }

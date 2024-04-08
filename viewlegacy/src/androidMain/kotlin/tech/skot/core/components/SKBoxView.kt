@@ -3,20 +3,18 @@ package tech.skot.core.components
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import tech.skot.core.SKLog
 import tech.skot.view.extensions.setVisible
 
 class SKBoxView(
     proxy: SKBoxViewProxy,
     activity: SKActivity,
     fragment: Fragment?,
-    viewGroup: ViewGroup
+    viewGroup: ViewGroup,
 ) : SKComponentView<ViewGroup>(proxy, activity, fragment, viewGroup) {
-
-
-    private var currentViews:List<View>? = null
+    private var currentViews: List<View>? = null
 
     private var firstItems = true
+
     fun onItems(items: List<SKComponentViewProxy<*>>) {
         binding.removeAllViews()
         subViews.clear()
@@ -24,11 +22,9 @@ class SKBoxView(
             binding.post {
                 setItems(items)
             }
-        }
-        else {
+        } else {
             setItems(items)
         }
-
     }
 
     private fun setItems(items: List<SKComponentViewProxy<*>>) {
@@ -36,8 +32,7 @@ class SKBoxView(
             val existingView = currentViews?.find { it.tag == newItemProxy.hashCode() }
             if (existingView != null) {
                 binding.addView(existingView)
-            }
-            else {
+            } else {
                 newItemProxy.inflateInParentAndBind(activity = activity, fragment = fragment, parent = binding)
             }
         }
@@ -50,8 +45,5 @@ class SKBoxView(
 
     fun onHidden(hidden: Boolean?) {
         hidden?.let { binding.setVisible(!it) }
-
     }
-
-
 }

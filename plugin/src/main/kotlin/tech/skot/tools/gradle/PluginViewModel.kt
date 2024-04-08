@@ -5,14 +5,11 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.get
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
 
-
-
-@Suppress("UnstableApiUsage")
-class PluginViewModel: Plugin<Project> {
-
+class PluginViewModel : Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.apply("com.android.library")
         project.plugins.apply("kotlinx-serialization")
@@ -20,12 +17,9 @@ class PluginViewModel: Plugin<Project> {
         project.extensions.findByType(LibraryExtension::class)?.conf(project)
 
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
-
     }
 
-
-    private fun LibraryExtension.conf(project:Project) {
-
+    private fun LibraryExtension.conf(project: Project) {
         androidBaseConfig(project)
 
         sourceSets {
@@ -33,24 +27,22 @@ class PluginViewModel: Plugin<Project> {
             getByName("main").manifest.srcFile("src/androidMain/AndroidManifest.xml")
             getByName("test").java.srcDirs("src/javaTest/kotlin")
         }
-
     }
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
+        jvmToolchain(17)
+
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+        }
         androidTarget {
-            compilations.all {
-                kotlinOptions {
-                    jvmTarget = "1.8"
-                }
-            }
         }
         jvm()
-
 
         sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
 
         val parentProjectPath = project.parent?.path ?: ""
-
 
         sourceSets["commonMain"].dependencies {
             api(project("$parentProjectPath:viewcontract"))
@@ -86,6 +78,4 @@ class PluginViewModel: Plugin<Project> {
         SKLibrary.addDependenciesToLibraries(this, (project.parent?.projectDir ?: project.rootDir).toPath(), "commonMain", "viewmodel")
         SKLibrary.addDependenciesToLibraries(this, (project.parent?.projectDir ?: project.rootDir).toPath(), "jvmTest", "viewmodelTests")
     }
-
-
 }

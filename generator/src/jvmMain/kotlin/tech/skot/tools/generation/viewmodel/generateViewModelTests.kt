@@ -12,13 +12,14 @@ import kotlin.reflect.full.hasAnnotation
 
 @ExperimentalStdlibApi
 fun Generator.generateViewModelTests() {
-
     val abstractTestScreen = ClassName(packageName = "$appPackage.screens", "TestScreen")
     if (!abstractTestScreen.existsJvmTestInModule(modules.viewmodel)) {
         abstractTestScreen.fileClassBuilder(
-            listOfNotNull(viewModelModuleMock,
+            listOfNotNull(
+                viewModelModuleMock,
                 rootState?.mockClassName,
-                rootState?.let { ClassName(shortCuts.packageName, rootStatePropertyName!!) })
+                rootState?.let { ClassName(shortCuts.packageName, rootStatePropertyName!!) },
+            ),
         ) {
             superclass(FrameworkClassNames.skTestViewModel)
             addModifiers(KModifier.ABSTRACT)
@@ -29,10 +30,9 @@ fun Generator.generateViewModelTests() {
                     FunSpec.builder("initStates")
                         .addAnnotation(AndroidClassNames.Annotations.before)
                         .addCode("$rootStatePropertyName = ${it.mockClassName.simpleName}()")
-                        .build()
+                        .build(),
                 )
             }
-
         }.writeTo(jvmTestSources(modules.viewmodel))
     }
     components.forEach {
@@ -53,16 +53,17 @@ fun Generator.generateViewModelTests() {
                 superclass(
                     FrameworkClassNames.skViewModelTester.parameterizedBy(
                         it.viewMock(),
-                        if (it.hasModel()) it.modelMock() else Unit::class.asTypeName()
-                    )
+                        if (it.hasModel()) it.modelMock() else Unit::class.asTypeName(),
+                    ),
                 )
                 addSuperclassConstructorParameter("component")
             }.writeTo(generatedJvmTestSources(modules.viewmodel))
         }
         // do not create class with suffix if prefix class already exists
-        if (!it.vc.hasAnnotation<SKNoVM>() && !it.testViewModel()
-                .existsJvmTestInModule(modules.viewmodel) && !it.oldTestViewModel()
-                .existsJvmTestInModule(modules.viewmodel)
+        if (!it.vc.hasAnnotation<SKNoVM>() &&
+            !it.testViewModel().existsJvmTestInModule(
+                modules.viewmodel,
+            ) && !it.oldTestViewModel().existsJvmTestInModule(modules.viewmodel)
         ) {
             it.testViewModel().fileClassBuilder {
                 superclass(abstractTestScreen)
@@ -82,6 +83,5 @@ fun Generator.generateViewModelTests() {
                 )
             }.writeTo(jvmTestSources(modules.viewmodel))
         }
-
     }
 }

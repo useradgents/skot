@@ -1,12 +1,12 @@
-//package tech.skot.view
+// package tech.skot.view
 //
-//import android.view.View
-//import android.widget.TextView
-//import androidx.annotation.CallSuper
-//import tech.skot.view.extensions.setOnClick
-//import tech.skot.view.extensions.setVisible
+// import android.view.View
+// import android.widget.TextView
+// import androidx.annotation.CallSuper
+// import tech.skot.view.extensions.setOnClick
+// import tech.skot.view.extensions.setVisible
 //
-//open class ViewHolder<V : View>() {
+// open class ViewHolder<V : View>() {
 //
 //    var visible: Boolean = true
 //        set(value) {
@@ -39,10 +39,10 @@
 //        _delay = delay
 //        view?.setOnClick(myOnClick, single, delay)
 //    }
-//}
+// }
 //
 //
-//class TextViewHolder : ViewHolder<TextView>() {
+// class TextViewHolder : ViewHolder<TextView>() {
 //
 //    var text: CharSequence? = null
 //        set(value) {
@@ -54,4 +54,4 @@
 //        super.update(v)
 //        v.text = text
 //    }
-//}
+// }

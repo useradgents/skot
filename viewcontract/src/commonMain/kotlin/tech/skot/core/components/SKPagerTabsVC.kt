@@ -11,16 +11,21 @@ interface SKPagerWithTabsVC : SKComponentVC {
 
     sealed class TabConfig {
         class IconTitle(val title: SKSpannedString, val icon: tech.skot.core.view.Icon) : TabConfig()
+
         class Title(val title: String) : TabConfig()
+
         class SpannableTitle(val title: SKSpannedString) : TabConfig()
+
         class Icon(val icon: tech.skot.core.view.Icon) : TabConfig()
+
         class Custom(val tab: SKComponentVC) : TabConfig()
     }
 
     sealed class Visibility {
-        object Visible : Visibility()
-        object Gone : Visibility()
-        object Automatic : Visibility()
-    }
+        data object Visible : Visibility()
 
+        data object Gone : Visibility()
+
+        data object Automatic : Visibility()
+    }
 }

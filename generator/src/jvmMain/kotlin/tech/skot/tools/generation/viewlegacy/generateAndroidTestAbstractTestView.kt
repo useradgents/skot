@@ -10,36 +10,45 @@ import tech.skot.tools.generation.Generator
 import tech.skot.tools.generation.fileClassBuilder
 
 fun Generator.generateAndroidTestAbstractTestView() {
-
     val abstractTestScreen = ClassName(packageName = appPackage, "TestView")
     if (!abstractTestScreen.existsAndroidTestInModule(modules.view)) {
         abstractTestScreen.fileClassBuilder(
             listOfNotNull(
                 AndroidClassNames.applicationProvider,
                 AndroidClassNames.runBlocking,
-                initializeView
-            )
+                initializeView,
+            ),
         ) {
             superclass(FrameworkClassNames.skTestView)
             addModifiers(KModifier.ABSTRACT)
 
-            addProperty(PropertySpec.builder("strings",stringsImpl )
-                .initializer("StringsImpl(ApplicationProvider.getApplicationContext())").build())
-            addProperty(PropertySpec.builder("plurals",pluralsImpl )
-                .initializer("PluralsImpl(ApplicationProvider.getApplicationContext())").build())
-            addProperty(PropertySpec.builder("icons",iconsImpl )
-                .initializer("IconsImpl(ApplicationProvider.getApplicationContext())").build())
-            addProperty(PropertySpec.builder("colors",colorsImpl )
-                .initializer("ColorsImpl(ApplicationProvider.getApplicationContext())").build())
-            addProperty(PropertySpec.builder("fonts",fontsImpl )
-                .initializer("FontsImpl()").build())
+            addProperty(
+                PropertySpec.builder("strings", stringsImpl)
+                    .initializer("StringsImpl(ApplicationProvider.getApplicationContext())").build(),
+            )
+            addProperty(
+                PropertySpec.builder("plurals", pluralsImpl)
+                    .initializer("PluralsImpl(ApplicationProvider.getApplicationContext())").build(),
+            )
+            addProperty(
+                PropertySpec.builder("icons", iconsImpl)
+                    .initializer("IconsImpl(ApplicationProvider.getApplicationContext())").build(),
+            )
+            addProperty(
+                PropertySpec.builder("colors", colorsImpl)
+                    .initializer("ColorsImpl(ApplicationProvider.getApplicationContext())").build(),
+            )
+            addProperty(
+                PropertySpec.builder("fonts", fontsImpl)
+                    .initializer("FontsImpl()").build(),
+            )
 
-            addFunction(FunSpec.builder("initialize")
-                .addAnnotation(AndroidClassNames.Annotations.before)
-                .addStatement("runBlocking { initializeView() }")
-                .build())
+            addFunction(
+                FunSpec.builder("initialize")
+                    .addAnnotation(AndroidClassNames.Annotations.before)
+                    .addStatement("runBlocking { initializeView() }")
+                    .build(),
+            )
         }.writeTo(androidTestSources(modules.view))
     }
-
-
 }

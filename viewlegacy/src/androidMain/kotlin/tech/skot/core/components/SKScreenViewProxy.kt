@@ -11,7 +11,6 @@ import tech.skot.core.view.Style
 import tech.skot.view.live.MutableSKLiveData
 
 abstract class SKScreenViewProxy<B : ViewBinding> : SKComponentViewProxy<B>(), SKScreenVC {
-
     protected abstract val visibilityListener: SKVisiblityListener
 
     val key = ScreensManager.addScreen(this)
@@ -30,7 +29,7 @@ abstract class SKScreenViewProxy<B : ViewBinding> : SKComponentViewProxy<B>(), S
     abstract override fun bindTo(
         activity: SKActivity,
         fragment: Fragment?,
-        binding: B
+        binding: B,
     ): SKScreenView<B>
 
     open fun getActivityClass(): Class<*> = SKActivity::class.java
@@ -38,7 +37,7 @@ abstract class SKScreenViewProxy<B : ViewBinding> : SKComponentViewProxy<B>(), S
     fun bindTo(
         activity: SKActivity,
         fragment: Fragment?,
-        layoutInflater: LayoutInflater
+        layoutInflater: LayoutInflater,
     ): SKScreenView<B> {
         return bindTo(activity, fragment, inflate(layoutInflater, null, false)).apply {
             onBackPressedLD.observe {
@@ -59,48 +58,49 @@ abstract class SKScreenViewProxy<B : ViewBinding> : SKComponentViewProxy<B>(), S
         }
     }
 
-
     abstract override fun inflate(
         layoutInflater: LayoutInflater,
         parent: ViewGroup?,
-        attachToParent: Boolean
+        attachToParent: Boolean,
     ): B
 
-
-    fun createFragment(canSetFullScreen:Boolean = true): SKFragment =
+    fun createFragment(canSetFullScreen: Boolean = true): SKFragment =
         SKFragment().apply {
-            arguments = Bundle().apply {
-                putLong(ScreensManager.SK_ARGUMENT_VIEW_KEY, key)
-                putBoolean(ScreensManager.SK_ARGUMENT_CAN_SET_FULL_SCREEN, canSetFullScreen)
-            }
+            arguments =
+                Bundle().apply {
+                    putLong(ScreensManager.SK_ARGUMENT_VIEW_KEY, key)
+                    putBoolean(ScreensManager.SK_ARGUMENT_CAN_SET_FULL_SCREEN, canSetFullScreen)
+                }
         }
 
     fun createBottomSheetFragment(
         expanded: Boolean,
         skipCollapsed: Boolean,
-        fullHeight : Boolean,
-        resizeOnKeyboard : Boolean,
+        fullHeight: Boolean,
+        resizeOnKeyboard: Boolean,
     ): SKBottomSheetDialogFragment =
         SKBottomSheetDialogFragment().apply {
-            arguments = Bundle().apply {
-                putLong(ScreensManager.SK_ARGUMENT_VIEW_KEY, key)
-                putBoolean(SK_BOTTOM_SHEET_DIALOG_EXPANDED, expanded)
-                putBoolean(SK_BOTTOM_SHEET_DIALOG_SKIP_COLLAPSED, skipCollapsed)
-                putBoolean(SK_BOTTOM_SHEET_DIALOG_FULL_HEIGHT, fullHeight)
-                putBoolean(SK_BOTTOM_SHEET_DIALOG_RESIZE_ON_KEYBOARD, resizeOnKeyboard)
-            }
-        }
-
-    fun createDialogFragment(style : Style?): SKDialogFragment =
-        SKDialogFragment().apply {
-            arguments = Bundle().apply {
-                putLong(ScreensManager.SK_ARGUMENT_VIEW_KEY, key)
-                if(style != null){
-                    putInt(ScreensManager.SK_ARGUMENT_DIALOG_STYLE, style.res)
+            arguments =
+                Bundle().apply {
+                    putLong(ScreensManager.SK_ARGUMENT_VIEW_KEY, key)
+                    putBoolean(SK_BOTTOM_SHEET_DIALOG_EXPANDED, expanded)
+                    putBoolean(SK_BOTTOM_SHEET_DIALOG_SKIP_COLLAPSED, skipCollapsed)
+                    putBoolean(SK_BOTTOM_SHEET_DIALOG_FULL_HEIGHT, fullHeight)
+                    putBoolean(SK_BOTTOM_SHEET_DIALOG_RESIZE_ON_KEYBOARD, resizeOnKeyboard)
                 }
-            }
         }
 
+    fun createDialogFragment(style: Style?): SKDialogFragment =
+        SKDialogFragment().apply {
+            arguments =
+                Bundle().apply {
+                    putLong(ScreensManager.SK_ARGUMENT_VIEW_KEY, key)
+                    if (style != null)
+                        {
+                            putInt(ScreensManager.SK_ARGUMENT_DIALOG_STYLE, style.res)
+                        }
+                }
+        }
 
     @CallSuper
     open fun onResume() {
@@ -111,6 +111,4 @@ abstract class SKScreenViewProxy<B : ViewBinding> : SKComponentViewProxy<B>(), S
     open fun onPause() {
         visibilityListener.onPause()
     }
-
-
 }

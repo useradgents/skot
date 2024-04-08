@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 actual class SKDateFormat actual constructor(pattern: String) {
-
     private val sdf = SimpleDateFormat(pattern)
 
     actual fun format(instant: Instant): String {

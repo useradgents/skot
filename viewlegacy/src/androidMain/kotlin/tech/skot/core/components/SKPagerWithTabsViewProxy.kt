@@ -12,7 +12,6 @@ class SKPagerWithTabsViewProxy(
     initialTabConfigs: List<SKPagerWithTabsVC.TabConfig>,
     initialTabsVisibility: SKPagerWithTabsVC.Visibility,
 ) : SKComponentViewProxy<View>(), SKPagerWithTabsVC {
-
     private val tabConfigsLD = MutableSKLiveData(initialTabConfigs)
     override var tabConfigs: List<SKPagerWithTabsVC.TabConfig>
         get() = tabConfigsLD.value
@@ -34,7 +33,7 @@ class SKPagerWithTabsViewProxy(
     override fun bindTo(
         activity: SKActivity,
         fragment: Fragment?,
-        binding: View
+        binding: View,
     ): SKPagerWithTabsView {
         val pagerView = binding.findViewWithTag<ViewPager2>("sk_view_pager2")
         val tabLayoutView = binding.findViewWithTag<TabLayout>("sk_tab_layout")
@@ -44,7 +43,7 @@ class SKPagerWithTabsViewProxy(
             fragment,
             binding,
             pagerView,
-            tabLayoutView
+            tabLayoutView,
         ).apply {
             pager.bindTo(activity, fragment, pagerView)
             tabConfigsLD.observe {
@@ -53,8 +52,6 @@ class SKPagerWithTabsViewProxy(
             tabsVisibilityLD.observe {
                 onShowTabs(it)
             }
-
         }
     }
-
 }

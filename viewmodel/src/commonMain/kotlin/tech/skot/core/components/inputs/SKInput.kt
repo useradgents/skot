@@ -15,11 +15,10 @@ open class SKInput(
     private val modeErrorOnTap: Boolean = false,
     private val afterValidation: ((validity: SKInput.Validity) -> Unit)? = null,
 ) : SKComponent<SKInputVC>() {
-
     sealed class Validity(val errorMessage: String?) {
         abstract val isValid: Boolean
 
-        object Valid : Validity(null) {
+        data object Valid : Validity(null) {
             override val isValid = true
         }
 
@@ -36,7 +35,6 @@ open class SKInput(
         }
     }
 
-
     private var _value: String? = null
     var value: String?
         get() = _value
@@ -49,9 +47,15 @@ open class SKInput(
     }
 
     protected open fun validate(str: String?): Validity {
-        return if ((nullable && str.isNullOrEmpty())
-            || (str != null && str.isNotBlank() && (maxSize == null || str.length <= maxSize) && (regex == null || regex.matches(
-                str)))
+        return if ((nullable && str.isNullOrEmpty()) ||
+            (
+                !str.isNullOrBlank() && (maxSize == null || str.length <= maxSize) && (
+                    regex == null ||
+                        regex.matches(
+                            str,
+                        )
+                )
+            )
         ) {
             Validity.Valid
         } else {
@@ -62,7 +66,6 @@ open class SKInput(
     val isValid: Boolean
         get() = validity.isValid
 
-
     protected fun onNewValue(str: String?) {
         if (_value != str && !(str == "" && _value == null)) {
             val formated = format(str)
@@ -72,7 +75,7 @@ open class SKInput(
         }
     }
 
-    private fun updateValidityWith(value:String?) {
+    private fun updateValidityWith(value: String?) {
         validate(value).let { newValidity ->
             validity = newValidity
             if (modeErrorOnTap) {
@@ -91,7 +94,6 @@ open class SKInput(
 
     protected val _error = Validity.Error(defaultErrorMessage)
 
-
     private var validity: Validity = if (nullable) Validity.Valid else _error
 
     protected open fun onFocus() {
@@ -107,29 +109,29 @@ open class SKInput(
         _value = null
     }
 
-
-    override val view = coreViewInjector.input(
-        onInputText = {
-            onNewValue(it)
-        },
-        type = viewType,
-        maxSize = maxSize,
-        onFocusChange =
-        {
-            if (it) {
-                onFocus()
-            } else {
-                onFocusLost()
-            }
-        },
-        onDone = onDone,
-        hintInitial = hint,
-        textInitial = null,
-        errorInitial = null,
-        hiddenInitial = false,
-        enabledInitial = true,
-        showPasswordInitial = showPassword
-    )
+    override val view =
+        coreViewInjector.input(
+            onInputText = {
+                onNewValue(it)
+            },
+            type = viewType,
+            maxSize = maxSize,
+            onFocusChange =
+                {
+                    if (it) {
+                        onFocus()
+                    } else {
+                        onFocusLost()
+                    }
+                },
+            onDone = onDone,
+            hintInitial = hint,
+            textInitial = null,
+            errorInitial = null,
+            hiddenInitial = false,
+            enabledInitial = true,
+            showPasswordInitial = showPassword,
+        )
 }
 
 @Deprecated("Use SKinput with regex param instead")
@@ -145,17 +147,17 @@ open class SKInputRegExp(
     modeErrorOnTap: Boolean = false,
     afterValidation: ((validity: SKInput.Validity) -> Unit)? = null,
 ) : SKInput(
-    hint,
-    nullable,
-    onDone,
-    viewType,
-    showPassword,
-    defaultErrorMessage,
-    maxSize,
-    regex,
-    modeErrorOnTap,
-    afterValidation
-)
+        hint,
+        nullable,
+        onDone,
+        viewType,
+        showPassword,
+        defaultErrorMessage,
+        maxSize,
+        regex,
+        modeErrorOnTap,
+        afterValidation,
+    )
 
 open class SKSimpleInput(
     hint: String? = null,
@@ -169,38 +171,38 @@ open class SKSimpleInput(
     modeErrorOnTap: Boolean = false,
     afterValidation: ((validity: SKInput.Validity) -> Unit)? = null,
 ) : SKInput(
-    hint,
-    nullable,
-    onDone,
-    viewType,
-    showPassword,
-    defaultErrorMessage,
-    maxSize,
-    regex,
-    modeErrorOnTap,
-    afterValidation
-) {
-
-    override val view: SKSimpleInputVC = coreViewInjector.inputSimple(
-        onInputText = {
-            onNewValue(it)
-        },
-        type = viewType,
-        maxSize = maxSize,
-        onFocusChange =
-        {
-            if (it) {
-                onFocus()
-            } else {
-                onFocusLost()
-            }
-        },
-        onDone = onDone,
-        hintInitial = hint,
-        textInitial = null,
-        errorInitial = null,
-        hiddenInitial = false,
-        enabledInitial = true,
-        showPasswordInitial = showPassword
-    )
+        hint,
+        nullable,
+        onDone,
+        viewType,
+        showPassword,
+        defaultErrorMessage,
+        maxSize,
+        regex,
+        modeErrorOnTap,
+        afterValidation,
+    ) {
+    override val view: SKSimpleInputVC =
+        coreViewInjector.inputSimple(
+            onInputText = {
+                onNewValue(it)
+            },
+            type = viewType,
+            maxSize = maxSize,
+            onFocusChange =
+                {
+                    if (it) {
+                        onFocus()
+                    } else {
+                        onFocusLost()
+                    }
+                },
+            onDone = onDone,
+            hintInitial = hint,
+            textInitial = null,
+            errorInitial = null,
+            hiddenInitial = false,
+            enabledInitial = true,
+            showPasswordInitial = showPassword,
+        )
 }

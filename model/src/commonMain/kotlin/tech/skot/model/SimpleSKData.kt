@@ -6,7 +6,6 @@ import kotlinx.coroutines.sync.withLock
 import tech.skot.core.SKLog
 
 abstract class SimpleSKData<D : Any?> : SKData<D> {
-
     override val flow = MutableStateFlow<DatedData<D>?>(null)
     override val defaultValidity = 5 * 60 * 1000L
     override val _current
@@ -39,7 +38,6 @@ abstract class SimpleSKData<D : Any?> : SKData<D> {
     }
 
     override suspend fun fallBackValue(): D? = flow.value?.data
-
 }
 
 suspend fun <D : Any?> SKData<D>.getWithFallBackIfError(validity: Long? = null): D {

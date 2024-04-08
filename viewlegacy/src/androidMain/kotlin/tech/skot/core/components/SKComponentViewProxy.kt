@@ -19,16 +19,17 @@ import tech.skot.view.live.SKMessage
 import tech.skot.view.notificationsSkPermission
 import java.util.concurrent.atomic.AtomicInteger
 
-
 abstract class SKComponentViewProxy<B : Any> : SKComponentVC {
-
     protected val displayMessageMessage = SKMessage<SKComponentVC.Message>()
 
     override fun displayMessage(message: SKComponentVC.Message) {
         displayMessageMessage.post(message)
     }
 
-    @Deprecated(message = "Use  SKComponent.displayMessageError(message) or  view.displayMessage(SKComponentVC.Message.Error(message))", replaceWith = ReplaceWith("displayMessageError(message)"))
+    @Deprecated(
+        message = "Use  SKComponent.displayMessageError(message) or  view.displayMessage(SKComponentVC.Message.Error(message))",
+        replaceWith = ReplaceWith("displayMessageError(message)"),
+    )
     override fun displayErrorMessage(message: String) {
         displayMessage(SKComponentVC.Message.Error(message))
     }
@@ -45,31 +46,31 @@ abstract class SKComponentViewProxy<B : Any> : SKComponentVC {
         val onResult: (permissionsOk: List<SKPermissionAndroid>) -> Unit,
     )
 
-
     protected val requestPermissionsMessage = SKMessage<PermissionsRequest>()
+
     override fun requestPermissions(
         permissions: List<SKPermission>,
         onResult: (permissionsOk: List<SKPermission>) -> Unit,
     ) {
         requestPermissionsMessage.post(
+            @Suppress("UNCHECKED_CAST")
             PermissionsRequest(
                 requestCode = permissionsRequestCounter.getAndIncrement(),
-                permissions = permissions as List<SKPermissionAndroid>
+                permissions = permissions as List<SKPermissionAndroid>,
             ) { result ->
                 onResult(result)
-            })
+            },
+        )
     }
-
 
     override fun hasPermission(vararg permission: SKPermission): Boolean {
         val context: Context = get()
         return permission.all {
             ContextCompat.checkSelfPermission(
                 context,
-                (it as SKPermissionAndroid).name
+                (it as SKPermissionAndroid).name,
             ) == PackageManager.PERMISSION_GRANTED
         }
-
     }
 
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.TIRAMISU)
@@ -81,7 +82,10 @@ abstract class SKComponentViewProxy<B : Any> : SKComponentVC {
         return hasPermission(notificationsSkPermission)
     }
 
-    override fun requestNotificationsPermissions(onOk: () -> Unit, onKo: (() -> Unit)?) {
+    override fun requestNotificationsPermissions(
+        onOk: () -> Unit,
+        onKo: (() -> Unit)?,
+    ) {
         requestPermissions(
             permissions = listOf(notificationsSkPermission),
             onResult = {
@@ -90,10 +94,9 @@ abstract class SKComponentViewProxy<B : Any> : SKComponentVC {
                 } else {
                     onKo?.invoke()
                 }
-            }
+            },
         )
     }
-
 
     override var style: Style? = null
 
@@ -107,30 +110,29 @@ abstract class SKComponentViewProxy<B : Any> : SKComponentVC {
         activity: SKActivity,
         fragment: Fragment?,
         binding: B,
-    ) =
-        bindTo(activity, fragment, binding).apply {
-            displayMessageMessage.observe {
-                displayMessage(it)
-            }
-            closeKeyboardMessage.observe {
-                closeKeyboard()
-            }
-            requestPermissionsMessage.observe {
-                requestPermissions(it)
-            }
+    ) = bindTo(activity, fragment, binding).apply {
+        displayMessageMessage.observe {
+            displayMessage(it)
         }
+        closeKeyboardMessage.observe {
+            closeKeyboard()
+        }
+        requestPermissionsMessage.observe {
+            requestPermissions(it)
+        }
+    }
 
     open fun saveState() {
-        //surchargée quand le component a un état à sauver
+        // surchargée quand le component a un état à sauver
     }
 
     @CallSuper
     override fun onRemove() {
-
     }
 
     open val layoutId: Int? = null
 
+    @Throws(java.lang.Exception::class)
     open fun inflate(
         layoutInflater: LayoutInflater,
         parent: ViewGroup?,
@@ -142,6 +144,7 @@ abstract class SKComponentViewProxy<B : Any> : SKComponentVC {
                 parent?.addView(b)
             }
             b.tag = this.hashCode()
+            @Suppress("UNCHECKED_CAST")
             b as B
         }
             ?: throw Exception("Vous devez implémenter layoutId ou bien la méthode inflate pour le composant ${this::class.simpleName}")
@@ -151,27 +154,30 @@ abstract class SKComponentViewProxy<B : Any> : SKComponentVC {
         activity: SKActivity,
         fragment: Fragment?,
         view: View,
-    ) =
-        _bindTo(activity, fragment, bindingOf(view))
+    ) = _bindTo(activity, fragment, bindingOf(view))
 
     fun inflateInParentAndBind(
         activity: SKActivity,
         fragment: Fragment?,
         parent: ViewGroup,
     ): SKComponentView<*> {
-        val inflater = (fragment?.layoutInflater ?: activity.layoutInflater).let { layoutInflater ->
-            parent.context?.let { parentContext ->
-                layoutInflater.cloneInContext(
-                    style?.let { theme ->
-                        ContextThemeWrapper(parentContext, theme.res)
-                    } ?: parentContext
-                )
-            } ?: layoutInflater
-        }
+        val inflater =
+            (fragment?.layoutInflater ?: activity.layoutInflater).let { layoutInflater ->
+                parent.context?.let { parentContext ->
+                    layoutInflater.cloneInContext(
+                        style?.let { theme ->
+                            ContextThemeWrapper(parentContext, theme.res)
+                        } ?: parentContext,
+                    )
+                } ?: layoutInflater
+            }
         return _bindTo(activity, fragment, inflate(inflater, parent, true))
     }
 
-    fun inflateAndBind(activity: SKActivity, fragment: Fragment?): B {
+    fun inflateAndBind(
+        activity: SKActivity,
+        fragment: Fragment?,
+    ): B {
         val inflater = (fragment?.layoutInflater ?: activity.layoutInflater)
         val inflated = inflate(inflater, null, false)
         _bindTo(activity, fragment, inflated)
@@ -179,11 +185,16 @@ abstract class SKComponentViewProxy<B : Any> : SKComponentVC {
     }
 
     open fun bindingOf(view: View): B {
+        @Suppress("UNCHECKED_CAST")
         return (view as? B)
             ?: throw IllegalStateException("You cant't bind this component to a view")
     }
 
-    fun bindToItemView(activity: SKActivity, fragment: Fragment?, view: View): SKComponentView<B> {
+    fun bindToItemView(
+        activity: SKActivity,
+        fragment: Fragment?,
+        view: View,
+    ): SKComponentView<B> {
         if (layoutId == null) {
             throw IllegalStateException("You cant't bind this component to an Item's view, it has no layout Id")
         } else {
@@ -195,4 +206,3 @@ abstract class SKComponentViewProxy<B : Any> : SKComponentVC {
         val permissionsRequestCounter = AtomicInteger(0)
     }
 }
-

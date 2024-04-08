@@ -13,8 +13,8 @@ class SKInputViewMock(
     errorInitial: String?,
     hiddenInitial: Boolean?,
     enabledInitial: Boolean?,
-    showPasswordInitial: Boolean?
-): SKComponentViewMock(), SKInputVC {
+    showPasswordInitial: Boolean?,
+) : SKComponentViewMock(), SKInputVC {
     override val onInputText: (newText: String?) -> Unit = onInputText
     override val type: SKInputVC.Type? = type
     override val maxSize: Int? = maxSize
@@ -28,14 +28,14 @@ class SKInputViewMock(
     override var showPassword: Boolean? = showPasswordInitial
 
     var requestFocusCounter = 0
+
     override fun requestFocus() {
-        requestFocusCounter ++
+        requestFocusCounter++
     }
 }
 
-fun SKInputVC.requestFocusCount():Int =
-    (this as SKInputViewMock).requestFocusCounter
+fun SKInputVC.requestFocusCount(): Int = (this as SKInputViewMock).requestFocusCounter
 
-fun SKInputVC.userInputText(text:String?) {
+fun SKInputVC.userInputText(text: String?) {
     onInputText(text)
 }

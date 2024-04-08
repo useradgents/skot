@@ -4,6 +4,7 @@ import tech.skot.core.components.SKComponent
 import tech.skot.core.di.coreViewInjector
 import tech.skot.core.view.Color
 
+@Suppress("UNCHECKED_CAST")
 abstract class SKBaseCombo<D : Any?, V : SKComboVC>(
     private val label: ((data: D) -> String)?,
     private val inputText: ((data: D) -> String)?,
@@ -11,7 +12,6 @@ abstract class SKBaseCombo<D : Any?, V : SKComboVC>(
     private val striked: ((data: D) -> Boolean)?,
     private val onSelected: ((data: D) -> Unit)?,
 ) : SKComponent<V>() {
-
     var choices: List<D> = emptyList()
         set(newVal) {
             field = newVal
@@ -25,7 +25,7 @@ abstract class SKBaseCombo<D : Any?, V : SKComboVC>(
             text = label,
             strikethrough = striked?.invoke(this) ?: false,
             textColor = textColor?.invoke(this),
-            inputText = inputText?.invoke(this) ?: label
+            inputText = inputText?.invoke(this) ?: label,
         )
     }
 
@@ -40,13 +40,12 @@ abstract class SKBaseCombo<D : Any?, V : SKComboVC>(
 
     fun onSelectedLambda(): (data: Any?) -> Unit =
         {
-            (it as D).let {
+            (it as? D)?.let {
                 value = it
                 onSelected?.invoke(it)
             }
         }
 }
-
 
 class SKCombo<D : Any?>(
     hint: String? = null,
@@ -58,23 +57,24 @@ class SKCombo<D : Any?>(
     textColor: ((data: D) -> Color)? = null,
     striked: ((data: D) -> Boolean)? = null,
     oldSchoolModeHint: Boolean = false,
-    onSelected: ((data: D) -> Unit)? = null
+    onSelected: ((data: D) -> Unit)? = null,
 ) : SKBaseCombo<D, SKComboVC>(
-    onSelected = onSelected,
-    label = label,
-    inputText = inputText,
-    textColor = textColor,
-    striked = striked
-) {
-    override val view = coreViewInjector.combo(
-        hint = hint,
-        errorInitial = error,
-        choicesInitial = initialChoices.map { it.toChoice() },
-        onSelected = onSelectedLambda(),
-        selectedInitial = null,
-        enabledInitial = enabled,
-        hiddenInitial = null,
-        dropDownDisplayedInitial = false,
-        oldSchoolModeHint = oldSchoolModeHint
-    )
+        onSelected = onSelected,
+        label = label,
+        inputText = inputText,
+        textColor = textColor,
+        striked = striked,
+    ) {
+    override val view =
+        coreViewInjector.combo(
+            hint = hint,
+            errorInitial = error,
+            choicesInitial = initialChoices.map { it.toChoice() },
+            onSelected = onSelectedLambda(),
+            selectedInitial = null,
+            enabledInitial = enabled,
+            hiddenInitial = null,
+            dropDownDisplayedInitial = false,
+            oldSchoolModeHint = oldSchoolModeHint,
+        )
 }

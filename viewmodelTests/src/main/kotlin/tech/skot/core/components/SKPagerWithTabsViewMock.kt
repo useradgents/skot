@@ -9,18 +9,19 @@ class SKPagerWithTabsViewMock(
     pager: SKPagerVC,
     onUserTabClick: ((index: Int) -> Unit)?,
     tabConfigs: List<SKPagerWithTabsVC.TabConfig>,
-    tabsVisibility: SKPagerWithTabsVC.Visibility
+    tabsVisibility: SKPagerWithTabsVC.Visibility,
 ) : SKComponentViewMock(), SKPagerWithTabsVC {
     override val pager: SKPagerVC = pager
     override var tabConfigs: List<SKPagerWithTabsVC.TabConfig> = tabConfigs
     override var tabsVisibility: SKPagerWithTabsVC.Visibility = tabsVisibility
     override val onUserTabClick = onUserTabClick
-
-
 }
 
-
-fun SKPagerWithTabsVC.assertTitle(index: Int, title: String, rule: String = "") {
+fun SKPagerWithTabsVC.assertTitle(
+    index: Int,
+    title: String,
+    rule: String = "",
+) {
     when (val tab = this.tabConfigs[index]) {
         is SKPagerWithTabsVC.TabConfig.Custom -> {
             fail("$rule -> this tab is Custom")
@@ -32,27 +33,31 @@ fun SKPagerWithTabsVC.assertTitle(index: Int, title: String, rule: String = "") 
             assertEquals(
                 expected = title,
                 actual = tab.title.joinToString("") { it.text },
-                message = "$rule -> wrong tab title"
+                message = "$rule -> wrong tab title",
             )
         }
         is SKPagerWithTabsVC.TabConfig.SpannableTitle -> {
             assertEquals(
                 expected = title,
                 actual = tab.title.joinToString("") { it.text },
-                message = "$rule -> wrong tab title"
+                message = "$rule -> wrong tab title",
             )
         }
         is SKPagerWithTabsVC.TabConfig.Title -> {
             assertEquals(
                 expected = title,
                 actual = tab.title,
-                message = "$rule -> wrong tab title"
+                message = "$rule -> wrong tab title",
             )
         }
     }
 }
 
-fun SKPagerWithTabsVC.assertIcon(index: Int, icon: Icon, rule: String = "") {
+fun SKPagerWithTabsVC.assertIcon(
+    index: Int,
+    icon: Icon,
+    rule: String = "",
+) {
     when (val tab = this.tabConfigs[index]) {
         is SKPagerWithTabsVC.TabConfig.Custom -> {
             fail("$rule -> this tab is Custom")
@@ -61,14 +66,14 @@ fun SKPagerWithTabsVC.assertIcon(index: Int, icon: Icon, rule: String = "") {
             assertEquals(
                 expected = icon,
                 actual = tab.icon,
-                message = "$rule -> wrong tab icon"
+                message = "$rule -> wrong tab icon",
             )
         }
         is SKPagerWithTabsVC.TabConfig.IconTitle -> {
             assertEquals(
                 expected = icon,
                 actual = tab.icon,
-                message = "$rule -> wrong tab icon"
+                message = "$rule -> wrong tab icon",
             )
         }
         is SKPagerWithTabsVC.TabConfig.SpannableTitle -> {
@@ -80,7 +85,10 @@ fun SKPagerWithTabsVC.assertIcon(index: Int, icon: Icon, rule: String = "") {
     }
 }
 
-inline fun <reified T : SKComponentVC> SKPagerWithTabsVC.assertTabComponentInstanceOf(index: Int, rule: String = ""){
+inline fun <reified T : SKComponentVC> SKPagerWithTabsVC.assertTabComponentInstanceOf(
+    index: Int,
+    rule: String = "",
+)  {
     when (val tab = this.tabConfigs[index]) {
         is SKPagerWithTabsVC.TabConfig.Custom -> {
             assertIs<T>(tab.tab, message = "$rule wrong SKComponent type")

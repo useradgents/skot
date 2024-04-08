@@ -11,19 +11,19 @@ import kotlin.reflect.typeOf
 
 @ExperimentalStdlibApi
 fun Generator.generateTransitions() {
-    val transitionsNames = if (!transitionsInterface.existsCommonInModule(modules.viewcontract)) {
-        transitionsInterface.fileInterfaceBuilder {
-
-        }.writeTo(commonSources(modules.viewcontract))
-        emptyList()
-    } else {
-        val skTransitionsType = typeOf<SKTransition>()
-        val interfaceClass = Class.forName(transitionsInterface.canonicalName).kotlin
-        interfaceClass.ownProperties().filter {
-            it.returnType.isSubtypeOf(skTransitionsType)
+    val transitionsNames =
+        if (!transitionsInterface.existsCommonInModule(modules.viewcontract)) {
+            transitionsInterface.fileInterfaceBuilder {
+            }.writeTo(commonSources(modules.viewcontract))
+            emptyList()
+        } else {
+            val skTransitionsType = typeOf<SKTransition>()
+            val interfaceClass = Class.forName(transitionsInterface.canonicalName).kotlin
+            interfaceClass.ownProperties().filter {
+                it.returnType.isSubtypeOf(skTransitionsType)
+            }
+                .map { it.name }
         }
-            .map { it.name }
-    }
 
     if (!transitionsImpl.existsAndroidInModule(modules.view)) {
         transitionsImpl.fileClassBuilder {
@@ -32,25 +32,27 @@ fun Generator.generateTransitions() {
                 transitionsNames.map {
                     PropertySpec.builder(
                         name = it,
-                        type = FrameworkClassNames.transistionAndroidLegacy
+                        type = FrameworkClassNames.transistionAndroidLegacy,
                     )
-                        .initializer(CodeBlock.of("${FrameworkClassNames.transistionAndroidLegacy.simpleName}(enterAnim = ???, exitAnim = ???)"))
+                        .initializer(
+                            CodeBlock.of("${FrameworkClassNames.transistionAndroidLegacy.simpleName}(enterAnim = ???, exitAnim = ???)"),
+                        )
                         .addModifiers(KModifier.OVERRIDE)
                         .build()
-                }
+                },
             )
-        } .writeTo(androidSources(feature ?: modules.view))
+        }.writeTo(androidSources(feature ?: modules.view))
     }
 
     println("generate Transitions jvm mock .........")
-    transitionsMock.fileClassBuilder() {
+    transitionsMock.fileClassBuilder {
         addSuperinterface(transitionsInterface)
         addProperties(
             transitionsNames.map {
                 PropertySpec.builder(it, skTransitionMock, KModifier.OVERRIDE)
                     .initializer("SKTransitionMock(\"$it\")")
                     .build()
-            }
+            },
         )
     }
         .writeTo(generatedJvmTestSources(feature ?: modules.viewmodel))

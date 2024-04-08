@@ -8,8 +8,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 actual class SKDateFormat actual constructor(pattern: String) {
-
-    private val sdf = SimpleDateFormat(pattern,Locale.getDefault())
+    private val sdf = SimpleDateFormat(pattern, Locale.getDefault())
 
     actual fun format(instant: Instant): String {
         return sdf.format(Date(instant.toEpochMilliseconds()))
@@ -23,6 +22,7 @@ actual class SKDateFormat actual constructor(pattern: String) {
         return format(localDate.toLocalDateTime())
     }
 
+    @Throws(java.text.ParseException::class)
     actual fun parse(str: String): Instant {
         return Instant.fromEpochMilliseconds(sdf.parse(str).time)
     }

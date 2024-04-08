@@ -1,10 +1,8 @@
 package tech.skot.view.live
 
 abstract class SKLiveDataCommon<D>(initialValue: D) {
-
     private var version = 0
     val observers: MutableSet<Observer> = mutableSetOf()
-
 
     var value: D = initialValue
         protected set(newVal) {
@@ -30,20 +28,22 @@ abstract class SKLiveDataCommon<D>(initialValue: D) {
             field = value
         }
 
-    //called on transition 0 active observer to 1
+    // called on transition 0 active observer to 1
     protected open fun onActive() = Unit
 
-    //called on transition 1 active observer to 0
+    // called on transition 1 active observer to 0
     protected open fun onInactive() = Unit
 
     protected open fun hasActiveObserver() = activeCount > 0
 
-    fun notify(newValue: D, newVersion: Int) {
+    fun notify(
+        newValue: D,
+        newVersion: Int,
+    ) {
         observers.forEach {
             it.notify(newValue, newVersion)
         }
     }
-
 
     abstract inner class Observer(val onChanged: (d: D) -> Unit) {
         var lastVersion = -1
@@ -60,7 +60,6 @@ abstract class SKLiveDataCommon<D>(initialValue: D) {
         fun onBecomeActive() {
             mActive = true
             if (lastVersion < version) {
-
                 onChanged(this@SKLiveDataCommon.value)
                 lastVersion = version
             }
@@ -75,7 +74,10 @@ abstract class SKLiveDataCommon<D>(initialValue: D) {
             observers.remove(this)
         }
 
-        fun notify(value: D, valueVersion: Int) {
+        fun notify(
+            value: D,
+            valueVersion: Int,
+        ) {
             if (!mActive) return
             if (!shouldBeActive()) {
                 mActive = false
@@ -89,7 +91,7 @@ abstract class SKLiveDataCommon<D>(initialValue: D) {
     }
 
     inner class AlwaysObserver(
-            onChanged: (d: D) -> Unit
+        onChanged: (d: D) -> Unit,
     ) : Observer(onChanged) {
         override fun shouldBeActive() = true
 
@@ -102,17 +104,13 @@ abstract class SKLiveDataCommon<D>(initialValue: D) {
         }
     }
 
-    fun observeForEver(
-            onChanged: (d: D) -> Unit
-    ): AlwaysObserver {
+    fun observeForEver(onChanged: (d: D) -> Unit): AlwaysObserver {
         val observer = AlwaysObserver(onChanged)
         observeForEver(observer)
         return observer
     }
 
-    fun makeAlwaysObserver(
-            onChanged: (d: D) -> Unit
-    ) = AlwaysObserver(onChanged)
+    fun makeAlwaysObserver(onChanged: (d: D) -> Unit) = AlwaysObserver(onChanged)
 
     fun observeForEver(observer: AlwaysObserver) {
         observers.add(observer)
@@ -124,8 +122,5 @@ abstract class SKLiveDataCommon<D>(initialValue: D) {
         observers.remove(observer)
     }
 
-    fun debug() =
-            "value: $value ${observers.size} observers dont ${observers.count { it.mActive }} actifs activeCount $activeCount"
-
-
+    fun debug() = "value: $value ${observers.size} observers dont ${observers.count { it.mActive }} actifs activeCount $activeCount"
 }

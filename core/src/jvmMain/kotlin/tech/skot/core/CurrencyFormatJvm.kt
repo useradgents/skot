@@ -9,21 +9,21 @@ private val mapFormatter = mutableMapOf<String, NumberFormat>()
 actual fun Double.asPrice(
     isoCurrency: String,
     maximumFractionDigits: Int,
-    minimumFractionDigits: Int
-) = getFormatter(
+    minimumFractionDigits: Int,
+) : String = getFormatter(
     isoCurrency,
     Locale.getDefault(),
     maximumFractionDigits,
-    minimumFractionDigits
+    minimumFractionDigits,
 ).format(this)
 
 private fun getFormatter(
     isoCurrency: String,
     locale: Locale,
     maximumFractionDigits: Int,
-    minimumFractionDigits: Int
+    minimumFractionDigits: Int,
 ): NumberFormat {
-    val key = "${isoCurrency}_${locale.country}_${maximumFractionDigits}_${minimumFractionDigits}"
+    val key = "${isoCurrency}_${locale.country}_${maximumFractionDigits}_$minimumFractionDigits"
     return mapFormatter[key] ?: DecimalFormat.getCurrencyInstance(locale).apply {
         this.maximumFractionDigits = maximumFractionDigits
         this.minimumFractionDigits = minimumFractionDigits

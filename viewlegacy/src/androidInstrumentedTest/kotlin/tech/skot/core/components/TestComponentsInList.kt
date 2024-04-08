@@ -9,35 +9,37 @@ import tech.skot.view.tests.SKTestView
 import tech.skot.view.tests.testComponent
 
 class TestComponentsInList : SKTestView() {
-
     @Test
     fun testInAList() {
         val button = dummyButton(toast = "Coucou button", label = "button")
         val combo = dummyCombo(selected = "selected")
         val imageButton = dummyImageButton(toast = "Coucou ImageButton")
-        val input = SKInputViewProxy(onInputText = {
-            toast("input $it")()
-        })
-        val simpleInput = dummySimpleInput(text = "simple input", hint = "hint simple input")
-        val inputWithSuggestion = SKInputWithSuggestionsViewProxy(
-            onInputText = {
+        val input =
+            SKInputViewProxy(onInputText = {
                 toast("input $it")()
-            },
-            choicesInitial = listOf(
-                SKComboVC.Choice("inputWithSuggestion data 1"),
-                SKComboVC.Choice("inputWithSuggestion data 2")
+            })
+        val simpleInput = dummySimpleInput(text = "simple input", hint = "hint simple input")
+        val inputWithSuggestion =
+            SKInputWithSuggestionsViewProxy(
+                onInputText = {
+                    toast("input $it")()
+                },
+                choicesInitial =
+                    listOf(
+                        SKComboVC.Choice("inputWithSuggestion data 1"),
+                        SKComboVC.Choice("inputWithSuggestion data 2"),
+                    ),
             )
-        )
 
-
-        val list = dummyList(
-            button,
-            combo,
-            imageButton,
-            input,
-            simpleInput,
-            inputWithSuggestion
-        )
+        val list =
+            dummyList(
+                button,
+                combo,
+                imageButton,
+                input,
+                simpleInput,
+                inputWithSuggestion,
+            )
 
         testComponent(list) {
             delay(10000)
@@ -51,5 +53,4 @@ class TestComponentsInList : SKTestView() {
             )
         }
     }
-
 }

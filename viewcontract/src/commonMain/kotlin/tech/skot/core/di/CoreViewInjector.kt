@@ -7,12 +7,19 @@ import tech.skot.core.view.Icon
 
 interface CoreViewInjector {
     fun rootStack(): SKStackVC
+
     fun stack(): SKStackVC
+
     fun alert(): SKAlertVC
+
     fun snackBar(): SKSnackBarVC
+
     fun bottomSheet(): SKBottomSheetVC
+
     fun dialog(): SKDialogVC
+
     fun windowPopup(): SKWindowPopupVC
+
     fun pager(
         screens: List<SKScreenVC>,
         onUserSwipeToPage: ((index: Int) -> Unit)?,
@@ -34,9 +41,21 @@ interface CoreViewInjector {
         animateItem: Boolean,
     ): SKListVC
 
-    fun skBox(itemsInitial: List<SKComponentVC>, hiddenInitial: Boolean?): SKBoxVC
-    fun webView(config: SKWebViewVC.Config, launchInitial: SKWebViewVC.Launch?): SKWebViewVC
-    fun frame(screens: Set<SKScreenVC>, screenInitial: SKScreenVC?): SKFrameVC
+    fun skBox(
+        itemsInitial: List<SKComponentVC>,
+        hiddenInitial: Boolean?,
+    ): SKBoxVC
+
+    fun webView(
+        config: SKWebViewVC.Config,
+        launchInitial: SKWebViewVC.Launch?,
+    ): SKWebViewVC
+
+    fun frame(
+        screens: Set<SKScreenVC>,
+        screenInitial: SKScreenVC?,
+    ): SKFrameVC
+
     fun loader(): SKLoaderVC
 
     fun input(
@@ -91,7 +110,6 @@ interface CoreViewInjector {
         onInputText: (input: String?) -> Unit,
         oldSchoolModeHint: Boolean,
     ): SKInputWithSuggestionsVC
-
 
     fun button(
         onTapInitial: (() -> Unit)?,

@@ -8,16 +8,14 @@ import tech.skot.core.components.SKComponentViewProxy
 import tech.skot.viewlegacytests.R
 
 class SKSpannedStringViewProxy(
-    val skSpannedString:List<SKSpan>
-): SKComponentViewProxy<TextView>() {
-
-
+    val skSpannedString: List<SKSpan>,
+) : SKComponentViewProxy<TextView>() {
     override val layoutId = R.layout.sk_spanned_string
 
     override fun bindTo(
         activity: SKActivity,
         fragment: Fragment?,
-        binding: TextView
+        binding: TextView,
     ) = SKSpannedStringView(this, activity, fragment, binding).apply {
         setSkSpannedString(skSpannedString)
     }
@@ -27,11 +25,9 @@ class SKSpannedStringView(
     proxy: SKSpannedStringViewProxy,
     activity: SKActivity,
     fragment: Fragment?,
-    binding: TextView
-): SKComponentView<TextView>(proxy, activity, fragment, binding) {
-
-    fun setSkSpannedString(skSpannedString:List<SKSpan>) {
+    binding: TextView,
+) : SKComponentView<TextView>(proxy, activity, fragment, binding) {
+    fun setSkSpannedString(skSpannedString: List<SKSpan>) {
         binding.setSpannedString(skSpannedString)
     }
-
 }

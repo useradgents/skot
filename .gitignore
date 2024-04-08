@@ -9,3 +9,4 @@
 .cxx
 /buildSrc/build
 **/build
+.kotlin

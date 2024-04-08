@@ -9,8 +9,7 @@ import kotlin.reflect.KClass
  * il vaut meiux définir des interfaces genre BackGroundWorker / UIWorker plutôt que de jouer ça à l'injection
  * cela introduit de la logique pseudo-applicative dans les modules d'injection
  */
-abstract class Injector<C:Any>(modules: List<Module<in C>>) {
-
+abstract class Injector<C : Any>(modules: List<Module<in C>>) {
     private val singles = modules.flatMap { it.singles.map { it.key to it.value } }.toMap().toMutableMap()
     private val factories = modules.flatMap { it.factories.map { it.key to it.value } }.toMap().toMutableMap()
     private val byName = modules.flatMap { it.byName.map { it.key to it.value } }.toMap().toMutableMap()
@@ -48,26 +47,27 @@ abstract class Injector<C:Any>(modules: List<Module<in C>>) {
                 factories[type]?.factory?.invoke(context) as D
             }
             else -> {
-                throw IllegalStateException("type def: type:${type.simpleName} non trouvée singles: ${singles.keys}  factories: ${factories.keys}")
+                throw IllegalStateException(
+                    "type def: type:${type.simpleName} non trouvée singles: ${singles.keys}  factories: ${factories.keys}",
+                )
             }
         }
     }
 
-    inline fun
-            <reified D : Any> get()
-            : D {
+    inline fun <reified D : Any> get(): D {
         return get(D::class)
     }
 
-
-    fun <E : Any> getByName(key:String): E{
-        return (byName.get(key) as E?) ?: throw IllegalStateException("Injector, nothing injected for key \"$key\" please use byName[\"$key\"]=...")
+    fun <E : Any> getByName(key: String): E  {
+        return (
+            byName[key] as E?
+        ) ?: throw IllegalStateException("Injector, nothing injected for key \"$key\" please use byName[\"$key\"]=...")
     }
-
-
 }
 
-expect class BaseInjector : Injector<BaseInjector>
+expect class BaseInjector : Injector<BaseInjector> {
+    override val context: BaseInjector
+}
 
 var injector: Injector<*>? = null
 
@@ -75,6 +75,6 @@ inline fun <reified K : Any> get(): K {
     return injector!!.get(K::class)
 }
 
-inline fun <reified K : Any> getByName(key:String): K {
+inline fun <reified K : Any> getByName(key: String): K {
     return injector!!.getByName(key)
 }

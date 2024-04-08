@@ -1,6 +1,7 @@
 package tech.skot.tools.starter
 
-val gitIgnore = """
+val gitIgnore =
+    """
 *.iml
 .gradle
 /local.properties
@@ -14,4 +15,4 @@ val gitIgnore = """
 **/build
 /uizips
 /reports
-""".trimIndent()
+    """.trimIndent()

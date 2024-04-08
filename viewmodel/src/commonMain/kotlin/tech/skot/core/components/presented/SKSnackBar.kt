@@ -8,7 +8,6 @@ import tech.skot.core.di.coreViewInjector
 import tech.skot.core.view.*
 
 class SKSnackBar : SKComponent<SKSnackBarVC>() {
-
     override val view = coreViewInjector.snackBar()
 
     data class Action(val label: String, val action: () -> Unit)
@@ -27,7 +26,7 @@ class SKSnackBar : SKComponent<SKSnackBarVC>() {
         infiniteLines: Boolean = false,
         centerText: Boolean = false,
         slideAnimation: Boolean = false,
-        isGestureInsetBottomIgnored : Boolean = false
+        isGestureInsetBottomIgnored: Boolean = false,
     ) {
         show(
             skSpannedString { append(message) },
@@ -41,7 +40,7 @@ class SKSnackBar : SKComponent<SKSnackBarVC>() {
             infiniteLines,
             centerText,
             slideAnimation,
-            isGestureInsetBottomIgnored
+            isGestureInsetBottomIgnored,
         )
     }
 
@@ -57,31 +56,33 @@ class SKSnackBar : SKComponent<SKSnackBarVC>() {
         infiniteLines: Boolean = false,
         centerText: Boolean = false,
         slideAnimation: Boolean = false,
-        isGestureInsetBottomIgnored : Boolean = false
+        isGestureInsetBottomIgnored: Boolean = false,
     ) {
-        view.state = SKSnackBarVC.Shown(
-            message = message,
-            action = action?.let {
-                SKSnackBarVC.Action(
-                    label = it.label,
-                    action = it.action
-                )
-            },
-            position = position,
-            leftIcon = leftIcon,
-            rightIcon = rightIcon,
-            background = background,
-            textColor = textColor,
-            infiniteLines = infiniteLines,
-            centerText = centerText,
-            slideAnimation = slideAnimation,
-            isGestureInsetBottomIgnored = isGestureInsetBottomIgnored
-        )
+        view.state =
+            SKSnackBarVC.Shown(
+                message = message,
+                action =
+                    action?.let {
+                        SKSnackBarVC.Action(
+                            label = it.label,
+                            action = it.action,
+                        )
+                    },
+                position = position,
+                leftIcon = leftIcon,
+                rightIcon = rightIcon,
+                background = background,
+                textColor = textColor,
+                infiniteLines = infiniteLines,
+                centerText = centerText,
+                slideAnimation = slideAnimation,
+                isGestureInsetBottomIgnored = isGestureInsetBottomIgnored,
+            )
         disappearJob?.cancel()
-        disappearJob = launch {
-            delay(duration)
-            view.state = null
-        }
+        disappearJob =
+            launch {
+                delay(duration)
+                view.state = null
+            }
     }
-
 }

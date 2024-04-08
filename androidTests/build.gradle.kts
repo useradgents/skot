@@ -7,7 +7,6 @@ plugins {
     id("maven-publish")
 }
 
-
 dependencies {
 
     api(libs.jetbrains.kotlin.stdlib)
@@ -30,7 +29,6 @@ dependencies {
     implementation(project(":core"))
 }
 
-
 android {
     defaultConfig {
         minSdk = libs.android.minSdk.get().toInt()
@@ -41,9 +39,7 @@ android {
         getByName("main").java.srcDirs("src/androidMain/kotlin")
         getByName("main").manifest.srcFile("src/androidMain/AndroidManifest.xml")
     }
-
 }
-
 
 kotlin {
     android("android") {
@@ -51,18 +47,14 @@ kotlin {
         publishLibraryVariantsGroupedByFlavor = true
     }
 
-
     sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
     sourceSets["commonMain"].dependencies {
         api(libs.jetbrains.kotlin.stdlib)
         api(libs.kotlinx.coroutines.core)
     }
 
-
     sourceSets["androidMain"].dependencies {
         api(libs.jetbrains.kotlin.stdlib)
         api(libs.kotlinx.coroutines.android)
     }
-
-
 }

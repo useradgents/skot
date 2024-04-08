@@ -21,7 +21,6 @@ abstract class SKInputViewCommon<V : View>(
     fragment: Fragment?,
     view: V,
 ) : SKComponentView<V>(proxy, activity, fragment, view), SKInputRAI {
-
     abstract val editText: EditText
 
     override fun onMaxSize(maxSize: Int?) {
@@ -40,31 +39,41 @@ abstract class SKInputViewCommon<V : View>(
         }
     }
 
-
     private var firstChangeDoneFor = false
 
     private var watching: TextWatcher? = null
 
     override fun onOnInputText(onInputText: (String?) -> Unit) {
-        val watcher = object : TextWatcher {
-            // Un premier changement peut être lancé au premier affichage (pour passer de null à "" ??)
-            // il ne faut pas en tenir compte, ce n'est pas une action utilisateur et cela peut écraser une value settée en amont
-            override fun afterTextChanged(p0: Editable?) {
-                val newText = p0?.toString()
-                if (firstChangeDoneFor || !newText.isNullOrBlank()) {
-                    onInputText(p0?.toString())
+        val watcher =
+            object : TextWatcher {
+                // Un premier changement peut être lancé au premier affichage (pour passer de null à "" ??)
+                // il ne faut pas en tenir compte, ce n'est pas une action utilisateur et cela peut écraser une value settée en amont
+                override fun afterTextChanged(p0: Editable?) {
+                    val newText = p0?.toString()
+                    if (firstChangeDoneFor || !newText.isNullOrBlank()) {
+                        onInputText(p0?.toString())
+                    }
+                    firstChangeDoneFor = true
                 }
-                firstChangeDoneFor = true
-            }
 
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                // nu
-            }
+                override fun beforeTextChanged(
+                    p0: CharSequence?,
+                    p1: Int,
+                    p2: Int,
+                    p3: Int,
+                ) {
+                    // nu
+                }
 
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                // nu
+                override fun onTextChanged(
+                    p0: CharSequence?,
+                    p1: Int,
+                    p2: Int,
+                    p3: Int,
+                ) {
+                    // nu
+                }
             }
-        }
         watching?.let { editText.removeTextChangedListener(it) }
         editText.addTextChangedListener(watcher)
         watching = watcher
@@ -77,19 +86,20 @@ abstract class SKInputViewCommon<V : View>(
 
     override fun onType(type: SKInputVC.Type?) {
         if (type != null) {
-            editText.inputType = when (type) {
-                SKInputVC.Type.EMail -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS
-                SKInputVC.Type.Phone -> InputType.TYPE_CLASS_PHONE
-                SKInputVC.Type.Password -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                SKInputVC.Type.PasswordWithDefaultHintFont -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                SKInputVC.Type.Number -> InputType.TYPE_CLASS_NUMBER
-                SKInputVC.Type.NumberPassword -> InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
-                SKInputVC.Type.LongText -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-                SKInputVC.Type.TextCapSentences -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-                SKInputVC.Type.AllCaps -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
-                SKInputVC.Type.Normal -> InputType.TYPE_CLASS_TEXT
-                SKInputVC.Type.VisiblePassword -> InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-            }
+            editText.inputType =
+                when (type) {
+                    SKInputVC.Type.EMail -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS
+                    SKInputVC.Type.Phone -> InputType.TYPE_CLASS_PHONE
+                    SKInputVC.Type.Password -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                    SKInputVC.Type.PasswordWithDefaultHintFont -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                    SKInputVC.Type.Number -> InputType.TYPE_CLASS_NUMBER
+                    SKInputVC.Type.NumberPassword -> InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
+                    SKInputVC.Type.LongText -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                    SKInputVC.Type.TextCapSentences -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+                    SKInputVC.Type.AllCaps -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
+                    SKInputVC.Type.Normal -> InputType.TYPE_CLASS_TEXT
+                    SKInputVC.Type.VisiblePassword -> InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                }
             if (type == SKInputVC.Type.PasswordWithDefaultHintFont) {
                 editText.typeface = Typeface.DEFAULT
             }
@@ -103,9 +113,7 @@ abstract class SKInputViewCommon<V : View>(
                 if (it) null else PasswordTransformationMethod.getInstance()
             editText.setSelection(selection)
         }
-
     }
-
 
     override fun onText(text: String?) {
         val oldValue = editText.text.toString()
@@ -123,7 +131,6 @@ abstract class SKInputViewCommon<V : View>(
             editText.requestFocus()
         }
     }
-
 }
 
 class SKInputView(
@@ -132,7 +139,6 @@ class SKInputView(
     fragment: Fragment?,
     private val textInputLayout: TextInputLayout,
 ) : SKInputViewCommon<TextInputLayout>(proxy, activity, fragment, textInputLayout) {
-
     override val editText: EditText = textInputLayout.editText!!
 
     override fun onEnabled(enabled: Boolean?) {
@@ -158,8 +164,6 @@ class SKSimpleInputView(
     fragment: Fragment?,
     override val editText: EditText,
 ) : SKInputViewCommon<EditText>(proxy, activity, fragment, editText) {
-
-
     override fun onEnabled(enabled: Boolean?) {
         enabled?.let { editText.isEnabled = it }
     }

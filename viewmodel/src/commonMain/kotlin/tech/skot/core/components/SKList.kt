@@ -4,7 +4,7 @@ import tech.skot.core.di.coreViewInjector
 
 /**
  * [SKComponent] used to show a list or a grid
- * @param vertical [Boolean] specify if the list should scroll vertically or horizontally, vertical by default
+ * @param layoutMode [SKListVC.LayoutMode] specify if the list should scroll vertically or horizontally, vertical by default
  * @param reverse [Boolean] direction of the list
  * @param animate [Boolean]
  * @param animateItem [Boolean]
@@ -14,9 +14,8 @@ open class SKList(
     layoutMode: SKListVC.LayoutMode = SKListVC.LayoutMode.Linear(true),
     reverse: Boolean = false,
     animate: Boolean = true,
-    animateItem: Boolean = false
+    animateItem: Boolean = false,
 ) : SKComponent<SKListVC>() {
-
     constructor(vertical: Boolean) : this(layoutMode = SKListVC.LayoutMode.Linear(vertical = vertical))
 
     override val view = coreViewInjector.skList(layoutMode, reverse, animate, animateItem)
@@ -43,7 +42,6 @@ open class SKList(
     fun center(item: SKComponent<*>) {
         view.scrollToPosition(items.indexOf(item), mode = SKListVC.ScrollMode.Center)
     }
-
 
     override fun onRemove() {
         super.onRemove()

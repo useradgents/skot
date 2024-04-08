@@ -10,10 +10,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
 
-
 const val SKOT_ANDROID_PROPERIES_FILE_NAME = "skot_android.properties"
 const val SKOT_IMPORTS_PROPERIES_FILE_NAME = "skot_imports.properties"
-
 
 fun skReadAndroidProperties(path: Path): SKAndroidProperties? {
     val propertiesPath = path.resolve(SKOT_ANDROID_PROPERIES_FILE_NAME)
@@ -22,15 +20,15 @@ fun skReadAndroidProperties(path: Path): SKAndroidProperties? {
         properties.load(FileInputStream(propertiesPath.toFile()))
         SKAndroidProperties(properties)
     } else {
-       null
+        null
     }
 }
 
 class SKAndroidProperties(private val properties: Properties) {
-    val minSdk:Int?
+    val minSdk: Int?
         get() = (properties["minSdk"] as? String)?.toInt()
 
-    val leakCanary:Boolean?
+    val leakCanary: Boolean?
         get() = (properties["leakCanary"] as? String)?.toBoolean()
 }
 
@@ -48,7 +46,7 @@ fun skReadImportsProperties(path: Path): SKImportsProperties? {
 }
 
 class SKImportsProperties(private val properties: Properties) {
-    val ktor2:Boolean?
+    val ktor2: Boolean?
         get() {
             return (properties["ktor2"] as? String?)?.toBoolean()
         }

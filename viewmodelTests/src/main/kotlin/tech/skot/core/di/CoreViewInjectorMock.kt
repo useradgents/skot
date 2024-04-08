@@ -36,9 +36,9 @@ class CoreViewInjectorMock : CoreViewInjector {
 
     override fun pager(
         screens: List<SKScreenVC>,
-        onUserSwipeToPage: ((index:Int)->Unit)?,
+        onUserSwipeToPage: ((index: Int) -> Unit)?,
         initialSelectedPageIndex: Int,
-        swipable: Boolean
+        swipable: Boolean,
     ): SKPagerVC {
         return SKPagerViewMock(screens, onUserSwipeToPage, initialSelectedPageIndex, swipable)
     }
@@ -47,32 +47,38 @@ class CoreViewInjectorMock : CoreViewInjector {
         pager: SKPagerVC,
         onUserTabClick: ((index: Int) -> Unit)?,
         tabConfigs: List<SKPagerWithTabsVC.TabConfig>,
-        visibility : SKPagerWithTabsVC.Visibility): SKPagerWithTabsVC {
+        visibility: SKPagerWithTabsVC.Visibility,
+    ): SKPagerWithTabsVC {
         return SKPagerWithTabsViewMock(pager, onUserTabClick, tabConfigs, visibility)
     }
-
 
     override fun skList(
         layoutMode: SKListVC.LayoutMode,
         reverse: Boolean,
         animate: Boolean,
-        animateItem: Boolean
+        animateItem: Boolean,
     ): SKListVC {
         return SKListViewMock(layoutMode, reverse, animate, animateItem)
     }
 
-    override fun skBox(itemsInitial: List<SKComponentVC>, hiddenInitial: Boolean?): SKBoxVC {
+    override fun skBox(
+        itemsInitial: List<SKComponentVC>,
+        hiddenInitial: Boolean?,
+    ): SKBoxVC {
         return SKBoxViewMock(itemsInitial, hiddenInitial)
     }
 
     override fun webView(
         config: SKWebViewVC.Config,
-        launchInitial: SKWebViewVC.Launch?
+        launchInitial: SKWebViewVC.Launch?,
     ): SKWebViewVC {
         return SKWebViewViewMock(config, launchInitial)
     }
 
-    override fun frame(screens: Set<SKScreenVC>, screenInitial: SKScreenVC?): SKFrameVC {
+    override fun frame(
+        screens: Set<SKScreenVC>,
+        screenInitial: SKScreenVC?,
+    ): SKFrameVC {
         return SKFrameViewMock(screens, screenInitial)
     }
 
@@ -91,7 +97,7 @@ class CoreViewInjectorMock : CoreViewInjector {
         errorInitial: String?,
         hiddenInitial: Boolean?,
         enabledInitial: Boolean?,
-        showPasswordInitial: Boolean?
+        showPasswordInitial: Boolean?,
     ): SKInputVC {
         return SKInputViewMock(
             onInputText,
@@ -104,7 +110,7 @@ class CoreViewInjectorMock : CoreViewInjector {
             errorInitial,
             hiddenInitial,
             enabledInitial,
-            showPasswordInitial
+            showPasswordInitial,
         )
     }
 
@@ -119,7 +125,7 @@ class CoreViewInjectorMock : CoreViewInjector {
         errorInitial: String?,
         hiddenInitial: Boolean?,
         enabledInitial: Boolean?,
-        showPasswordInitial: Boolean?
+        showPasswordInitial: Boolean?,
     ): SKSimpleInputVC {
         return SKSimpleInputViewMock(
             onInputText,
@@ -132,7 +138,7 @@ class CoreViewInjectorMock : CoreViewInjector {
             errorInitial,
             hiddenInitial,
             enabledInitial,
-            showPasswordInitial
+            showPasswordInitial,
         )
     }
 
@@ -145,7 +151,7 @@ class CoreViewInjectorMock : CoreViewInjector {
         enabledInitial: Boolean?,
         hiddenInitial: Boolean?,
         dropDownDisplayedInitial: Boolean,
-        oldSchoolModeHint: Boolean
+        oldSchoolModeHint: Boolean,
     ): SKComboVC {
         return SKComboViewMock(
             hint,
@@ -156,7 +162,7 @@ class CoreViewInjectorMock : CoreViewInjector {
             enabledInitial,
             hiddenInitial,
             dropDownDisplayedInitial,
-            oldSchoolModeHint
+            oldSchoolModeHint,
         )
     }
 
@@ -170,7 +176,7 @@ class CoreViewInjectorMock : CoreViewInjector {
         hiddenInitial: Boolean?,
         dropDownDisplayedInitial: Boolean,
         onInputText: (input: String?) -> Unit,
-        oldSchoolModeHint: Boolean
+        oldSchoolModeHint: Boolean,
     ): SKInputWithSuggestionsVC {
         return SKInputWithSuggestionsViewMock(
             hint,
@@ -182,7 +188,7 @@ class CoreViewInjectorMock : CoreViewInjector {
             hiddenInitial,
             dropDownDisplayedInitial,
             onInputText,
-            oldSchoolModeHint
+            oldSchoolModeHint,
         )
     }
 
@@ -191,7 +197,7 @@ class CoreViewInjectorMock : CoreViewInjector {
         labelInitial: String?,
         enabledInitial: Boolean?,
         hiddenInitial: Boolean?,
-        debounce:Long?
+        debounce: Long?,
     ): SKButtonVC {
         return SKButtonViewMock(onTapInitial, labelInitial, enabledInitial, hiddenInitial, debounce)
     }
@@ -201,7 +207,7 @@ class CoreViewInjectorMock : CoreViewInjector {
         iconInitial: Icon,
         enabledInitial: Boolean?,
         hiddenInitial: Boolean?,
-        debounce:Long?
+        debounce: Long?,
     ): SKImageButtonVC {
         return SKImageButtonViewMock(onTapInitial, iconInitial, enabledInitial, hiddenInitial, debounce)
     }

@@ -9,30 +9,20 @@ import tech.skot.Versions
 
 @Suppress("UNUSED_PARAMETER")
 class PluginLibraryContract : Plugin<Project> {
-
     override fun apply(project: Project) {
-
-
         project.plugins.apply("maven-publish")
         project.plugins.apply("kotlinx-serialization")
 
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
-
     }
-
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
         jvm()
 
-        //ios()
+        // ios()
 
         sourceSets["commonMain"].dependencies {
             api("${Versions.group}:viewcontract:${Versions.skot}")
         }
-
     }
-
 }
-
-
-

@@ -5,19 +5,17 @@ import kotlinx.serialization.Serializable
 import org.junit.Test
 
 class TestPersistSealedClass {
-
     @Serializable
     sealed class State {
         @Serializable
         data class InStore(val storeName: String) : State()
-        @Serializable
-        object NoSession : State()
-    }
 
+        @Serializable
+        data object NoSession : State()
+    }
 
     @Test
     fun testPersistSealedClass() {
-
         val cache = testPersistor()
         val name = "NAME"
         val MAG_1 = "Mag 1"
@@ -25,13 +23,14 @@ class TestPersistSealedClass {
             cache.putData(
                 State.serializer(),
                 name,
-                State.InStore(MAG_1)
+                State.InStore(MAG_1),
             )
 
-            val restoredDataInStore = cache.getData(
-                State.serializer(),
-                name
-            )
+            val restoredDataInStore =
+                cache.getData(
+                    State.serializer(),
+                    name,
+                )
 
             assert(restoredDataInStore is State.InStore)
             assert((restoredDataInStore as State.InStore).storeName == MAG_1)
@@ -39,13 +38,14 @@ class TestPersistSealedClass {
             cache.putData(
                 State.serializer(),
                 name,
-                State.NoSession
+                State.NoSession,
             )
 
-            val restoreDataNoSession = cache.getData(
-                State.serializer(),
-                name
-            )
+            val restoreDataNoSession =
+                cache.getData(
+                    State.serializer(),
+                    name,
+                )
 
             assert(restoreDataNoSession is State.NoSession)
         }

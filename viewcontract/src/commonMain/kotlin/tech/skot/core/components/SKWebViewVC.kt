@@ -26,38 +26,43 @@ interface SKWebViewVC : SKComponentVC {
         get() = launch as? Launch.OpenUrl?
 
     var goBack: BackRequest?
+
     fun requestGoForward()
+
     fun requestReload()
-    fun evaluateJavascript(js : String, onResult :(String)-> Unit)
+
+    fun evaluateJavascript(
+        js: String,
+        onResult: (String) -> Unit,
+    )
 
     data class Config(
         val userAgent: String?,
         val javascriptEnabled: Boolean = true,
         val domStorageEnabled: Boolean = true,
-        val javascriptOnFinished: (()-> String?)? = null,
-        val javascriptOnStart : (()-> String?)? = null,
+        val javascriptOnFinished: (() -> String?)? = null,
+        val javascriptOnStart: (() -> String?)? = null,
         val shouldOverrideUrlLoading: ((skUri: SKUri) -> Boolean)? = null,
-        val onHttpError: ((url : SKUri, statusCode : Int) -> Unit)? = null,
+        val onHttpError: ((url: SKUri, statusCode: Int) -> Unit)? = null,
         val onRequest: ((skUri: SKUri) -> Unit)? = null,
-        val onHttpAuthRequest :((host : String?, realm : String?, onProceed : (login : String?, password : String?) -> Unit ) -> Unit)? = null,
+        val onHttpAuthRequest: ((host: String?, realm: String?, onProceed: (login: String?, password: String?) -> Unit) -> Unit)? = null,
         val onWebViewCrash : (() -> Unit)? = null
     )
 
-
-    sealed class Launch(){
-        abstract val onFinished: ((title : String?) -> Unit)?
+    sealed class Launch() {
+        abstract val onFinished: ((title: String?) -> Unit)?
         abstract val javascriptOnFinished: String?
-        abstract val removeCookies:Boolean
-        abstract val cookie:Pair<String,String>?
+        abstract val removeCookies: Boolean
+        abstract val cookie: Pair<String, String>?
         abstract val url: String?
 
         data class OpenUrl(
             override val url: String,
-            override val onFinished: ((title : String?) -> Unit)? = null,
+            override val onFinished: ((title: String?) -> Unit)? = null,
             override val javascriptOnFinished: String? = null,
             val onError: (() -> Unit)? = null,
-            override val removeCookies:Boolean = false,
-            override val cookie:Pair<String,String>? = null
+            override val removeCookies: Boolean = false,
+            override val cookie: Pair<String, String>? = null,
         ) : Launch()
 
         /**
@@ -65,12 +70,12 @@ interface SKWebViewVC : SKComponentVC {
          */
         data class OpenUrlWithHeader(
             override val url: String,
-            override val onFinished: ((title : String?) -> Unit)? = null,
+            override val onFinished: ((title: String?) -> Unit)? = null,
             override val javascriptOnFinished: String? = null,
             val onError: (() -> Unit)? = null,
-            val headers: Map<String,String> = emptyMap(),
-            override val removeCookies:Boolean = false,
-            override val cookie:Pair<String,String>? = null
+            val headers: Map<String, String> = emptyMap(),
+            override val removeCookies: Boolean = false,
+            override val cookie: Pair<String, String>? = null,
         ) : Launch()
 
         /**
@@ -78,14 +83,13 @@ interface SKWebViewVC : SKComponentVC {
          */
         data class OpenPostUrl(
             override val url: String,
-            override val onFinished: ((title : String?) -> Unit)? = null,
+            override val onFinished: ((title: String?) -> Unit)? = null,
             override val javascriptOnFinished: String? = null,
             val onError: (() -> Unit)? = null,
             val post: Map<String, String> = emptyMap(),
-            override val removeCookies:Boolean = false,
-            override val cookie:Pair<String,String>? = null
+            override val removeCookies: Boolean = false,
+            override val cookie: Pair<String, String>? = null,
         ) : Launch()
-
 
         /**
          * load data with url
@@ -93,12 +97,12 @@ interface SKWebViewVC : SKComponentVC {
          * @param url, the baseUrl
          */
         data class LoadData(
-            val data : String,
+            val data: String,
             override val url: String?,
-            override val onFinished: ((title : String?) -> Unit)? = null,
+            override val onFinished: ((title: String?) -> Unit)? = null,
             override val javascriptOnFinished: String? = null,
-            override val removeCookies:Boolean = false,
-            override val cookie:Pair<String,String>? = null
+            override val removeCookies: Boolean = false,
+            override val cookie: Pair<String, String>? = null,
         ) : Launch()
     }
 

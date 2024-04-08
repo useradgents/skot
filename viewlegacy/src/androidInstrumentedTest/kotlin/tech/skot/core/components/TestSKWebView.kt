@@ -7,24 +7,23 @@ import tech.skot.view.tests.SKTestView
 import tech.skot.view.tests.testComponent
 
 class TestSKWebView : SKTestView() {
-
     @Test
     fun testRedirection() {
-        val proxy = SKWebViewViewProxy(
-            launchInitial = SKWebViewVC.Launch.OpenUrl(
-                url = "https://www.casinomax.fr/actualites/casino-max-extra",
-                onFinished = {
-                    SKLog.d("@@@@@@@ finished !!!")
-                }
+        val proxy =
+            SKWebViewViewProxy(
+                launchInitial =
+                    SKWebViewVC.Launch.OpenUrl(
+                        url = "https://www.casinomax.fr/actualites/casino-max-extra",
+                        onFinished = {
+                            SKLog.d("@@@@@@@ finished !!!")
+                        },
+                    ),
             )
-        )
 
         testComponent(proxy) {
-
             SKLog.d("@@@@  loading   !!")
             delay(4000)
             proxy.requestReload()
         }
-
     }
 }

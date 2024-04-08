@@ -3,20 +3,17 @@ package tech.skot.tools.gradle
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.getByType
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
 
-//open class SKPluginModelExtension {
+// open class SKPluginModelExtension {
 //    var message: String? = null
-//}
+// }
 
-@Suppress("UnstableApiUsage")
 class PluginModel : Plugin<Project> {
-
     override fun apply(project: Project) {
 //        val extension = project.extensions.create<SKPluginContractExtension>("skot")
         project.plugins.apply("com.android.library")
@@ -25,14 +22,10 @@ class PluginModel : Plugin<Project> {
         project.extensions.findByType(LibraryExtension::class)?.conf(project)
 
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
-
     }
 
-
     private fun LibraryExtension.conf(project: Project) {
-
         androidBaseConfig(project)
-
 
         sourceSets {
             getByName("main") {
@@ -45,7 +38,6 @@ class PluginModel : Plugin<Project> {
                     java.srcDir("src/androidMain/kotlin$it")
                 }
             }
-
         }
 
         packaging {
@@ -55,20 +47,15 @@ class PluginModel : Plugin<Project> {
     }
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+        }
         androidTarget {
-            compilations.all {
-                kotlinOptions {
-                    jvmTarget = "1.8"
-                }
-            }
         }
         jvm()
 
-
-
         sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
-
-
 
         val parentProjectPath = project.parent?.path ?: ""
 
@@ -76,7 +63,6 @@ class PluginModel : Plugin<Project> {
             api(project("$parentProjectPath:modelcontract"))
             api("${Versions.group}:model:${Versions.skot}")
             api("org.jetbrains.kotlinx:kotlinx-serialization-core:${Versions.serialization}")
-
 
             if (project.skReadImportsProperties()?.ktor2 != false) {
                 api("io.ktor:ktor-client-content-negotiation:${Versions.ktor}")
@@ -91,14 +77,8 @@ class PluginModel : Plugin<Project> {
             sourceSets["androidMain"].kotlin.srcDir("src/androidMain/kotlin$it")
         }
 
-
         sourceSets["jvmTest"].kotlin.srcDir("generated/jvmTest")
 
-
-
         sourceSets["androidMain"].kotlin.srcDir("generated/androidMain/kotlin")
-
     }
-
-
 }

@@ -4,13 +4,12 @@ import tech.skot.core.components.SKComponentViewMock
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-
 class SKAlertViewMock : SKComponentViewMock(), SKAlertVC {
     override var state: SKAlertVC.Shown? = null
     override var inputText: String? = null
 }
 
-fun SKAlertVC.assertCloseOnTapMainButton(rule:String? = null) {
+fun SKAlertVC.assertCloseOnTapMainButton(rule: String? = null) {
     val errorPrefix = rule?.let { "$it -> " } ?: ""
     userTapMainButton()
     assertTrue("${errorPrefix}l'alerte doit se fermer au tap sur le bouton principal") {
@@ -18,7 +17,7 @@ fun SKAlertVC.assertCloseOnTapMainButton(rule:String? = null) {
     }
 }
 
-fun SKAlertVC.assertCloseOnTapSecondButton(rule:String? = null) {
+fun SKAlertVC.assertCloseOnTapSecondButton(rule: String? = null) {
     val errorPrefix = rule?.let { "$it -> " } ?: ""
     userTapSecondaryButton()
     assertTrue("${errorPrefix}l'alerte doit se fermer au tap sur le bouton principal") {
@@ -37,9 +36,9 @@ fun SKAlertVC.assertDisplayedWith(
     rule: String? = null,
     title: String? = null,
     message: String? = null,
-    mainButtonLabel:String? = null,
-    secondaryButtonLabel:String? = null,
-    inputText:String? = null
+    mainButtonLabel: String? = null,
+    secondaryButtonLabel: String? = null,
+    inputText: String? = null,
 ) {
     val errorPrefix = rule?.let { "$it -> " } ?: ""
     assertTrue("${errorPrefix}une alerte doit être affichée") {
@@ -49,14 +48,14 @@ fun SKAlertVC.assertDisplayedWith(
         assertEquals(
             message = "${errorPrefix}le titre de l'alerte doit être correct",
             expected = it,
-            actual = state?.title
+            actual = state?.title,
         )
     }
     message?.let {
         assertEquals(
             message = "${errorPrefix}le message de l'alerte doit être correct",
             expected = it,
-            actual = state?.message
+            actual = state?.message,
         )
     }
 
@@ -67,7 +66,7 @@ fun SKAlertVC.assertDisplayedWith(
         assertEquals(
             message = "${errorPrefix}le label du bouton principal doit être correct",
             expected = it,
-            actual = state?.mainButton?.label
+            actual = state?.mainButton?.label,
         )
     }
 
@@ -78,7 +77,7 @@ fun SKAlertVC.assertDisplayedWith(
         assertEquals(
             message = "${errorPrefix}le label du bouton secondaire doit être correct",
             expected = it,
-            actual = state?.secondaryButton?.label
+            actual = state?.secondaryButton?.label,
         )
     }
 
@@ -89,12 +88,10 @@ fun SKAlertVC.assertDisplayedWith(
         assertEquals(
             message = "${errorPrefix}le contenu du champ input doit être correct",
             expected = it,
-            actual = this.inputText
+            actual = this.inputText,
         )
     }
-
 }
-
 
 fun SKAlertVC.userTapMainButton() {
     state?.mainButton?.let { button ->
@@ -103,8 +100,6 @@ fun SKAlertVC.userTapMainButton() {
         Unit
     } ?: throw Exception("Pas de main bouton")
 }
-
-
 
 fun SKAlertVC.userTapSecondaryButton() {
     state?.secondaryButton?.let { button ->

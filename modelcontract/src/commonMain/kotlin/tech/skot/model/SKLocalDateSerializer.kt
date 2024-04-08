@@ -16,10 +16,13 @@ open class SKLocalDateSerializer(name: String, pattern: String) : KSerializer<Lo
     private val dateFormat = SKDateFormat(pattern)
 
     fun serialize(obj: LocalDate) = dateFormat.format(obj)
-    fun parse(str: String) =
-        dateFormat.parse(str).toLocalDateTime(TimeZone.currentSystemDefault()).date
 
-    override fun serialize(encoder: Encoder, value: LocalDate) {
+    fun parse(str: String) = dateFormat.parse(str).toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+    override fun serialize(
+        encoder: Encoder,
+        value: LocalDate,
+    ) {
         encoder.encodeString(serialize(value))
     }
 

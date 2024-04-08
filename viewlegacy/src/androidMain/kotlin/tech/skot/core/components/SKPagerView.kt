@@ -8,34 +8,29 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import tech.skot.core.SKLog
 
-
 class SKPagerView(
     override val proxy: SKPagerViewProxy,
     activity: SKActivity,
     fragment: Fragment?,
     private val viewPager2: ViewPager2,
 ) : SKComponentView<ViewPager2>(proxy, activity, fragment, viewPager2) {
-
     var screens: List<SKScreenViewProxy<*>> = emptyList()
-
-
 
     fun onScreens(screens: List<SKScreenViewProxy<*>>) {
         this.screens = screens
-       val adapter = object : FragmentStateAdapter(fragmentManager, lifecycleOwner.lifecycle) {
-            override fun getItemCount() = screens.size
+        val adapter =
+            object : FragmentStateAdapter(fragmentManager, lifecycleOwner.lifecycle) {
+                override fun getItemCount() = screens.size
 
-            override fun createFragment(position: Int): Fragment {
-                return (screens[position]).createFragment(canSetFullScreen = false)
+                override fun createFragment(position: Int): Fragment {
+                    return (screens[position]).createFragment(canSetFullScreen = false)
+                }
             }
-
-        }
         viewPager2.adapter = adapter
         viewPager2.doOnLayout {
             viewPager2.setCurrentItem(proxy.selectedPageIndex, false)
         }
     }
-
 
     fun onSelectedPageIndex(selectedPageIndex: Int) {
         viewPager2.doOnLayout {
@@ -43,36 +38,39 @@ class SKPagerView(
         }
     }
 
-
     private var onUserSwipeCallBack: ViewPager2.OnPageChangeCallback? = null
+
     fun onOnUserSwipeToPage(onSwipeToPage: ((index: Int) -> Unit)?) {
         var userSwipe: Boolean = false
-        viewPager2.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageScrollStateChanged(state: Int) {
-                when (state) {
-                    ViewPager2.SCROLL_STATE_DRAGGING -> userSwipe = true
-                    ViewPager2.SCROLL_STATE_IDLE -> userSwipe = false
+        viewPager2.registerOnPageChangeCallback(
+            object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageScrollStateChanged(state: Int) {
+                    when (state) {
+                        ViewPager2.SCROLL_STATE_DRAGGING -> userSwipe = true
+                        ViewPager2.SCROLL_STATE_IDLE -> userSwipe = false
+                    }
                 }
-            }
 
-            override fun onPageSelected(position: Int) {
-                if (userSwipe) {
-                    proxy.selectedPageIndex = position
-                    onSwipeToPage?.invoke(position)
+                override fun onPageSelected(position: Int) {
+                    if (userSwipe) {
+                        proxy.selectedPageIndex = position
+                        onSwipeToPage?.invoke(position)
+                    }
+                    SKLog.d("SkPager page selected $position on ${viewPager2.adapter?.itemCount}")
                 }
-                SKLog.d("SkPager page selected $position on ${viewPager2.adapter?.itemCount}")
-            }
-        }.also { onUserSwipeCallBack = it })
-
+            }.also { onUserSwipeCallBack = it },
+        )
     }
 
     init {
-        lifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onDestroy(owner: LifecycleOwner) {
-                super.onDestroy(owner)
-                unregisterCallBack()
-            }
-        })
+        lifecycleOwner.lifecycle.addObserver(
+            object : DefaultLifecycleObserver {
+                override fun onDestroy(owner: LifecycleOwner) {
+                    super.onDestroy(owner)
+                    unregisterCallBack()
+                }
+            },
+        )
     }
 
     private fun unregisterCallBack() {
@@ -90,5 +88,4 @@ class SKPagerView(
     fun onSwipable(value: Boolean) {
         viewPager2.isUserInputEnabled = value
     }
-
 }

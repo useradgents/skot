@@ -7,7 +7,6 @@ plugins {
 group = Versions.group
 version = Versions.version
 
-
 kotlin {
     jvm()
 
@@ -25,13 +24,10 @@ kotlin {
             }
         }
 
-
         jvmTest {
             dependencies {
                 implementation(libs.jetbrains.kotlin.test.junit)
             }
         }
     }
-
 }
-

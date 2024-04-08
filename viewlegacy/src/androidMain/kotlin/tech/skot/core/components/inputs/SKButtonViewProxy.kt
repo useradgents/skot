@@ -8,13 +8,12 @@ import tech.skot.view.live.MutableSKLiveData
 import tech.skot.viewlegacy.R
 
 class SKButtonViewProxy(
-    onTapInitial:(()->Unit)? = null,
-    labelInitial:String? = null,
-    enabledInitial:Boolean? = null,
-    hiddenInitial:Boolean? = null,
-    override val debounce: Long? = 500
-): SKComponentViewProxy<Button>(), SKButtonVC {
-
+    onTapInitial: (() -> Unit)? = null,
+    labelInitial: String? = null,
+    enabledInitial: Boolean? = null,
+    hiddenInitial: Boolean? = null,
+    override val debounce: Long? = 500,
+) : SKComponentViewProxy<Button>(), SKButtonVC {
     companion object {
         var LAYOUT_ID: Int? = null
     }
@@ -37,7 +36,7 @@ class SKButtonViewProxy(
     override fun bindTo(
         activity: SKActivity,
         fragment: Fragment?,
-        binding: Button
+        binding: Button,
     ) = SKButtonView(this, activity, fragment, binding).apply {
         onTapLD.observe {
             onOnTap(it)
@@ -52,5 +51,4 @@ class SKButtonViewProxy(
             onHidden(it)
         }
     }
-
 }

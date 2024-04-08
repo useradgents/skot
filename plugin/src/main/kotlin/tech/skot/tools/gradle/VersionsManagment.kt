@@ -5,22 +5,23 @@ import kotlinx.serialization.json.Json
 import org.gradle.api.Project
 import tech.skot.tools.generation.writeStringTo
 import java.nio.file.Files
+import java.nio.file.Path
 import kotlin.math.max
 
-fun Project.skVersionCodePropertiesPath() = rootProject.rootDir.toPath().resolve("skot_version_code.properties")
+fun Project.skVersionCodePropertiesPath() : Path  = rootProject.rootDir.toPath().resolve("skot_version_code.properties")
 
-fun Project.skVersionCode():Int =
-    Files.readAllLines(skVersionCodePropertiesPath()).first().toInt()
+fun Project.skVersionCode(): Int = Files.readAllLines(skVersionCodePropertiesPath()).first().toInt()
 
-fun Project.skSetVersionCode(newVersionCode:Int) {
+fun Project.skSetVersionCode(newVersionCode: Int) {
     Files.writeString(skVersionCodePropertiesPath(), newVersionCode.toString())
 }
 
 @Serializable
-data class UploadedInfos(val commit:String?, val buildNumber:Int)
+data class UploadedInfos(val commit: String?, val buildNumber: Int)
 
 @Serializable
-data class ParseUploadedInfosResponse(val result : UploadedInfos)
+data class ParseUploadedInfosResponse(val result: UploadedInfos)
+
 val json by lazy {
     Json {
         ignoreUnknownKeys = true
@@ -28,25 +29,25 @@ val json by lazy {
     }
 }
 
-private fun Project.skComputeVersionCodeAndReleaseNote(nbMaxCommitsInReleaseNote:Int) {
+private fun Project.skComputeVersionCodeAndReleaseNote(nbMaxCommitsInReleaseNote: Int) {
     task("compute_version_code_and_release_note") {
         doFirst {
             println("setting version Code from server")
             println("--fetch last uploaded versionCode")
-            val lastUploadedInfos:UploadedInfos? =
+            val lastUploadedInfos: UploadedInfos? =
                 try {
                     val strInfos = commandLine("scripts/versions/getLastUploadedInfos.sh")
 //                    val tab = strInfos.split("_")
 //                    UploadedInfos(tab[0], tab[1].toInt())
-                    if(strInfos.contains("result")){
-                        //back4app version server
-                        json.decodeFromString(ParseUploadedInfosResponse.serializer(), strInfos).result
-                    }else {
-                        //ua version server
+                    if (strInfos.contains("result"))
+                        {
+                            // back4app version server
+                            json.decodeFromString(ParseUploadedInfosResponse.serializer(), strInfos).result
+                        } else {
+                        // ua version server
                         json.decodeFromString(UploadedInfos.serializer(), strInfos)
                     }
-                }
-                catch (exception: Exception) {
+                } catch (exception: Exception) {
                     null
                 }
             println("--fetched last uploaded infos = $lastUploadedInfos")
@@ -54,16 +55,23 @@ private fun Project.skComputeVersionCodeAndReleaseNote(nbMaxCommitsInReleaseNote
             if (lastUploadedInfos != null) {
                 println("getLastUploadedInfos buildNumber = ${lastUploadedInfos.buildNumber}")
                 skSetVersionCode(max(lastUploadedInfos.buildNumber, currentVersionCode + 1))
-                val lastCommitHashes = commandLine("git", "show", "-s", "--format=%h", "-$nbMaxCommitsInReleaseNote").split("\n").filter { it.isNotBlank() }
+                val lastCommitHashes =
+                    commandLine(
+                        "git",
+                        "show",
+                        "-s",
+                        "--format=%h",
+                        "-$nbMaxCommitsInReleaseNote",
+                    ).split("\n").filter { it.isNotBlank() }
                 val lastUploadCommitIndex = lastCommitHashes.indexOf(lastUploadedInfos.commit)
-                val nbCommitsInNote = if (lastUploadCommitIndex != -1) {
-                    lastUploadCommitIndex
-                } else {
-                    Math.min(nbMaxCommitsInReleaseNote, 1)
-                }
+                val nbCommitsInNote =
+                    if (lastUploadCommitIndex != -1) {
+                        lastUploadCommitIndex
+                    } else {
+                        nbMaxCommitsInReleaseNote.coerceAtMost(1)
+                    }
                 val noteContent = commandLine("git", "show", "-s", "--format=%m%s%n%b%n", "-$nbCommitsInNote")
                 rootDir.toPath().writeStringTo("androidApp/distribution/release-note.txt", noteContent, true)
-
             }
         }
         group = "skot_versions"
@@ -82,18 +90,21 @@ private fun Project.skSaveUploadedInfos() {
     }
 }
 
-
-
 @Deprecated(
     message = "The current branch is automatically selected no need of branchEnvVariable and defaultBranch anymore",
     replaceWith = ReplaceWith("skVersionsTasks(nbMaxCommitsInReleaseNote)"),
-    level = DeprecationLevel.ERROR
+    level = DeprecationLevel.ERROR,
 )
 @Suppress("UNUSED_PARAMETER")
-fun Project.skVersionsTasks(branchEnvVariable:String, defaultBranch:String, nbMaxCommitsInReleaseNote:Int) {
+fun Project.skVersionsTasks(
+    branchEnvVariable: String,
+    defaultBranch: String,
+    nbMaxCommitsInReleaseNote: Int,
+) {
     skVersionsTasks(nbMaxCommitsInReleaseNote)
 }
-fun Project.skVersionsTasks(nbMaxCommitsInReleaseNote:Int) {
+
+fun Project.skVersionsTasks(nbMaxCommitsInReleaseNote: Int) {
     skComputeVersionCodeAndReleaseNote(nbMaxCommitsInReleaseNote)
     skSaveUploadedInfos()
 }

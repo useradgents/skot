@@ -2,7 +2,6 @@ package tech.skot.tools.gradle
 
 import com.android.build.api.dsl.DynamicFeatureExtension
 import com.android.build.gradle.AppExtension
-import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.DependencyHandlerScope
@@ -11,9 +10,7 @@ import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.project
 import tech.skot.Versions
 
-
 class PluginFeature : Plugin<Project> {
-
     override fun apply(project: Project) {
 //        project.plugins.apply("com.android.library")
         project.plugins.apply("com.android.dynamic-feature")
@@ -28,9 +25,7 @@ class PluginFeature : Plugin<Project> {
         }
     }
 
-
     private fun DynamicFeatureExtension.android(project: Project) {
-
         println("############## applying skot-feature LibraryExtension !!!")
         sourceSets {
             getByName("main") {
@@ -59,7 +54,6 @@ class PluginFeature : Plugin<Project> {
         buildFeatures {
             viewBinding = true
         }
-
     }
 
     private fun AppExtension.android() {
@@ -71,15 +65,11 @@ class PluginFeature : Plugin<Project> {
         }
     }
 
-
     private fun DependencyHandlerScope.dependencies(project: Project) {
-
         val parentProjectPath = project.parent?.path ?: ""
 
         add("implementation", project("$parentProjectPath:viewmodel"))
         add("implementation", project("$parentProjectPath:model"))
         add("api", project("$parentProjectPath:viewcontract"))
-
     }
-
 }

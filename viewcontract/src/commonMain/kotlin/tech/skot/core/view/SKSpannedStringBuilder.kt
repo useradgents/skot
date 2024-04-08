@@ -2,42 +2,56 @@ package tech.skot.core.view
 
 typealias SKSpannedString = List<SKSpan>
 
-
 class SKSpannedStringBuilder {
     val spans: MutableList<SKSpan> = mutableListOf()
 
-
     inner class Context(val format: SKSpan.Format) {
-
         fun append(text: String) {
             spans.add(SKSpan(text = text, format = format))
         }
 
-        fun appendIcon(icon: Icon, scale: Float = 1f) {
+        fun appendIcon(
+            icon: Icon,
+            scale: Float = 1f,
+        ) {
             spans.add(
                 SKSpan(
                     text = "",
                     startIcon = SKSpan.Icon(icon = icon, scale = scale),
-                    format = format))
+                    format = format,
+                ),
+            )
         }
 
         fun bold(block: Context.() -> Unit) {
             Context(format = format.copy(typeface = SKSpan.Bold)).apply(block)
         }
 
-        fun font(font: Font, block: Context.() -> Unit) {
+        fun font(
+            font: Font,
+            block: Context.() -> Unit,
+        ) {
             Context(format = format.copy(typeface = SKSpan.WithFont(font))).apply(block)
         }
 
-        fun colored(color: Color, block: Context.() -> Unit) {
+        fun colored(
+            color: Color,
+            block: Context.() -> Unit,
+        ) {
             Context(format = format.copy(color = color)).apply(block)
         }
 
-        fun scale(scale: Float, block: Context.() -> Unit) {
+        fun scale(
+            scale: Float,
+            block: Context.() -> Unit,
+        ) {
             Context(format = format.copy(scale = scale)).apply(block)
         }
 
-        fun clickable(onTap: () -> Unit, block: Context.() -> Unit) {
+        fun clickable(
+            onTap: () -> Unit,
+            block: Context.() -> Unit,
+        ) {
             Context(format = format.copy(onTap = onTap)).apply(block)
         }
 
@@ -48,10 +62,7 @@ class SKSpannedStringBuilder {
         fun striked(block: Context.() -> Unit) {
             Context(format = format.copy(striked = true)).apply(block)
         }
-
-
     }
-
 
     fun toSKSpannedString() = spans
 }
@@ -94,14 +105,12 @@ fun skSpannedString(block: SKSpannedStringBuilder.Context.() -> Unit): SKSpanned
     }.toSKSpannedString()
 }
 
-
 fun String.skFormatDelemitedString(
     vararg parameter: SKSpan.Format,
     delimiter: String = "##",
 ): SKSpannedString =
-    split(delimiter).filterNot { it.isNullOrBlank() }.mapIndexed { index: Int, text: String ->
+    split(delimiter).filterNot { it.isBlank() }.mapIndexed { index: Int, text: String ->
         parameter.getOrNull(index)?.span(text) ?: SKSpan(text = text, format = SKSpan.Format())
     }
 
-
-fun String.asSKSpannedString():SKSpannedString = listOf(SKSpan(text = this, format = SKSpan.Format()))
+fun String.asSKSpannedString(): SKSpannedString = listOf(SKSpan(text = this, format = SKSpan.Format()))

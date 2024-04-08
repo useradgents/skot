@@ -5,8 +5,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.WildcardTypeName
 
 object FrameworkClassNames {
-
-    val style =  ClassName("tech.skot.core.view", "Style")
+    val style = ClassName("tech.skot.core.view", "Style")
 
     val skComponentVC = ClassName("tech.skot.core.components", "SKComponentVC")
     val skUri = ClassName("tech.skot.core", "SKUri")
@@ -31,23 +30,21 @@ object FrameworkClassNames {
     val coreViewInjector = ClassName("tech.skot.core.di", "CoreViewInjector")
     val coreViewInjectorMock = ClassName("tech.skot.core.di", "CoreViewInjectorMock")
 
-    val skManualData = ClassName("tech.skot.model","SKManualData")
-    val skData = ClassName("tech.skot.model","SKData")
-    val globalPersistor = ClassName("tech.skot.model","globalPersistor")
-    val skActivity = ClassName("tech.skot.core.components","SKActivity")
-    val get = ClassName("tech.skot.core.di","get")
-    val toSKUri = ClassName("tech.skot.core","toSKUri")
+    val skManualData = ClassName("tech.skot.model", "SKManualData")
+    val skData = ClassName("tech.skot.model", "SKData")
+    val globalPersistor = ClassName("tech.skot.model", "globalPersistor")
+    val skActivity = ClassName("tech.skot.core.components", "SKActivity")
+    val get = ClassName("tech.skot.core.di", "get")
+    val toSKUri = ClassName("tech.skot.core", "toSKUri")
 
-
-    val globalScope = ClassName("kotlinx.coroutines","GlobalScope")
-    val dispatchers = ClassName("kotlinx.coroutines","Dispatchers")
-    val launch = ClassName("kotlinx.coroutines","launch")
+    val globalScope = ClassName("kotlinx.coroutines", "GlobalScope")
+    val dispatchers = ClassName("kotlinx.coroutines", "Dispatchers")
+    val launch = ClassName("kotlinx.coroutines", "launch")
 
     val mapSKData = ClassName("tech.skot.model", "map")
     val combineSKData = ClassName("tech.skot.model", "combineSKData")
 
     val bm = ClassName("tech.skot.model", "SKBM")
-
 
     val transistionAndroidLegacy = ClassName("tech.skot.view", "SKTransitionAndroidLegacy")
     val permissionAndroidLegacy = ClassName("tech.skot.view", "SKPermissionAndroid")

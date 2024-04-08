@@ -9,20 +9,21 @@ class SKDialogViewMock : SKComponentViewMock(), SKDialogVC {
     override var state: SKDialogVC.Shown? = null
 }
 
-fun SKDialogVC.assertDisplay(rule: String = "", screenClass: KClass<out SKScreenVC>) {
-
-    assertTrue(rule + " -> on doit afficher une modale de dialoque") {
+fun SKDialogVC.assertDisplay(
+    rule: String = "",
+    screenClass: KClass<out SKScreenVC>,
+) {
+    assertTrue("$rule -> on doit afficher une modale de dialoque") {
         state?.screen != null
     }
 
     assertTrue(
-        rule + " -> on doit afficher une modale de dialoque de type ${screenClass.simpleName}"
+        rule + " -> on doit afficher une modale de dialoque de type ${screenClass.simpleName}",
     ) {
         state?.screen?.let {
             screenClass.isInstance(it)
         } ?: false
     }
-
 }
 
 fun SKDialogVC.userDismiss() {

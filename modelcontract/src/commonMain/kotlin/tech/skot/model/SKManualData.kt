@@ -1,19 +1,17 @@
 package tech.skot.model
 
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import kotlin.reflect.KProperty
 
 open class SKManualData<D : Any?>(initialValue: D, private val onChange: (() -> Unit)? = null) :
     SKData<D> {
-
     override val flow = MutableStateFlow(DatedData(initialValue, currentTimeMillis()))
     override val defaultValidity = Long.MAX_VALUE
     override val _current: DatedData<D>
         get() = flow.value
 
     private val onChangeListeners = mutableSetOf<(newVal: D) -> Unit>()
+
     fun onChange(listener: (newVal: D) -> Unit) {
         onChangeListeners.add(listener)
     }
@@ -41,9 +39,16 @@ open class SKManualData<D : Any?>(initialValue: D, private val onChange: (() -> 
 
     override suspend fun fallBackValue(): D? = _current.data
 
-    operator fun setValue(thisObj: Any?, property: KProperty<*>, value: D) {
+    operator fun setValue(
+        thisObj: Any?,
+        property: KProperty<*>,
+        value: D,
+    ) {
         this.value = value
     }
 
-    operator fun getValue(thisObj: Any?, property: KProperty<*>) = this.value
+    operator fun getValue(
+        thisObj: Any?,
+        property: KProperty<*>,
+    ) = this.value
 }

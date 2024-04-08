@@ -15,19 +15,19 @@ import tech.skot.core.view.Icon
 @Suppress("unused")
 open class SKImageButton(
     icon: Icon,
-    enabled:Boolean? = null,
-    hidden:Boolean? = null,
-    debounce:Long? = 500,
-    onTap:(()->Unit)? = null,
-    ): SKComponent<SKImageButtonVC>() {
-
-    override val view = coreViewInjector.imageButton(
-        onTapInitial = onTap,
-        iconInitial = icon,
-        enabledInitial = enabled,
-        hiddenInitial = hidden,
-        debounce = debounce
-    )
+    enabled: Boolean? = null,
+    hidden: Boolean? = null,
+    debounce: Long? = 500,
+    onTap: (() -> Unit)? = null,
+) : SKComponent<SKImageButtonVC>() {
+    override val view =
+        coreViewInjector.imageButton(
+            onTapInitial = onTap,
+            iconInitial = icon,
+            enabledInitial = enabled,
+            hiddenInitial = hidden,
+            debounce = debounce,
+        )
 
     /**
      *  use it to set/get the [enable][Boolean] state of the imageButton
@@ -60,9 +60,8 @@ open class SKImageButton(
      *  use it to set/get the onTap callback lambda of the imageButton
      */
     var onTap: (() -> Unit)?
-        get() =  view.onTap
-    set(value) {
-        view.onTap = value
-    }
-
+        get() = view.onTap
+        set(value) {
+            view.onTap = value
+        }
 }

@@ -7,7 +7,6 @@ import tech.skot.core.view.Icon
 import tech.skot.core.view.Style
 import tech.skot.viewlegacy.R
 
-
 class CoreViewInjectorImpl : CoreViewInjector {
     override fun rootStack() = SKRootStackViewProxy
 
@@ -23,49 +22,56 @@ class CoreViewInjectorImpl : CoreViewInjector {
 
     override fun windowPopup() = SKWindowPopupViewProxy()
 
+    @Suppress("UNCHECKED_CAST")
     override fun pager(
         screens: List<SKScreenVC>,
-        onUserSwipeToPage:  ((index: Int) -> Unit)?,
+        onUserSwipeToPage: ((index: Int) -> Unit)?,
         initialSelectedPageIndex: Int,
-        swipable: Boolean
+        swipable: Boolean,
     ) = SKPagerViewProxy(
         initialScreens = screens as List<SKScreenViewProxy<*>>,
         onUserSwipeToPage = onUserSwipeToPage,
         initialSelectedPageIndex = initialSelectedPageIndex,
-        swipable = swipable
+        swipable = swipable,
     )
-
 
     override fun pagerWithTabs(
         pager: SKPagerVC,
         onUserTabClick: ((index: Int) -> Unit)?,
         tabConfigs: List<SKPagerWithTabsVC.TabConfig>,
-        tabsVisibility: SKPagerWithTabsVC.Visibility
-    ) =
-        SKPagerWithTabsViewProxy(
-            pager = pager as SKPagerViewProxy,
-            onUserTabClick = onUserTabClick,
-            initialTabConfigs = tabConfigs,
-            initialTabsVisibility = tabsVisibility
-        )
-
+        tabsVisibility: SKPagerWithTabsVC.Visibility,
+    ) = SKPagerWithTabsViewProxy(
+        pager = pager as SKPagerViewProxy,
+        onUserTabClick = onUserTabClick,
+        initialTabConfigs = tabConfigs,
+        initialTabsVisibility = tabsVisibility,
+    )
 
     override fun skList(
         layoutMode: SKListVC.LayoutMode,
         reverse: Boolean,
         animate: Boolean,
-        animateItem: Boolean
+        animateItem: Boolean,
     ) = SKListViewProxy(layoutMode, reverse, animate, animateItem)
 
-    override fun skBox(itemsInitial: List<SKComponentVC>, hiddenInitial: Boolean?) =
-        SKBoxViewProxy(itemsInitial as List<SKComponentViewProxy<*>>, hiddenInitial)
+    @Suppress("UNCHECKED_CAST")
+    override fun skBox(
+        itemsInitial: List<SKComponentVC>,
+        hiddenInitial: Boolean?,
+    ) = SKBoxViewProxy(itemsInitial as List<SKComponentViewProxy<*>>, hiddenInitial)
 
-    override fun webView(config: SKWebViewVC.Config, launchInitial: SKWebViewVC.Launch?) =
-        SKWebViewViewProxy(config, launchInitial)
+    override fun webView(
+        config: SKWebViewVC.Config,
+        launchInitial: SKWebViewVC.Launch?,
+    ) = SKWebViewViewProxy(config, launchInitial)
 
-    override fun frame(screens: Set<SKScreenVC>, screenInitial: SKScreenVC?) = SKFrameViewProxy(
+    @Suppress("UNCHECKED_CAST")
+    override fun frame(
+        screens: Set<SKScreenVC>,
+        screenInitial: SKScreenVC?,
+    ) = SKFrameViewProxy(
         screens = screens as Set<SKScreenViewProxy<*>>,
-        screenInitial = screenInitial as SKScreenViewProxy<*>?
+        screenInitial = screenInitial as SKScreenViewProxy<*>?,
     )
 
     override fun loader() = SKLoaderViewProxy()
@@ -81,21 +87,20 @@ class CoreViewInjectorImpl : CoreViewInjector {
         errorInitial: String?,
         hiddenInitial: Boolean?,
         enabledInitial: Boolean?,
-        showPasswordInitial: Boolean?
-    ) =
-        SKInputViewProxy(
-            maxSize,
-            onDone,
-            onFocusChange,
-            onInputText,
-            type,
-            enabledInitial,
-            errorInitial,
-            hiddenInitial,
-            hintInitial,
-            textInitial,
-            showPasswordInitial
-        )
+        showPasswordInitial: Boolean?,
+    ) = SKInputViewProxy(
+        maxSize,
+        onDone,
+        onFocusChange,
+        onInputText,
+        type,
+        enabledInitial,
+        errorInitial,
+        hiddenInitial,
+        hintInitial,
+        textInitial,
+        showPasswordInitial,
+    )
 
     override fun inputSimple(
         onInputText: (newText: String?) -> Unit,
@@ -108,21 +113,20 @@ class CoreViewInjectorImpl : CoreViewInjector {
         errorInitial: String?,
         hiddenInitial: Boolean?,
         enabledInitial: Boolean?,
-        showPasswordInitial: Boolean?
-    ) =
-        SKSimpleInputViewProxy(
-            maxSize,
-            onDone,
-            onFocusChange,
-            onInputText,
-            type,
-            enabledInitial,
-            errorInitial,
-            hiddenInitial,
-            hintInitial,
-            textInitial,
-            showPasswordInitial
-        )
+        showPasswordInitial: Boolean?,
+    ) = SKSimpleInputViewProxy(
+        maxSize,
+        onDone,
+        onFocusChange,
+        onInputText,
+        type,
+        enabledInitial,
+        errorInitial,
+        hiddenInitial,
+        hintInitial,
+        textInitial,
+        showPasswordInitial,
+    )
 
     override fun combo(
         hint: String?,
@@ -133,7 +137,7 @@ class CoreViewInjectorImpl : CoreViewInjector {
         enabledInitial: Boolean?,
         hiddenInitial: Boolean?,
         dropDownDisplayedInitial: Boolean,
-        oldSchoolModeHint: Boolean
+        oldSchoolModeHint: Boolean,
     ) = SKComboViewProxy(
         hint = hint,
         errorInitial = error,
@@ -143,7 +147,7 @@ class CoreViewInjectorImpl : CoreViewInjector {
         enabledInitial = enabledInitial,
         hiddenInitial = hiddenInitial,
         dropDownDisplayedInitial = dropDownDisplayedInitial,
-        oldSchoolModeHint = oldSchoolModeHint
+        oldSchoolModeHint = oldSchoolModeHint,
     )
 
     override fun inputWithSuggestions(
@@ -156,7 +160,7 @@ class CoreViewInjectorImpl : CoreViewInjector {
         hiddenInitial: Boolean?,
         dropDownDisplayedInitial: Boolean,
         onInputText: (input: String?) -> Unit,
-        oldSchoolModeHint: Boolean
+        oldSchoolModeHint: Boolean,
     ) = SKInputWithSuggestionsViewProxy(
         hint = hint,
         errorInitial = errorInitial,
@@ -167,7 +171,7 @@ class CoreViewInjectorImpl : CoreViewInjector {
         hiddenInitial = hiddenInitial,
         dropDownDisplayedInitial = dropDownDisplayedInitial,
         onInputText = onInputText,
-        oldSchoolModeHint = oldSchoolModeHint
+        oldSchoolModeHint = oldSchoolModeHint,
     )
 
     override fun button(
@@ -175,7 +179,7 @@ class CoreViewInjectorImpl : CoreViewInjector {
         labelInitial: String?,
         enabledInitial: Boolean?,
         hiddenInitial: Boolean?,
-        debounce: Long?
+        debounce: Long?,
     ) = SKButtonViewProxy(onTapInitial, labelInitial, enabledInitial, hiddenInitial, debounce)
 
     override fun imageButton(
@@ -183,14 +187,12 @@ class CoreViewInjectorImpl : CoreViewInjector {
         iconInitial: Icon,
         enabledInitial: Boolean?,
         hiddenInitial: Boolean?,
-        debounce: Long?
+        debounce: Long?,
     ) = SKImageButtonViewProxy(onTapInitial, iconInitial, enabledInitial, hiddenInitial, debounce)
-
-
 }
 
-val coreViewModule = module<BaseInjector> {
-    single { CoreViewInjectorImpl() as CoreViewInjector }
-    byName["skFullScreenDialogStyle"] = Style(R.style.sk_fullScreen_dialog)
-
-}
+val coreViewModule =
+    module<BaseInjector> {
+        single<CoreViewInjector> { CoreViewInjectorImpl()}
+        byName["skFullScreenDialogStyle"] = Style(R.style.sk_fullScreen_dialog)
+    }

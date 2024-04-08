@@ -2,6 +2,8 @@ package tech.skot.model
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -9,8 +11,6 @@ import kotlin.system.measureTimeMillis
 import kotlin.test.assertEquals
 
 class TestSKData {
-
-
     @Test
     fun `ManualSKData values are well setted and getted with value property`() {
         runBlocking {
@@ -38,22 +38,21 @@ class TestSKData {
                 manualSKData.value = null
                 assert(manualSKData.value == null)
             }
-
         }
     }
-
 
     @Test
     fun `ManualSKData flows works correctly`() {
         runBlocking {
             var counter = 0
             val manualSKData = SKManualData<Int>(counter)
-            val collecting = launch {
-                manualSKData.flow.collect {
-                    println("collected : $it (counter = $counter)")
-                    assert(it?.data == counter)
+            val collecting =
+                launch {
+                    manualSKData.flow.collect {
+                        println("collected : $it (counter = $counter)")
+                        assert(it.data == counter)
+                    }
                 }
-            }
             delay(100)
             repeat(4) {
                 manualSKData.value = ++counter
@@ -63,7 +62,6 @@ class TestSKData {
         }
     }
 
-
     open class IncrementingSimpleSKData : SimpleSKData<Int>() {
         override val defaultValidity = 200L
 
@@ -71,7 +69,6 @@ class TestSKData {
             return DatedData((_current?.data ?: -1) + 1)
         }
     }
-
 
     @Test
     fun `SimpleSKData get() fun get updated version`() {
@@ -86,22 +83,22 @@ class TestSKData {
         }
     }
 
-
     @Test
     fun `SimpleSKData flows works correctly`() {
         val testSK = IncrementingSimpleSKData()
         runBlocking {
             var counter = -1
-            val collecting = launch {
-                testSK.flow.collect {
-                    if (counter == -1) {
-                        assert(it == null)
-                    } else {
-                        assert(it?.data == counter)
+            val collecting =
+                launch {
+                    testSK.flow.collect {
+                        if (counter == -1) {
+                            assert(it == null)
+                        } else {
+                            assert(it?.data == counter)
+                        }
+                        counter++
                     }
-                    counter++
                 }
-            }
             delay(50L)
             testSK.update()
             delay(200L)
@@ -134,29 +131,29 @@ class TestSKData {
             val data2 = async { testSK.get() }
 
             assert(data1.await() == data2.await())
-
         }
     }
 
-
     @Test
-    fun `SKData map values are well mapped and flow is ok`(){
+    fun `SKData map values are well mapped and flow is ok`() {
         val incSKData = IncrementingSimpleSKData()
-        val mappedSKData = incSKData.map {
-            "line $it"
-        }
+        val mappedSKData =
+            incSKData.map {
+                "line $it"
+            }
         runBlocking {
             assert(mappedSKData.get() == "line 0")
             assert(mappedSKData._current?.data == "line 0")
             delay(200L)
             assert(mappedSKData.get() == "line 1")
             var counter = 1
-            val collecting = launch {
-                mappedSKData.flow.collect {
-                    assert(it?.data == "line $counter")
-                    counter++
+            val collecting =
+                launch {
+                    mappedSKData.flow.collect {
+                        assert(it?.data == "line $counter")
+                        counter++
+                    }
                 }
-            }
             delay(200L)
             mappedSKData.update()
             delay(200L)
@@ -167,22 +164,20 @@ class TestSKData {
     }
 
     @Test
-    fun `SKData map validity is well transmitted`(){
+    fun `SKData map validity is well transmitted`() {
         val incSKData = IncrementingSimpleSKData()
-        val mappedSKData = incSKData.map {
-            "line $it"
-        }
+        val mappedSKData =
+            incSKData.map {
+                "line $it"
+            }
         runBlocking {
             assert(mappedSKData.get() == "line 0")
             delay(100L)
             assert(mappedSKData.get() == "line 0")
             delay(100L)
             assert(mappedSKData.get() == "line 1")
-
         }
     }
-
-
 
     @Test
     fun `SKData combine value and get() are well computed`() {
@@ -190,59 +185,60 @@ class TestSKData {
         val incr2 = IncrementingSimpleSKData()
         val combined = combineSKData(incr1, incr2)
         runBlocking {
-            assert(combined.get() == Pair(0,0))
+            assert(combined.get() == Pair(0, 0))
             delay(300L)
-            assert(combined.get() == Pair(1,1))
+            assert(combined.get() == Pair(1, 1))
             delay(300L)
             incr2.get()
             delay(300L)
-            assert(combined.get() == Pair(2,3))
-            assert(combined._current?.data == Pair(2,3))
+            assert(combined.get() == Pair(2, 3))
+            assert(combined._current?.data == Pair(2, 3))
         }
     }
 
     @Test
     fun `SKData combine get() are well parallelized`() {
-        val simple1 = object: SimpleSKData<Int>() {
-            override suspend fun newDatedData(): DatedData<Int> {
-                delay(500)
-                return DatedData(0)
+        val simple1 =
+            object : SimpleSKData<Int>() {
+                override suspend fun newDatedData(): DatedData<Int> {
+                    delay(500)
+                    return DatedData(0)
+                }
             }
-        }
-        val simple2 = object: SimpleSKData<Int>() {
-            override suspend fun newDatedData(): DatedData<Int> {
-                delay(500)
-                return DatedData(0)
+        val simple2 =
+            object : SimpleSKData<Int>() {
+                override suspend fun newDatedData(): DatedData<Int> {
+                    delay(500)
+                    return DatedData(0)
+                }
             }
-        }
         val combined = combineSKData(simple1, simple2)
         runBlocking {
-            val duration = measureTimeMillis {
-                assert(combined.get() == Pair(0,0))
-            }
+            val duration =
+                measureTimeMillis {
+                    assert(combined.get() == Pair(0, 0))
+                }
             assert(duration < 1000)
-
         }
     }
-
-
 
     @Test
     fun `SKData combine validity is well managed`() {
         val incr1 = IncrementingSimpleSKData()
-        val incr2 = object :IncrementingSimpleSKData() {
-            override val defaultValidity = 300L
-        }
+        val incr2 =
+            object : IncrementingSimpleSKData() {
+                override val defaultValidity = 300L
+            }
         val combined = combineSKData(incr1, incr2)
 
         runBlocking {
-            assert(combined.get() == Pair(0,0))
+            assert(combined.get() == Pair(0, 0))
             delay(100L)
-            assert(combined.get() == Pair(0,0))
+            assert(combined.get() == Pair(0, 0))
             delay(120L)
-            assert(combined.get() == Pair(1,0))
+            assert(combined.get() == Pair(1, 0))
             delay(100L)
-            assert(combined.get() == Pair(1,1))
+            assert(combined.get() == Pair(1, 1))
         }
     }
 
@@ -253,38 +249,36 @@ class TestSKData {
         val combined = incr1.combine(incr2)
 
         runBlocking {
-            assert(combined.get() == Pair(0,0))
+            assert(combined.get() == Pair(0, 0))
             delay(100L)
-            assert(combined.get() == Pair(0,0))
+            assert(combined.get() == Pair(0, 0))
             delay(101L)
-            assert(combined.get() == Pair(1,1))
+            assert(combined.get() == Pair(1, 1))
             delay(100L)
-            assert(combined.get() == Pair(1,1))
+            assert(combined.get() == Pair(1, 1))
         }
     }
 
-
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `SKDataWraper works correctly`() {
-
         val manual1 = SKManualData<String>("start1")
         val manual2 = SKManualData<String>("start2")
 
         val changeSK = SKManualData<Int>(0)
 
-        var currentSK:SKData<String>? = manual1
+        var currentSK: SKData<String>? = manual1
 
-
-        runBlockingTest {
-
-            val wrapped = SKDataWrapper(
-                defaultValue = "wrappedDefaultValue",
-                getSKData = {
-                    currentSK
-                },
-                newSKDataFlow = changeSK.flow,
-                scope = this + Job()
-            )
+        runTest(UnconfinedTestDispatcher()) {
+            val wrapped =
+                SKDataWrapper(
+                    defaultValue = "wrappedDefaultValue",
+                    getSKData = {
+                        currentSK
+                    },
+                    newSKDataFlow = changeSK.flow,
+                    scope = this + Job(),
+                )
 
             assertEquals("start1", wrapped.get())
             manual1.value = "next1"
@@ -307,18 +301,19 @@ class TestSKData {
 
     @Test
     fun `_current value is updated when call get on a mapped SKData`() {
-
-        val mere = TestWrapSKData.PorteurDeSKData().also { it.increment()
-            it.increment()}
+        val mere =
+            TestWrapSKData.PorteurDeSKData().also {
+                it.increment()
+                it.increment()
+            }
 
         runTest {
             val mapped = mere.skdata.map { it }
             mapped.get(Long.MAX_VALUE)
             assertEquals(
                 expected = 2,
-                actual = mapped._current?.data
+                actual = mapped._current?.data,
             )
         }
-
     }
 }

@@ -13,7 +13,6 @@ import tech.skot.core.SKUri
 import tech.skot.core.toSKUri
 import java.net.URLEncoder
 
-
 class SKWebViewView(
     override val proxy: SKWebViewViewProxy,
     activity: SKActivity,
@@ -21,6 +20,10 @@ class SKWebViewView(
     private var webView: WebView,
 ) : SKComponentView<WebView>(proxy, activity, fragment, webView) {
 
+
+    init {
+        webView.webChromeClient = SKWebChromeClient(activity)
+    }
 
     fun onConfig(config: SKWebViewVC.Config) {
         webView.settings.apply {
@@ -289,7 +292,6 @@ class SKWebViewView(
 
             }
         }
-
     }
 
     private fun recreateWebView() {
@@ -328,9 +330,7 @@ class SKWebViewView(
             javascriptOnFinished?.let {
                 webView.evaluateJavascript(it, null)
             }
-
         }
-
     }
 
     private fun SKWebViewVC.Launch.error(requestedUri: Uri?, errorCode: Int?) {
@@ -385,7 +385,6 @@ class SKWebViewView(
                 }
                 launchNow(launch)
             }
-
         }
     }
 
@@ -426,7 +425,6 @@ class SKWebViewView(
             }
             proxy.goBack = null
         }
-
     }
 
     fun onRequestGoForward() {

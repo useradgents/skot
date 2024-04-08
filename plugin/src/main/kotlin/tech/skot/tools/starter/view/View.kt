@@ -13,29 +13,28 @@ fun StarterGenerator.view() {
         buildGradle {
             plugin(BuildGradleGenerator.Plugin.Id("tech.skot.viewlegacy"))
             plugin(BuildGradleGenerator.Plugin.Kotlin("android"))
-
         }
         androidPackage = configuration.appPackage + ".view"
         justAndroid = true
         mainPackage = configuration.appPackage
 
-
         val baseActivityClassName = ClassName(configuration.appPackage + ".android", "BaseActivity")
         val rootActivityClassName =
             ClassName(configuration.appPackage + ".android", "RootActivity")
 
-        androidActivities = listOf(
-            ModuleGenerator.Activity(
-                className = rootActivityClassName,
-                template = ModuleGenerator.activityTemplateRoot,
-                theme = "SplashTheme"
-            ),
-            ModuleGenerator.Activity(
-                className = baseActivityClassName,
-                template = ModuleGenerator.activityTemplateSimple,
-                theme = "AppTheme"
+        androidActivities =
+            listOf(
+                ModuleGenerator.Activity(
+                    className = rootActivityClassName,
+                    template = ModuleGenerator.activityTemplateRoot,
+                    theme = "SplashTheme",
+                ),
+                ModuleGenerator.Activity(
+                    className = baseActivityClassName,
+                    template = ModuleGenerator.activityTemplateSimple,
+                    theme = "AppTheme",
+                ),
             )
-        )
 
         FileSpec.builder(baseActivityClassName.packageName, baseActivityClassName.simpleName)
             .addType(
@@ -52,19 +51,18 @@ fun StarterGenerator.view() {
                                         .replaceFirstChar {
                                             if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
                                         }
-                                }Initializer"
-                            )
+                                }Initializer",
+                            ),
                         )
                             .initializer("get()")
                             .addModifiers(KModifier.OVERRIDE)
-                            .build()
+                            .build(),
                     )
-                    .build()
+                    .build(),
             )
             .addImport("tech.skot.core.di", "get")
             .build()
             .writeTo(rootDir.resolve("$name/src/androidMain/kotlin"))
-
 
         val initializeView = ClassName("${configuration.appPackage}.di", "initializeView")
         FileSpec.builder(initializeView.packageName, initializeView.simpleName)
@@ -74,7 +72,6 @@ fun StarterGenerator.view() {
             .addImport("com.google.android.material.snackbar", "Snackbar")
             .addImport("android.os", "Build")
             .addImport("tech.skot.core.components", "SKActivity")
-
             .addImport(rootActivityClassName.packageName, rootActivityClassName.simpleName)
             .addFunction(
                 FunSpec.builder(initializeView.simpleName)
@@ -98,19 +95,18 @@ fun StarterGenerator.view() {
                 }
                 show()
             }
-    }"""
-                        )
+    }""",
+                        ),
                     )
-                    .build()
+                    .build(),
             )
             .build()
             .writeTo(rootDir.resolve("$name/src/androidMain/kotlin"))
 
-
-
-
         rootDir.writeStringTo(
-            "$name/src/androidMain/res/values/style.xml", """<?xml version="1.0" encoding="utf-8"?>
+            "$name/src/androidMain/res/values/style.xml",
+            """
+            <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="windowNoTitle">true</item>
@@ -122,11 +118,13 @@ fun StarterGenerator.view() {
         <!--item name="android:windowBackground">@drawable/background_splash</item-->
     </style>
 </resources>            
-""".trimIndent()
+            """.trimIndent(),
         )
 
         rootDir.writeStringTo(
-            "$name/src/androidMain/res/layout/splash.xml", """<?xml version="1.0" encoding="utf-8"?>
+            "$name/src/androidMain/res/layout/splash.xml",
+            """
+            <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -151,15 +149,14 @@ fun StarterGenerator.view() {
         android:text="Skot starter v${Versions.skot}" />
 
 </LinearLayout>           
-""".trimIndent()
+            """.trimIndent(),
         )
-
 
         rootDir.writeStringTo(
             "$name/src/androidMain/res_referenced/values/strings.xml",
             """<?xml version="1.0" encoding="utf-8"?>
 <resources>
-</resources>"""
+</resources>""",
         )
     }.generate()
     modules.add("view")

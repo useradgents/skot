@@ -8,13 +8,12 @@ import kotlinx.coroutines.flow.map
 import kotlin.math.min
 
 interface SKData<D : Any?> {
-
-
     val flow: Flow<DatedData<D>?>
     val defaultValidity: Long
     val _current: DatedData<D>?
 
     suspend fun update(): D
+
     suspend fun fallBackValue(): D?
 
     open suspend fun get(validity: Long? = null): D {
@@ -28,14 +27,13 @@ interface SKData<D : Any?> {
     }
 
     suspend fun getDirect() = _current?.data ?: get(validity = Long.MAX_VALUE)
-
 }
 
 interface SKPaginatedData<D : Any> : SKData<List<D>> {
     suspend fun oneMorePage()
+
     val mayHaveAnotherPage: Boolean
 }
-
 
 @Deprecated("map is the new mapSuspend", ReplaceWith("map(transform)"))
 fun <D : Any?, O : Any?> SKData<D>.mapSuspend(transform: suspend (d: D) -> O): SKData<O> {
@@ -45,9 +43,10 @@ fun <D : Any?, O : Any?> SKData<D>.mapSuspend(transform: suspend (d: D) -> O): S
 fun <D : Any?, O : Any?> SKData<D>.map(transform: suspend (d: D) -> O): SKData<O> {
     return object : SKData<O> {
         override val defaultValidity = this@map.defaultValidity
-        override val flow = this@map.flow.map {
-            it?.let { transformDatedData(it) }
-        }
+        override val flow =
+            this@map.flow.map {
+                it?.let { transformDatedData(it) }
+            }
 
         private var trueCurrent: DatedData<O>? = null
         private var transformedCurrent: DatedData<D>? = null
@@ -60,12 +59,11 @@ fun <D : Any?, O : Any?> SKData<D>.map(transform: suspend (d: D) -> O): SKData<O
                 }
             }
 
-
         private suspend fun transformDatedData(datedData: DatedData<D>) =
             transform(datedData.data).let { transformedValue ->
                 DatedData(
                     data = transformedValue,
-                    timestamp = datedData.timestamp
+                    timestamp = datedData.timestamp,
                 ).also {
                     trueCurrent = it
                     transformedCurrent = datedData
@@ -76,10 +74,11 @@ fun <D : Any?, O : Any?> SKData<D>.map(transform: suspend (d: D) -> O): SKData<O
             val originUpdate = this@map.update()
             return transform(originUpdate).also {
                 trueCurrent = DatedData(it)
-                transformedCurrent = DatedData(
-                    originUpdate,
-                    this@map._current?.timestamp ?: currentTimeMillis()
-                )
+                transformedCurrent =
+                    DatedData(
+                        originUpdate,
+                        this@map._current?.timestamp ?: currentTimeMillis(),
+                    )
             }
         }
 
@@ -94,15 +93,15 @@ fun <D : Any?, O : Any?> SKData<D>.map(transform: suspend (d: D) -> O): SKData<O
             val timestamp = this@map._current?.timestamp ?: currentTimeMillis()
             return transform(toBeTransformedData).also {
                 trueCurrent = DatedData(it, timestamp)
-                transformedCurrent = DatedData(
-                    toBeTransformedData,
-                    timestamp
-                )
+                transformedCurrent =
+                    DatedData(
+                        toBeTransformedData,
+                        timestamp,
+                    )
             }
         }
     }
 }
-
 
 fun <D1 : Any?, D2 : Any?> SKData<D1>.combine(other: SKData<D2>) = combineSKData(this, other)
 
@@ -111,13 +110,11 @@ fun <D1 : Any?, D2 : Any?> combineSKData(
     data2: SKData<D2>,
 ): SKData<Pair<D1, D2>> {
     return object : SKData<Pair<D1, D2>> {
-
         override val defaultValidity: Long by lazy {
             min(data1.defaultValidity, data2.defaultValidity)
         }
         override val _current: DatedData<Pair<D1, D2>>?
             get() = buildPair(data1._current, data2._current)
-
 
         private fun buildPair(
             datedData1: DatedData<D1>?,
@@ -126,7 +123,7 @@ fun <D1 : Any?, D2 : Any?> combineSKData(
             if (datedData1 != null && datedData2 != null) {
                 DatedData(
                     data = Pair(datedData1.data, datedData2.data),
-                    timestamp = min(datedData1.timestamp, datedData2.timestamp)
+                    timestamp = min(datedData1.timestamp, datedData2.timestamp),
                 )
             } else {
                 null
@@ -135,7 +132,7 @@ fun <D1 : Any?, D2 : Any?> combineSKData(
         override val flow: Flow<DatedData<Pair<D1, D2>>?> by lazy {
             combineTransform(
                 data1.flow,
-                data2.flow
+                data2.flow,
             ) { datedDataFlow1, datedDataFlow2 ->
                 buildPair(datedDataFlow1, datedDataFlow2)?.let { emit(it) }
             }
@@ -157,13 +154,15 @@ fun <D1 : Any?, D2 : Any?> combineSKData(
 
         override suspend fun get(validity: Long?): Pair<D1, D2> {
             return coroutineScope {
-                val gettedData1 = async {
-                    data1.get(validity)
-                }
+                val gettedData1 =
+                    async {
+                        data1.get(validity)
+                    }
 
-                val gettedData2 = async {
-                    data2.get(validity)
-                }
+                val gettedData2 =
+                    async {
+                        data2.get(validity)
+                    }
                 Pair(gettedData1.await(), gettedData2.await())
             }
         }
@@ -180,21 +179,18 @@ fun <D1 : Any?, D2 : Any?> combineSKData(
     }
 }
 
-
 fun <D1 : Any?, D2 : Any?, D3 : Any?> combineSKData(
     data1: SKData<D1>,
     data2: SKData<D2>,
     data3: SKData<D3>,
 ): SKData<Triple<D1, D2, D3>> {
     return object : SKData<Triple<D1, D2, D3>> {
-
         override val defaultValidity by lazy {
             min(min(data1.defaultValidity, data2.defaultValidity), data3.defaultValidity)
         }
 
         override val _current: DatedData<Triple<D1, D2, D3>>?
             get() = buildTriple(data1._current, data2._current, data3._current)
-
 
         private fun buildTriple(
             datedData1: DatedData<D1>?,
@@ -204,10 +200,11 @@ fun <D1 : Any?, D2 : Any?, D3 : Any?> combineSKData(
             if (datedData1 != null && datedData2 != null && datedData3 != null) {
                 DatedData(
                     data = Triple(datedData1.data, datedData2.data, datedData3.data),
-                    timestamp = min(
-                        min(datedData1.timestamp, datedData2.timestamp),
-                        datedData3.timestamp
-                    )
+                    timestamp =
+                        min(
+                            min(datedData1.timestamp, datedData2.timestamp),
+                            datedData3.timestamp,
+                        ),
                 )
             } else {
                 null
@@ -217,10 +214,9 @@ fun <D1 : Any?, D2 : Any?, D3 : Any?> combineSKData(
             combineTransform(
                 data1.flow,
                 data2.flow,
-                data3.flow
+                data3.flow,
             ) { datedDataFlow1, datedDataFlow2, datedDataFlow3 ->
                 buildTriple(datedDataFlow1, datedDataFlow2, datedDataFlow3)?.let { emit(it) }
-
             }
         }
 
@@ -244,16 +240,19 @@ fun <D1 : Any?, D2 : Any?, D3 : Any?> combineSKData(
 
         override suspend fun get(validity: Long?): Triple<D1, D2, D3> {
             return coroutineScope {
-                val gettedData1 = async {
-                    data1.get(validity)
-                }
+                val gettedData1 =
+                    async {
+                        data1.get(validity)
+                    }
 
-                val gettedData2 = async {
-                    data2.get(validity)
-                }
-                val gettedData3 = async {
-                    data3.get(validity)
-                }
+                val gettedData2 =
+                    async {
+                        data2.get(validity)
+                    }
+                val gettedData3 =
+                    async {
+                        data3.get(validity)
+                    }
                 Triple(gettedData1.await(), gettedData2.await(), gettedData3.await())
             }
         }
@@ -269,5 +268,4 @@ fun <D1 : Any?, D2 : Any?, D3 : Any?> combineSKData(
             }
         }
     }
-
 }
