@@ -2,6 +2,7 @@ package tech.skot.tools.generation.viewmodel
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import tech.skot.core.components.SKGenerics
 import tech.skot.core.components.SKNoVM
 import tech.skot.tools.generation.AndroidClassNames
 import tech.skot.tools.generation.FrameworkClassNames
@@ -35,12 +36,18 @@ fun Generator.generateViewModelTests() {
         }.writeTo(jvmTestSources(modules.viewmodel))
     }
     components.forEach {
-
+        val isGeneric = it.vc.hasAnnotation<SKGenerics>()
         if (!it.vc.hasAnnotation<SKNoVM>()) {
             it.viewModelTester().fileClassBuilder {
                 primaryConstructor(
                     FunSpec.constructorBuilder()
-                        .addParameter("component", it.viewModel())
+                        .addParameter("component", it.viewModel().let {
+                            if (isGeneric) {
+                                it.parameterizedBy(STAR)
+                            } else {
+                                it
+                            }
+                        })
                         .build()
                 )
                 superclass(
@@ -53,13 +60,22 @@ fun Generator.generateViewModelTests() {
             }.writeTo(generatedJvmTestSources(modules.viewmodel))
         }
         // do not create class with suffix if prefix class already exists
-        if (!it.vc.hasAnnotation<SKNoVM>() && !it.testViewModel().existsJvmTestInModule(modules.viewmodel) && !it.oldTestViewModel().existsJvmTestInModule(modules.viewmodel)) {
+        if (!it.vc.hasAnnotation<SKNoVM>() && !it.testViewModel()
+                .existsJvmTestInModule(modules.viewmodel) && !it.oldTestViewModel()
+                .existsJvmTestInModule(modules.viewmodel)
+        ) {
             it.testViewModel().fileClassBuilder {
                 superclass(abstractTestScreen)
                 val componentVarName = if (it.isScreen) "screen" else "component"
                 addFunction(
                     FunSpec.builder("tester")
-                        .addParameter(componentVarName, it.viewModel())
+                        .addParameter(componentVarName, it.viewModel().let {
+                            if (isGeneric) {
+                                it.parameterizedBy(STAR)
+                            } else {
+                                it
+                            }
+                        })
                         .returns(it.viewModelTester())
                         .addCode("return ${it.viewModelTester().simpleName}($componentVarName)")
                         .build()

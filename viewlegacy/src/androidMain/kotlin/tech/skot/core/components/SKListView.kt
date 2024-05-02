@@ -93,6 +93,7 @@ class SKListView(
                     reverse
                 )
             }
+
             is SKListVC.LayoutMode.Grid -> {
                 recyclerView.layoutManager = GridLayoutManager(
                     context,
@@ -101,6 +102,7 @@ class SKListView(
                     reverse
                 )
             }
+
             SKListVC.LayoutMode.Manual -> {
 
             }
@@ -110,6 +112,7 @@ class SKListView(
             !animate -> {
                 recyclerView.itemAnimator = null
             }
+
             !animateItem -> {
                 (recyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
             }
@@ -151,11 +154,13 @@ class SKListView(
                         0)
                 }
             }
+
             SKListVC.ScrollMode.Visible -> {
                 if (adapter.itemCount > scrollRequest.position) {
                     binding.smoothScrollToPosition(scrollRequest.position)
                 }
             }
+
             SKListVC.ScrollMode.Center -> {
                 (binding.layoutManager as? LinearLayoutManager)?.apply {
                     val centerSmotthScroller = CenterSmoothScroller(recyclerView.context)

@@ -1,4 +1,9 @@
 # Changelog
+
+## Version `1.2.37-ua`
+### feat
+- add generics annotation for generic ViewModel
+
 ## Version `1.2.36-ua`
 ### chore
 - update kotlin
@@ -8,7 +13,7 @@
 ## Version `1.2.35-ua` (`fix 1.2.31-ua`)
 ### fix
 - #### KTLint
-  - ignore Ktlint exit value durintg SkGenerate
+  - ignore Ktlint exit value during SkGenerate
 
 ## Version `1.2.34-ua` (`fix 1.2.31-ua`)
 ### fix
