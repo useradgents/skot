@@ -39,7 +39,8 @@ interface SKWebViewVC : SKComponentVC {
         val shouldOverrideUrlLoading: ((skUri: SKUri) -> Boolean)? = null,
         val onHttpError: ((url : SKUri, statusCode : Int) -> Unit)? = null,
         val onRequest: ((skUri: SKUri) -> Unit)? = null,
-        val onHttpAuthRequest :((host : String?, realm : String?, onProceed : (login : String?, password : String?) -> Unit ) -> Unit)? = null
+        val onHttpAuthRequest :((host : String?, realm : String?, onProceed : (login : String?, password : String?) -> Unit ) -> Unit)? = null,
+        val onWebViewCrash : (() -> Unit)? = null
     )
 
 
