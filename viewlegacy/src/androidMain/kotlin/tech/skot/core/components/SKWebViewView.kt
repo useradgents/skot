@@ -3,6 +3,7 @@ package tech.skot.core.components
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
+import android.view.ViewGroup
 import android.webkit.*
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
@@ -17,13 +18,9 @@ class SKWebViewView(
     override val proxy: SKWebViewViewProxy,
     activity: SKActivity,
     fragment: Fragment?,
-    private val webView: WebView,
+    private var webView: WebView,
 ) : SKComponentView<WebView>(proxy, activity, fragment, webView) {
 
-
-    init {
-        webView.webChromeClient = SKWebChromeClient(activity)
-    }
 
     fun onConfig(config: SKWebViewVC.Config) {
         webView.settings.apply {
@@ -34,6 +31,22 @@ class SKWebViewView(
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             webView.webViewClient = object : WebViewClient() {
+                override fun onRenderProcessGone(
+                    view: WebView?,
+                    detail: RenderProcessGoneDetail?
+                ): Boolean {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        if (view == webView && detail?.didCrash() == true) {
+                            recreateWebView()
+                            return true
+                        } else {
+                            webView.loadUrl("chrome://crash")
+                        }
+                    }
+                    return super.onRenderProcessGone(view, detail)
+                }
+
+
                 override fun shouldOverrideUrlLoading(
                     view: WebView?,
                     request: WebResourceRequest?
@@ -230,6 +243,7 @@ class SKWebViewView(
                         webView.evaluateJavascript(it, null)
                     }
                     super.onPageFinished(view, url)
+
                 }
 
 
@@ -280,6 +294,25 @@ class SKWebViewView(
 
     }
 
+    private fun recreateWebView() {
+        try {
+            val parent = webView.parent as? ViewGroup
+            val params = webView.layoutParams
+            val id = webView.id
+            parent?.removeView(webView)
+            val newWv = WebView(context)
+            parent?.addView(newWv.apply {
+                setId(id)
+                layoutParams = params
+            })
+            webView = newWv
+            onConfig(proxy.config)
+            proxy.config.onWebViewCrash?.invoke()
+        } catch (e : Throwable){
+            SKLog.e(e,"Webview Crash")
+        }
+    }
+
     private var openingUrl: SKWebViewVC.Launch? = null
 
     private var oneRedirectionAskedForCurrentOpenUrl = false
@@ -317,7 +350,7 @@ class SKWebViewView(
     }
 
     private fun SKWebViewVC.Config.httpError(requestedUri: SKUri, errorCode: Int) {
-        launchHttpError(requestedUri, errorCode,this.onHttpError)
+        launchHttpError(requestedUri, errorCode, this.onHttpError)
     }
 
     private fun launchHttpError(
@@ -362,9 +395,9 @@ class SKWebViewView(
         when (launch) {
             is SKWebViewVC.Launch.LoadData -> {
                 if (launch.url != null) {
-                    binding.loadDataWithBaseURL(launch.url, launch.data, null, null, null)
+                    webView.loadDataWithBaseURL(launch.url, launch.data, null, null, null)
                 } else {
-                    binding.loadData(launch.data, null, null)
+                    webView.loadData(launch.data, null, null)
                 }
             }
 
@@ -373,15 +406,15 @@ class SKWebViewView(
                     "${it.key}=${URLEncoder.encode(it.value, "UTF-8")}"
                 }
                     .joinToString(separator = "&")
-                binding.postUrl(launch.url, params.toByteArray())
+                webView.postUrl(launch.url, params.toByteArray())
             }
 
             is SKWebViewVC.Launch.OpenUrl -> {
-                binding.loadUrl(launch.url)
+                webView.loadUrl(launch.url)
             }
 
             is SKWebViewVC.Launch.OpenUrlWithHeader -> {
-                binding.loadUrl(launch.url, launch.headers)
+                webView.loadUrl(launch.url, launch.headers)
             }
         }
     }
