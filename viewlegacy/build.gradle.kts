@@ -13,6 +13,7 @@ plugins {
 dependencies {
     api(libs.core)
     api(libs.appcompat)
+    api(libs.androidx.activity)
     api(libs.constraintlayout)
     api(libs.viewpager2)
     api(libs.recyclerview)

@@ -91,13 +91,15 @@ abstract class SKActivity : AppCompatActivity() {
     }
 
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (launchActivityClass?.isInstance(this) == true) {
             featureInitializer.resetToRoot()
             intent?.data?.toSKUri()?.let { featureInitializer.onDeepLink?.invoke(it, false) }
         }
     }
+
+
 
     var screen: SKScreenView<*>? = null
 

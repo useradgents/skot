@@ -427,7 +427,7 @@ class SKWebViewView(
             fileChooserParams: FileChooserParams?
         ): Boolean {
             activity.fileCallback = filePathCallback
-            activity.fileSelectorCallback.launch(fileChooserParams?.createIntent())
+            fileChooserParams?.createIntent()?.let { activity.fileSelectorCallback.launch(it) }
             return true
         }
 

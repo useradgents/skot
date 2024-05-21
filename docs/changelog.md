@@ -1,5 +1,9 @@
 # Changelog
 
+## Version `1.2.38-ua`
+### chore
+- update libraries
+
 ## Version `1.2.37-ua`
 ### feat
 - add generics annotation for generic ViewModel
