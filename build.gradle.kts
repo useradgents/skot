@@ -28,8 +28,15 @@ tasks.register("clean", Delete::class) {
 tasks.withType<com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask> {
     rejectVersionIf {
         candidate.version.let {
-            it.contains("alpha") || it.contains("beta") || it.contains("-rc")
+            it.lowercase().contains("alpha") || it.lowercase().contains("beta") || it.lowercase().contains("-rc")
         }
+    }
+}
+
+versionCatalogUpdate {
+    sortByKey = true
+    keep {
+        keepUnusedVersions = true
     }
 }
 

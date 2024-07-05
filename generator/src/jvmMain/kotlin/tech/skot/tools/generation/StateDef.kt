@@ -43,6 +43,7 @@ class StateDef(
 
     val isCompositeState: Boolean = kclass.isSubclassOf(SKCompositeStateDef::class)
 
+    @Suppress("UNCHECKED_CAST")
     val compositeParts: List<CompositePartDef> =
         if (isCompositeState) {
             kclass.superclasses.filter { it != SKStateDef::class && it.isSubclassOf(SKStateDef::class) }
@@ -91,7 +92,7 @@ class StateDef(
             throw IllegalStateException("A state need at least one immutable property, if not you don't really need it")
         }
     }
-
+    @Suppress("UNCHECKED_CAST")
     val subStates: List<StateDef> =
         kclass.ownProperties()
             .filter {
@@ -108,7 +109,7 @@ class StateDef(
                     parentsList + this,
                 )
             }
-
+    @Suppress("UNCHECKED_CAST")
     val compositeSubStates: List<StateDef> =
         kclass.ownProperties()
             .filter {

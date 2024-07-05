@@ -1,5 +1,6 @@
 package tech.skot.core.test
 
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.newSingleThreadContext
@@ -16,7 +17,7 @@ import tech.skot.core.di.Module
 import tech.skot.core.di.injector
 import kotlin.test.fail
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
 abstract class SKTestViewModel(vararg modules: Module<InjectorMock>) {
     private val _modules: List<Module<InjectorMock>> = modules.asList()
     private val mainThreadSurrogate = newSingleThreadContext("UI thread")

@@ -170,6 +170,7 @@ fun buildVersionsFile() {
     val file = com.squareup.kotlinpoet.FileSpec.builder("tech.skot", "Versions")
     val classBuilderCommon =
         com.squareup.kotlinpoet.TypeSpec.objectBuilder("Versions")
+            .addKdoc("This code is generated from build.gradle.kts")
             .addStringConst("skot", Versions.version)
             .addStringConst("group", Versions.group)
             .addStringConst("serialization", libs.versions.kotlinx.serialization.get())
@@ -183,6 +184,7 @@ fun buildVersionsFile() {
             .addIntConst("android_targetSdk", libs.versions.android.targetSdk.get().toInt())
             .addStringConst("android_app_compat", libs.versions.appcompat.get())
             .addStringConst("sqldelight", libs.versions.sqldelight.get())
+
 
     file.addType(classBuilderCommon.build())
     file.build().writeTo(rootProject.projectDir.resolve("plugin/src/main/kotlin"))

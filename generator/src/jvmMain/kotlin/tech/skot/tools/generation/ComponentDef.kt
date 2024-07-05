@@ -93,6 +93,7 @@ data class ComponentDef(
     val interfacesImpl = interfaces.map { ClassName(it.packageName, "${it.simpleName}Impl") }
 }
 
+@Suppress("UNCHECKED_CAST")
 fun KClass<out SKComponentVC>.meOrSubComponentHasState(): Boolean =
     nestedClasses.any {
         it.hasAnnotation<SKUIState>()
@@ -101,6 +102,7 @@ fun KClass<out SKComponentVC>.meOrSubComponentHasState(): Boolean =
             it.returnType.isComponent() && (it.returnType.classifier as KClass<out SKComponentVC>).meOrSubComponentHasState()
         }
 
+@Suppress("UNCHECKED_CAST")
 fun KType.vmClassName() =
     (classifier as KClass<out SKComponentVC>).let {
         ClassName(
@@ -149,6 +151,7 @@ data class PropertyDef(
 fun List<PropertyDef>.toFillParams(init: (PropertyDef.() -> String)? = null) =
     map { "${it.name} = ${init?.invoke(it) ?: it.initializer()}" }
 
+@Suppress("UNCHECKED_CAST")
 fun MutableSet<KClass<out SKComponentVC>>.addLinkedComponents(
     aComponentClass: KClass<out SKComponentVC>,
     appPackageName: String,
@@ -202,6 +205,7 @@ fun KClass<out SKComponentVC>.def(): ComponentDef {
         throw IllegalStateException("VC interface $qualifiedName must end with \"VC\"")
     }
 
+    @Suppress("UNCHECKED_CAST")
     return ComponentDef(
         name = simpleName!!.withOut("VC"),
         vc = this,

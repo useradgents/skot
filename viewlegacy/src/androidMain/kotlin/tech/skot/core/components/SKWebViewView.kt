@@ -1,5 +1,6 @@
 package tech.skot.core.components
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
@@ -141,6 +142,7 @@ class SKWebViewView(
                     super.onReceivedError(view, request, error)
                 }
 
+                @Deprecated("Deprecated in Java")
                 @Suppress("deprecation")
                 override fun onReceivedError(
                     view: WebView?,
@@ -184,6 +186,8 @@ class SKWebViewView(
                     super.onReceivedHttpError(view, request, errorResponse)
                 }
 
+                @Suppress("DEPRECATION")
+                @Deprecated("Deprecated in Java")
                 override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
 
                     url?.let { Uri.parse(url).toSKUri() }?.let { skUri ->
@@ -199,8 +203,7 @@ class SKWebViewView(
                         }
 
                         try {
-                            val skUri = Uri.parse(url).toSKUri()
-                            if (skUri != null && activity.featureInitializer.onDeepLink?.invoke(
+                            if (activity.featureInitializer.onDeepLink?.invoke(
                                     skUri,
                                     true
                                 ) == true
@@ -261,6 +264,7 @@ class SKWebViewView(
                     super.onReceivedError(view, request, error)
                 }
 
+                @Deprecated("Deprecated in Java")
                 @Suppress("DEPRECATION")
                 override fun onReceivedError(
                     view: WebView?,
@@ -308,8 +312,8 @@ class SKWebViewView(
             webView = newWv
             onConfig(proxy.config)
             proxy.config.onWebViewCrash?.invoke()
-        } catch (e : Throwable){
-            SKLog.e(e,"Webview Crash")
+        } catch (e: Throwable) {
+            SKLog.e(e, "Webview Crash")
         }
     }
 

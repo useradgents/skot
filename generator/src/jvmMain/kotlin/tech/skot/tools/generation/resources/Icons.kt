@@ -84,11 +84,6 @@ fun Generator.generateIcons() {
             )
             .addParameter("key", String::class)
             .returns(Icon::class.asTypeName().copy(nullable = true))
-            .addAnnotation(
-            AnnotationSpec.builder(ClassName("android.annotation", "SuppressLint"))
-                .addMember("value = [%S]", "DiscouragedApi")
-                .build()
-        )
         .addStatement("val id = applicationContext.resources.getIdentifier(key,\"drawable\",applicationContext.packageName)")
             .beginControlFlow("return if(id > 0)")
             .addStatement("Icon(id)")

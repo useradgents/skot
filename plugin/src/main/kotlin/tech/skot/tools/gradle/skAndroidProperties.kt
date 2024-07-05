@@ -60,20 +60,23 @@ fun TestedExtension.androidBaseConfig(androidProperties: SKAndroidProperties?) {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         targetSdk = Versions.android_compileSdk
     }
-
-    lintOptions {
-        isAbortOnError = false
-    }
 }
+
 
 fun LibraryExtension.androidBaseConfig(project: Project) {
     val androidProperties = project.skReadAndroidProperties()
     androidBaseConfig(androidProperties)
     compileSdk = Versions.android_compileSdk
+    lint {
+        abortOnError = false
+    }
 }
 
 fun BaseAppModuleExtension.androidBaseConfig(project: Project) {
     val androidProperties = project.skReadAndroidProperties()
     androidBaseConfig(androidProperties)
     compileSdk = tech.skot.Versions.android_compileSdk
+    lint {
+        abortOnError = false
+    }
 }

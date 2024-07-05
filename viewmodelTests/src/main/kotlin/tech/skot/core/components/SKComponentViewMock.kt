@@ -24,6 +24,7 @@ abstract class SKComponentViewMock : SKComponentVC {
             displayMessageMessages.filterIsInstance<SKComponentVC.Message.Error>()
                 .map { it.content }
 
+    @Deprecated("Use  SKComponent.displayMessageError(message) or  view.displayMessage(SKComponentVC.Message.Error(message))")
     override fun displayErrorMessage(message: String) {
         displayMessageMessages.add(SKComponentVC.Message.Error(message))
     }

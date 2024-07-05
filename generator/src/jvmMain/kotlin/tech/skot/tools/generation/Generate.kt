@@ -79,6 +79,7 @@ fun buildGenerator(args: Array<String>): Generator {
                 .map { Class.forName(it).kotlin.createInstance() as InitializationPlan }
         }
 
+    @Suppress("UNCHECKED_CAST")
     return Generator(
         appPackage,
         startClass as KClass<SKScreenVC>,

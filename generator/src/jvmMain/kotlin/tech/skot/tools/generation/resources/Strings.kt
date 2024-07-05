@@ -94,11 +94,6 @@ fun Generator.generateStrings() {
                         .build(),
                 )
                 .addParameter("key", String::class)
-                .addAnnotation(
-                    AnnotationSpec.builder(ClassName("android.annotation", "SuppressLint"))
-                        .addMember("value = [%S]", "DiscouragedApi")
-                        .build()
-                )
                 .returns(String::class.asTypeName().copy(nullable = true))
                 .addStatement("val id = applicationContext.resources.getIdentifier(key,\"string\",applicationContext.packageName)")
                 .beginControlFlow("return if(id > 0)")
