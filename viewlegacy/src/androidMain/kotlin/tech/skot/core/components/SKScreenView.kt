@@ -41,6 +41,7 @@ abstract class SKScreenView<B : ViewBinding>(
             if (fragment?.arguments?.getBoolean(ScreensManager.SK_ARGUMENT_CAN_SET_FULL_SCREEN) != false) {
                 activity.setFullScreen(
                     fullScreen,
+                    proxy.statusBarColor,
                     lightStatusBar,
                     onWindowInset ?: (
                         if (withWindowsInsetsPaddingTop) {
@@ -54,7 +55,7 @@ abstract class SKScreenView<B : ViewBinding>(
                 )
             }
         }
-        onStatusBarColor(proxy.statusBarColor)
+       // onStatusBarColor(proxy.statusBarColor)
         proxy.onResume()
     }
 
@@ -68,11 +69,10 @@ abstract class SKScreenView<B : ViewBinding>(
     open val secured: Boolean = false
 
     fun onStatusBarColor(color: Color?) {
-        if (fragment !is DialogFragment) {
-            activity.requestedStatusBarColor = color?.toColor(context)
-            activity.window.statusBarColor =
-                color?.toColor(context) ?: activity.statusBarColor
-        }
+//        if (fragment !is DialogFragment) {
+//            activity.window.statusBarColor =
+//                color?.toColor(context) ?: activity.statusBarColor
+//        }
     }
 
     protected open val withWindowsInsetsPaddingTop: Boolean = false

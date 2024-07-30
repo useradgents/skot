@@ -3,6 +3,7 @@ package tech.skot.core.components
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -12,17 +13,19 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import androidx.activity.BackEventCompat
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import tech.skot.core.SKFeatureInitializer
 import tech.skot.core.SKLog
+import tech.skot.core.toColor
 import tech.skot.core.toSKUri
 import tech.skot.view.SKPermissionAndroid
 import tech.skot.view.SKPermissionsRequestResultAndroid
@@ -99,14 +102,36 @@ abstract class SKActivity : AppCompatActivity() {
 
     var statusBarColor: Int = 0
     var themeWindowLightStatusBar: Boolean = true
-    var requestedStatusBarColor: Int? = null
+     var bgColor : Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
         val typedValue = TypedValue()
         theme.resolveAttribute(android.R.attr.windowLightStatusBar, typedValue, true)
+
         themeWindowLightStatusBar = typedValue.data != 0
+
+        theme.resolveAttribute(android.R.attr.windowBackground,typedValue, true)
+        bgColor = when (typedValue.type) {
+                TypedValue.TYPE_INT_COLOR_ARGB8,
+                TypedValue.TYPE_INT_COLOR_RGB8,
+                TypedValue.TYPE_INT_COLOR_ARGB4,
+                TypedValue.TYPE_INT_COLOR_RGB4 -> {
+                    // Si l'attribut est une couleur, nous retournons la couleur directement
+                    typedValue.data
+                }
+                else -> {
+                    // Sinon, nous essayons de récupérer la couleur à partir de la ressource
+                    try {
+                        ContextCompat.getColor(applicationContext, typedValue.resourceId)
+                    } catch (e: Exception) {
+                        null
+                        Color.TRANSPARENT
+                    }
+                }
+            }
 
         lifecycleScope.launch {
             val alreadyInitialized = featureInitializer.isInitialized()
@@ -156,57 +181,100 @@ abstract class SKActivity : AppCompatActivity() {
                     }
             }
         }
-
-        statusBarColor = window.statusBarColor
     }
 
     private var loadingInsetsCounter: Long = 0L
 
     fun setFullScreen(
         fullScreen: Boolean,
+        statusBarColor: tech.skot.core.view.Color?,
         lightStatusBar: Boolean?,
         onWindowInsets: ((windowInsets: WindowInsetsCompat) -> Unit)? = null,
     ) {
+
         screen?.view?.let {
+
+            val systemBarColor = statusBarColor?.toColor(applicationContext) ?: bgColor ?: Color.TRANSPARENT
+            val systemBarStyle = if(lightStatusBar ?: themeWindowLightStatusBar) SystemBarStyle.light(systemBarColor, systemBarColor)
+            else SystemBarStyle.dark(systemBarColor)
+
             it.post {
-                WindowInsetsControllerCompat(window, it).isAppearanceLightStatusBars =
-                    lightStatusBar ?: themeWindowLightStatusBar
-                WindowCompat.setDecorFitsSystemWindows(window, !fullScreen)
-                loadingInsetsCounter++
-                val loadedInsets = ViewCompat.getRootWindowInsets(it)
-                if (loadedInsets != null) {
-                    it.updatePadding(
-                        bottom =
-                            if (fullScreen) {
-                                loadedInsets.getInsets(
-                                    WindowInsetsCompat.Type.systemBars(),
-                                ).bottom
-                            } else {
-                                0
-                            },
+                if(!fullScreen){
+                    enableEdgeToEdge(
+                        statusBarStyle = systemBarStyle,
+                        navigationBarStyle =  systemBarStyle
                     )
-                    onWindowInsets?.invoke(loadedInsets)
-                    it.requestApplyInsets()
-                } else {
-                    val loadingIndex = loadingInsetsCounter
-                    ViewCompat.setOnApplyWindowInsetsListener(it) { _, windowInsets ->
-                        if (loadingInsetsCounter == loadingIndex) {
-                            ViewCompat.setOnApplyWindowInsetsListener(it, null)
-                            it.updatePadding(
-                                bottom =
-                                    if (fullScreen) {
+
+                    loadingInsetsCounter++
+                    val loadedInsets = ViewCompat.getRootWindowInsets(it)
+                    if (loadedInsets != null) {
+                        it.updatePadding(
+                            bottom = loadedInsets.getInsets(
+                                WindowInsetsCompat.Type.systemBars(),
+                            ).bottom,
+                            top = loadedInsets.getInsets(
+                                WindowInsetsCompat.Type.systemBars(),
+                            ).top
+                        )
+                        onWindowInsets?.invoke(loadedInsets)
+                        it.requestApplyInsets()
+                    } else {
+                        val loadingIndex = loadingInsetsCounter
+                        ViewCompat.setOnApplyWindowInsetsListener(it) { _, windowInsets ->
+                            if (loadingInsetsCounter == loadingIndex) {
+                                ViewCompat.setOnApplyWindowInsetsListener(it, null)
+                                it.updatePadding(
+                                    bottom = windowInsets.getInsets(
+                                        WindowInsetsCompat.Type.systemBars(),
+                                    ).bottom,
+                                    top = windowInsets.getInsets(
+                                        WindowInsetsCompat.Type.systemBars(),
+                                    ).top
+                                )
+                            }
+                            onWindowInsets?.invoke(windowInsets)
+                            it.requestApplyInsets()
+                            windowInsets
+                        }
+                    }
+
+                }else{
+                    enableEdgeToEdge(
+                        statusBarStyle =
+                        if(lightStatusBar ?: themeWindowLightStatusBar) SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)else SystemBarStyle.dark(Color.TRANSPARENT),
+                        navigationBarStyle =  systemBarStyle
+                    )
+                    loadingInsetsCounter++
+                    val loadedInsets = ViewCompat.getRootWindowInsets(it)
+                    if (loadedInsets != null) {
+                        it.updatePadding(
+                            bottom = loadedInsets.getInsets(
+                                    WindowInsetsCompat.Type.systemBars(),
+                                ).bottom,
+                            top = 0
+                        )
+                        onWindowInsets?.invoke(loadedInsets)
+                        it.requestApplyInsets()
+                    } else {
+                        val loadingIndex = loadingInsetsCounter
+                        ViewCompat.setOnApplyWindowInsetsListener(it) { _, windowInsets ->
+                            if (loadingInsetsCounter == loadingIndex) {
+                                ViewCompat.setOnApplyWindowInsetsListener(it, null)
+                                it.updatePadding(
+                                    bottom =
                                         windowInsets.getInsets(
                                             WindowInsetsCompat.Type.systemBars(),
-                                        ).bottom
-                                    } else {
-                                        0
-                                    },
-                            )
+                                        ).bottom,
+                                    top = 0
+                                )
+                            }
+                            onWindowInsets?.invoke(windowInsets)
+                            it.requestApplyInsets()
+                            windowInsets
                         }
-                        onWindowInsets?.invoke(windowInsets)
-                        it.requestApplyInsets()
-                        windowInsets
-                    }
+                }
+
+
                 }
             }
         }

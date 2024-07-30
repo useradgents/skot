@@ -25,9 +25,9 @@ public object Versions {
 
   public const val android_minSdk: Int = 23
 
-  public const val android_compileSdk: Int = 34
+  public const val android_compileSdk: Int = 35
 
-  public const val android_targetSdk: Int = 34
+  public const val android_targetSdk: Int = 35
 
   public const val android_app_compat: String = "1.7.0"
 
