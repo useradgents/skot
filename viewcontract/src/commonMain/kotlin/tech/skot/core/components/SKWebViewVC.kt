@@ -46,8 +46,18 @@ interface SKWebViewVC : SKComponentVC {
         val onHttpError: ((url: SKUri, statusCode: Int) -> Unit)? = null,
         val onRequest: ((skUri: SKUri) -> Unit)? = null,
         val onHttpAuthRequest: ((host: String?, realm: String?, onProceed: (login: String?, password: String?) -> Unit) -> Unit)? = null,
-        val onWebViewCrash : (() -> Unit)? = null
+        val onWebViewCrash : (() -> Unit)? = null,
+        val onPermissionRequested : ((permissions : List<SKWebViewPermissionType>, onResult : (List<SKWebViewPermissionType>) -> Unit ) -> Unit)? = null,
     )
+
+    enum class SKWebViewPermissionType {
+        CAMERA,
+        MICROPHONE,
+        MEDIA,
+        MIDI
+    }
+
+
 
     sealed class Launch() {
         abstract val onFinished: ((title: String?) -> Unit)?

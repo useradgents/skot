@@ -23,7 +23,7 @@ class SKWebViewView(
 
 
     init {
-        webView.webChromeClient = SKWebChromeClient(activity)
+        binding.webChromeClient = SKWebChromeClient(activity, proxy)
     }
 
     fun onConfig(config: SKWebViewVC.Config) {
@@ -453,7 +453,28 @@ class SKWebViewView(
         }
 
 
-    open class SKWebChromeClient(private val activity: SKActivity) : WebChromeClient() {
+    open class SKWebChromeClient(private val activity: SKActivity, val proxy : SKWebViewViewProxy) : WebChromeClient() {
+        var currentRequest : PermissionRequest? = null
+
+        fun String.toSKWebViewPermissionType() : SKWebViewVC.SKWebViewPermissionType?{
+            return when(this) {
+                PermissionRequest.RESOURCE_MIDI_SYSEX -> SKWebViewVC.SKWebViewPermissionType.MIDI
+                PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID -> SKWebViewVC.SKWebViewPermissionType.MEDIA
+                PermissionRequest.RESOURCE_VIDEO_CAPTURE -> SKWebViewVC.SKWebViewPermissionType.CAMERA
+                PermissionRequest.RESOURCE_AUDIO_CAPTURE -> SKWebViewVC.SKWebViewPermissionType.MICROPHONE
+                else -> null
+            }
+        }
+
+        fun SKWebViewVC.SKWebViewPermissionType.toWebkitString() : String{
+            return when(this) {
+                SKWebViewVC.SKWebViewPermissionType.CAMERA ->  PermissionRequest.RESOURCE_VIDEO_CAPTURE
+                SKWebViewVC.SKWebViewPermissionType.MICROPHONE ->  PermissionRequest.RESOURCE_AUDIO_CAPTURE
+                SKWebViewVC.SKWebViewPermissionType.MEDIA -> PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID
+                SKWebViewVC.SKWebViewPermissionType.MIDI -> PermissionRequest.RESOURCE_MIDI_SYSEX
+            }
+        }
+
         override fun onShowFileChooser(
             webView: WebView?,
             filePathCallback: ValueCallback<Array<Uri>>?,
@@ -467,6 +488,28 @@ class SKWebViewView(
         override fun getDefaultVideoPoster(): Bitmap? {
             return Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
         }
+
+        override fun onPermissionRequest(request: PermissionRequest?) {
+            request?.let {
+                currentRequest = it
+                proxy.config.onPermissionRequested?.invoke(it.resources.mapNotNull {
+                    it.toSKWebViewPermissionType()
+                }){
+
+                    val permissions = it.map {
+                        it.toWebkitString()
+                    }
+
+                    if(permissions.isEmpty()){
+                        currentRequest?.deny()
+                    }else {
+                        currentRequest?.grant(permissions.toTypedArray())
+                    }
+                    currentRequest = null
+                }
+            }
+        }
+
     }
 
 

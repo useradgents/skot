@@ -1,5 +1,28 @@
 # Changelog
 
+## Version `1.3.2-ua`
+
+### feat
+
+- add permissionRequestedConfig to SkWebView
+
+## Version `1.3.1-ua`
+
+### chore
+
+- update to android API 35
+
+## Version `1.3.0-ua`
+
+### chore
+
+- update to kotlin 2
+
+## Version `1.2.39-ua`
+
+### FIX
+- add the possibility to do something via the config webview content crash
+
 ## Version `1.2.38-ua`
 
 ### chore
