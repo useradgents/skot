@@ -73,4 +73,8 @@ abstract class SKScreen<V : SKScreenVC> : SKComponent<SKScreenVC>(), SKVisiblity
     fun kill() {
         SKRootStack.state = SKStack.State(emptyList())
     }
+
+    fun exit() {
+        view.exit()
+    }
 }

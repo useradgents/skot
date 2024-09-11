@@ -1,5 +1,7 @@
 package tech.skot.core.components
 
+import android.app.ActivityManager
+import android.content.Context
 import android.view.View
 import android.view.WindowManager
 import androidx.annotation.CallSuper
@@ -73,6 +75,15 @@ abstract class SKScreenView<B : ViewBinding>(
 //            activity.window.statusBarColor =
 //                color?.toColor(context) ?: activity.statusBarColor
 //        }
+    }
+
+    fun onExit() {
+        val am = activity.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager?
+        val appTasks = am?.getAppTasks()
+        if (appTasks?.isNotEmpty() == true) {
+            val appTask = appTasks[0]
+            appTask.finishAndRemoveTask()
+        }
     }
 
     protected open val withWindowsInsetsPaddingTop: Boolean = false

@@ -9,6 +9,7 @@ import androidx.viewbinding.ViewBinding
 import tech.skot.core.view.Color
 import tech.skot.core.view.Style
 import tech.skot.view.live.MutableSKLiveData
+import tech.skot.view.live.SKMessage
 
 abstract class SKScreenViewProxy<B : ViewBinding> : SKComponentViewProxy<B>(), SKScreenVC {
     protected abstract val visibilityListener: SKVisiblityListener
@@ -54,6 +55,9 @@ abstract class SKScreenViewProxy<B : ViewBinding> : SKComponentViewProxy<B>(), S
             }
             statusBarColorLD.observe {
                 onStatusBarColor(it)
+            }
+            exitMessage.observe {
+                onExit()
             }
         }
     }
@@ -110,5 +114,11 @@ abstract class SKScreenViewProxy<B : ViewBinding> : SKComponentViewProxy<B>(), S
     @CallSuper
     open fun onPause() {
         visibilityListener.onPause()
+    }
+
+    protected val exitMessage = SKMessage<Unit>()
+
+    override fun exit() {
+        exitMessage.post(Unit)
     }
 }

@@ -1,5 +1,10 @@
 # Changelog
 
+## Version `1.3.3-ua`
+
+### feat
+- add exit() function on SKScreen to kill the Application
+
 ## Version `1.3.2-ua`
 
 ### feat

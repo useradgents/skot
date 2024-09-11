@@ -10,6 +10,9 @@ open class SKScreenViewMock : SKComponentViewMock(), SKScreenVC {
     }
 
     override var statusBarColor: Color? = null
+    override fun exit() {
+        // Do Nothing
+    }
 }
 
 fun SKScreenVC.backPressed() {
