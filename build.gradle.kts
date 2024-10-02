@@ -1,3 +1,4 @@
+
 buildscript {
     repositories {
         google()
@@ -15,10 +16,15 @@ group = Versions.group
 version = Versions.version
 
 plugins {
-    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
-    id("com.github.ben-manes.versions") version "0.42.0"
-    id("nl.littlerobots.version-catalog-update") version "0.8.4"
-    id("org.sonarqube").version("4.4.1.3373")
+    //id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
+    //id("com.github.ben-manes.versions") version "0.42.0"
+    //id("nl.littlerobots.version-catalog-update") version "0.8.4"
+    alias(libs.plugins.versionCatalogUpdate)
+    alias(libs.plugins.sonarqube)
+    alias(libs.plugins.benmanesVersion)
+    alias(libs.plugins.kotlin.serialization).apply(false)
+    alias(libs.plugins.sqldelight).apply(false)
+    //id("org.sonarqube").version("4.4.1.3373")
 }
 
 tasks.register("clean", Delete::class) {

@@ -4,8 +4,8 @@ import java.util.Locale
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
-    id("kotlinx-serialization")
-    id("com.squareup.sqldelight")
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.sqldelight)
     id("maven-publish")
     signing
 }

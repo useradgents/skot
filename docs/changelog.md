@@ -1,5 +1,10 @@
 # Changelog
 
+## Version `1.3.4-ua`
+
+### chore
+- update libraries + kotlin
+
 ## Version `1.3.3-ua`
 
 ### feat

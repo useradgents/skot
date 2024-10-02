@@ -4,9 +4,9 @@ version = Versions.version
 plugins {
     `kotlin-dsl`
     `java-gradle-plugin`
-    id("kotlinx-serialization")
+    alias(libs.plugins.kotlin.serialization)
     id("maven-publish")
-    id("com.gradle.plugin-publish") version "0.21.0"
+    // id("com.gradle.plugin-publish") version "1.3.0"
     signing
 }
 
@@ -31,12 +31,12 @@ dependencies {
 
 val gradlePortal = false
 
-pluginBundle {
-    website = "https://github.com/skot-framework/skot"
-    vcsUrl = "https://github.com/skot-framework/skot/tree/master"
-    tags = listOf("skot", "kotlin", "kmm")
-    //mavenCoordinates { }
-}
+//pluginBundle {
+//    website = "https://github.com/skot-framework/skot"
+//    vcsUrl = "https://github.com/skot-framework/skot/tree/master"
+//    tags = listOf("skot", "kotlin", "kmm")
+//    //mavenCoordinates { }
+//}
 
 gradlePlugin {
     plugins {
@@ -184,6 +184,9 @@ fun buildVersionsFile() {
             .addIntConst("android_targetSdk", libs.versions.android.targetSdk.get().toInt())
             .addStringConst("android_app_compat", libs.versions.appcompat.get())
             .addStringConst("sqldelight", libs.versions.sqldelight.get())
+            .addStringConst("desugaring", libs.versions.desugar.get())
+            .addStringConst("leakcanary", libs.versions.leakcanary.get())
+            .addStringConst("ktlint", libs.versions.ktlint.get())
 
 
     file.addType(classBuilderCommon.build())
