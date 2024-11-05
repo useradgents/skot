@@ -1,8 +1,35 @@
 package tech.skot.core.di
 
-import tech.skot.core.components.*
-import tech.skot.core.components.inputs.*
-import tech.skot.core.components.presented.*
+import tech.skot.core.components.SKBoxViewProxy
+import tech.skot.core.components.SKComponentVC
+import tech.skot.core.components.SKComponentViewProxy
+import tech.skot.core.components.SKFrameViewProxy
+import tech.skot.core.components.SKListVC
+import tech.skot.core.components.SKListViewProxy
+import tech.skot.core.components.SKLoaderViewProxy
+import tech.skot.core.components.SKPagerVC
+import tech.skot.core.components.SKPagerViewProxy
+import tech.skot.core.components.SKPagerWithTabsVC
+import tech.skot.core.components.SKPagerWithTabsViewProxy
+import tech.skot.core.components.SKRootStackViewProxy
+import tech.skot.core.components.SKScreenVC
+import tech.skot.core.components.SKScreenViewProxy
+import tech.skot.core.components.SKStackViewProxy
+import tech.skot.core.components.SKWebViewVC
+import tech.skot.core.components.SKWebViewViewProxy
+import tech.skot.core.components.inputs.SKButtonViewProxy
+import tech.skot.core.components.inputs.SKComboVC
+import tech.skot.core.components.inputs.SKComboViewProxy
+import tech.skot.core.components.inputs.SKImageButtonViewProxy
+import tech.skot.core.components.inputs.SKInputVC
+import tech.skot.core.components.inputs.SKInputViewProxy
+import tech.skot.core.components.inputs.SKInputWithSuggestionsViewProxy
+import tech.skot.core.components.inputs.SKSimpleInputViewProxy
+import tech.skot.core.components.presented.SKAlertViewProxy
+import tech.skot.core.components.presented.SKBottomSheetViewProxy
+import tech.skot.core.components.presented.SKDialogViewProxy
+import tech.skot.core.components.presented.SKSnackBarViewProxy
+import tech.skot.core.components.presented.SKWindowPopupViewProxy
 import tech.skot.core.view.Icon
 import tech.skot.core.view.Style
 import tech.skot.viewlegacy.R
@@ -54,8 +81,9 @@ class CoreViewInjectorImpl : CoreViewInjector {
         layoutMode: SKListVC.LayoutMode,
         reverse: Boolean,
         animate: Boolean,
-        animateItem: Boolean
-    ) = SKListViewProxy(layoutMode, reverse, animate, animateItem)
+        animateItem: Boolean,
+        infiniteScroll: Boolean
+    ) = SKListViewProxy(layoutMode, reverse, animate, animateItem, infiniteScroll)
 
     override fun skBox(itemsInitial: List<SKComponentVC>, hiddenInitial: Boolean?) =
         SKBoxViewProxy(itemsInitial as List<SKComponentViewProxy<*>>, hiddenInitial)

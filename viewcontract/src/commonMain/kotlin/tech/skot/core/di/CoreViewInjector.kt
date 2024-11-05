@@ -1,8 +1,26 @@
 package tech.skot.core.di
 
-import tech.skot.core.components.*
-import tech.skot.core.components.inputs.*
-import tech.skot.core.components.presented.*
+import tech.skot.core.components.SKBoxVC
+import tech.skot.core.components.SKComponentVC
+import tech.skot.core.components.SKFrameVC
+import tech.skot.core.components.SKListVC
+import tech.skot.core.components.SKLoaderVC
+import tech.skot.core.components.SKPagerVC
+import tech.skot.core.components.SKPagerWithTabsVC
+import tech.skot.core.components.SKScreenVC
+import tech.skot.core.components.SKStackVC
+import tech.skot.core.components.SKWebViewVC
+import tech.skot.core.components.inputs.SKButtonVC
+import tech.skot.core.components.inputs.SKComboVC
+import tech.skot.core.components.inputs.SKImageButtonVC
+import tech.skot.core.components.inputs.SKInputVC
+import tech.skot.core.components.inputs.SKInputWithSuggestionsVC
+import tech.skot.core.components.inputs.SKSimpleInputVC
+import tech.skot.core.components.presented.SKAlertVC
+import tech.skot.core.components.presented.SKBottomSheetVC
+import tech.skot.core.components.presented.SKDialogVC
+import tech.skot.core.components.presented.SKSnackBarVC
+import tech.skot.core.components.presented.SKWindowPopupVC
 import tech.skot.core.view.Icon
 
 interface CoreViewInjector {
@@ -32,6 +50,7 @@ interface CoreViewInjector {
         reverse: Boolean,
         animate: Boolean,
         animateItem: Boolean,
+        infiniteScroll: Boolean,
     ): SKListVC
 
     fun skBox(itemsInitial: List<SKComponentVC>, hiddenInitial: Boolean?): SKBoxVC

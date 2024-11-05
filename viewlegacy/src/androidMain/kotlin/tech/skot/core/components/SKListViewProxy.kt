@@ -11,7 +11,8 @@ open class SKListViewProxy(
     private val layoutMode: SKListVC.LayoutMode = SKListVC.LayoutMode.Linear(true),
     private val reverse: Boolean = false,
     private val animate: Boolean = true,
-    private val animateItem: Boolean = false
+    private val animateItem: Boolean = false,
+    private val infiniteScroll: Boolean = false,
 ) : SKComponentViewProxy<RecyclerView>(), SKListVC {
 
     private val itemsLD: MutableSKLiveData<List<Triple<SKComponentViewProxy<*>, Any, (()->Unit)?>>> = MutableSKLiveData(emptyList())
@@ -38,7 +39,7 @@ open class SKListViewProxy(
     override val layoutId = R.layout.sk_list
 
     override fun bindTo(activity: SKActivity, fragment: Fragment?, binding: RecyclerView) =
-            SKListView(layoutMode, reverse, animate, animateItem, this, activity, fragment, binding).apply {
+            SKListView(layoutMode, reverse, animate, animateItem, infiniteScroll, this, activity, fragment, binding).apply {
                 itemsLD.observe {
                     onItems(it)
                 }
