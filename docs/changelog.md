@@ -1,5 +1,10 @@
 # Changelog
 
+## Version `1.3.5-ua`
+
+### feat
+- add infinite scroll on recyclerview
+
 ## Version `1.3.4-ua`
 
 ### chore

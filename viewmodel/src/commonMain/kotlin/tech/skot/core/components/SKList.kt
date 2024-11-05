@@ -8,6 +8,7 @@ import tech.skot.core.di.coreViewInjector
  * @param reverse [Boolean] direction of the list
  * @param animate [Boolean]
  * @param animateItem [Boolean]
+ * @param infiniteScroll [Boolean]
  *
  */
 open class SKList(
@@ -15,10 +16,11 @@ open class SKList(
     reverse: Boolean = false,
     animate: Boolean = true,
     animateItem: Boolean = false,
+    infiniteScroll: Boolean = false,
 ) : SKComponent<SKListVC>() {
     constructor(vertical: Boolean) : this(layoutMode = SKListVC.LayoutMode.Linear(vertical = vertical))
 
-    override val view = coreViewInjector.skList(layoutMode, reverse, animate, animateItem)
+    override val view = coreViewInjector.skList(layoutMode, reverse, animate, animateItem, infiniteScroll)
 
     var items: List<SKComponent<*>> = emptyList()
         set(value) {

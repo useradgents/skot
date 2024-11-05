@@ -5,7 +5,13 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.*
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import tech.skot.core.SKLog
 
 class SKListView(
@@ -13,11 +19,17 @@ class SKListView(
     reverse: Boolean,
     animate: Boolean,
     animateItem: Boolean,
+    val infiniteScroll: Boolean,
     proxy: SKListViewProxy,
     activity: SKActivity,
     fragment: Fragment?,
     private val recyclerView: RecyclerView,
 ) : SKComponentView<RecyclerView>(proxy, activity, fragment, recyclerView) {
+
+    interface SKListViewInterface {
+        fun getRealItemCount(): Int
+    }
+
     inner class ViewHolder(idLayout: Int, parent: ViewGroup) : RecyclerView.ViewHolder(
         LayoutInflater.from(parent.context).inflate(idLayout, parent, false),
     ) {
@@ -25,23 +37,27 @@ class SKListView(
         var componentView: SKComponentView<*>? = null
     }
 
-    inner class Adapter : RecyclerView.Adapter<ViewHolder>() {
+    inner class Adapter : RecyclerView.Adapter<ViewHolder>(), SKListViewInterface {
+
         override fun onCreateViewHolder(
             parent: ViewGroup,
             viewType: Int,
         ) = ViewHolder(viewType, parent)
 
-        override fun getItemViewType(position: Int) =
-            items[position].first.layoutId
-                ?: throw IllegalStateException("${items[position].first::class.simpleName} can't be in a recyclerview")
+        override fun getItemViewType(position: Int): Int {
+            val truePosition = getPosition(position)
+            return items[truePosition].first.layoutId
+                ?: throw IllegalStateException("${items[truePosition].first::class.simpleName} can't be in a recyclerview")
+        }
 
-        override fun getItemCount() = items.size
+        override fun getItemCount() = if (infiniteScroll) Int.MAX_VALUE else items.size
 
         override fun onBindViewHolder(
             holder: ViewHolder,
             position: Int,
         ) {
-            items[position].let { proxy ->
+            val truePosition = getPosition(position)
+            items[truePosition].let { proxy ->
                 val componentViewImpl =
                     proxy.first.bindToItemView(activity, fragment, holder.itemView)
                 holder.componentView = componentViewImpl
@@ -53,10 +69,22 @@ class SKListView(
             }
         }
 
+        private fun getPosition(position: Int): Int {
+            return if (infiniteScroll) {
+                position % items.size
+            } else {
+                position
+            }
+        }
+
         override fun onViewRecycled(holder: ViewHolder) {
             super.onViewRecycled(holder)
             holder.componentView?.onRecycle()
             holder.componentView = null
+        }
+
+        override fun getRealItemCount(): Int {
+            return items.size
         }
     }
 
@@ -150,7 +178,8 @@ class SKListView(
                 binding.post {
                     (binding.layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(
                         scrollRequest.position,
-                        0,
+                        0
+                    ,
                     )
                 }
             }
