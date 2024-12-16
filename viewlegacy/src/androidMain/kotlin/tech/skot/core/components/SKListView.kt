@@ -50,7 +50,10 @@ class SKListView(
                 ?: throw IllegalStateException("${items[truePosition].first::class.simpleName} can't be in a recyclerview")
         }
 
-        override fun getItemCount() = if (infiniteScroll) Int.MAX_VALUE else items.size
+        override fun getItemCount() = when {
+            infiniteScroll && items.size > 1 -> Int.MAX_VALUE
+            else -> items.size
+        }
 
         override fun onBindViewHolder(
             holder: ViewHolder,
@@ -70,10 +73,9 @@ class SKListView(
         }
 
         private fun getPosition(position: Int): Int {
-            return if (infiniteScroll) {
-                position % items.size
-            } else {
-                position
+            return when {
+                infiniteScroll && items.size > 1 -> position % items.size
+                else -> position
             }
         }
 
@@ -107,9 +109,14 @@ class SKListView(
                     mapProxyIndexComponentViewImpl.remove(proxy.first)
                 }
             }
-            val diffCallBack = DiffCallBack(field, newVal)
-            field = newVal
-            DiffUtil.calculateDiff(diffCallBack, true).dispatchUpdatesTo(adapter)
+            if (!infiniteScroll) {
+                val diffCallBack = DiffCallBack(field, newVal)
+                field = newVal
+                DiffUtil.calculateDiff(diffCallBack, true).dispatchUpdatesTo(adapter)
+            } else {
+                field = newVal
+                adapter.notifyDataSetChanged() //TODO necessary on infinite scroll with 1 item
+            }
         }
 
     init {

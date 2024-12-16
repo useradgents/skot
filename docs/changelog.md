@@ -1,5 +1,11 @@
 # Changelog
 
+## Version `1.3.6-ua`
+
+### fix
+
+- disable infinite scroll if only one image in gallery
+
 ## Version `1.3.5-ua`
 
 ### feat
