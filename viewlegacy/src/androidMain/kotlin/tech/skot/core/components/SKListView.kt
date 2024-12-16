@@ -48,7 +48,10 @@ class SKListView(
                 ?: throw IllegalStateException("${items[truePosition].first::class.simpleName} can't be in a recyclerview")
         }
 
-        override fun getItemCount() = if (infiniteScroll) Int.MAX_VALUE else items.size
+        override fun getItemCount() = when {
+            infiniteScroll && items.size > 1 -> Int.MAX_VALUE
+            else -> items.size
+        }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val truePosition = getPosition(position)
@@ -65,10 +68,9 @@ class SKListView(
         }
 
         private fun getPosition(position: Int): Int {
-            return if (infiniteScroll) {
-                position % items.size
-            } else {
-                position
+            return when {
+                infiniteScroll && items.size > 1 -> position % items.size
+                else -> position
             }
         }
 
