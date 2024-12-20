@@ -105,9 +105,14 @@ class SKListView(
                     mapProxyIndexComponentViewImpl.remove(proxy.first)
                 }
             }
-            val diffCallBack = DiffCallBack(field, newVal)
-            field = newVal
-            DiffUtil.calculateDiff(diffCallBack, true).dispatchUpdatesTo(adapter)
+            if (!infiniteScroll) {
+                val diffCallBack = DiffCallBack(field, newVal)
+                field = newVal
+                DiffUtil.calculateDiff(diffCallBack, true).dispatchUpdatesTo(adapter)
+            } else {
+                field = newVal
+                adapter.notifyDataSetChanged() //TODO necessary on infinite scroll with 1 item
+            }
         }
 
 

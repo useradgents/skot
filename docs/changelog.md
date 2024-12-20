@@ -1,5 +1,11 @@
 # Changelog
 
+## Version `1.2.42-ua`
+
+### fix
+
+- fix infinite scroll crash in list with 1 item
+
 ## Version `1.2.38-ua`
 
 ### chore
