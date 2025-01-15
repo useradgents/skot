@@ -209,6 +209,7 @@ class CoreViewInjectorMock : CoreViewInjector {
         hiddenInitial: Boolean?,
         dropDownDisplayedInitial: Boolean,
         onInputText: (input: String?) -> Unit,
+        onFocusChange: ((hasFocus:Boolean) -> Unit)?,
         oldSchoolModeHint: Boolean
     ): SKInputWithSuggestionsVC {
         return SKInputWithSuggestionsViewMock(
@@ -221,6 +222,7 @@ class CoreViewInjectorMock : CoreViewInjector {
             hiddenInitial,
             dropDownDisplayedInitial,
             onInputText,
+            onFocusChange,
             oldSchoolModeHint
         )
     }

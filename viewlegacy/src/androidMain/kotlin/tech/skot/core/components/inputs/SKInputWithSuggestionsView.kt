@@ -26,6 +26,13 @@ class SKInputWithSuggestionsView(
 
     private var watching: TextWatcher? = null
 
+    fun onOnFocusChange(onFocusChange: ((hasFocus:Boolean) -> Unit)?) {
+        if (onFocusChange != null) {
+            autoComplete.setOnFocusChangeListener { _, hasFocus ->
+                onFocusChange.invoke(hasFocus)
+            }
+        }
+    }
 
     fun onOnInputText(onInputText: (String?) -> Unit) {
         val watcher = object : TextWatcher {

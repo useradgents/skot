@@ -1,4 +1,3 @@
-
 package tech.skot.core.components.inputs
 
 import android.text.InputType
@@ -114,6 +113,7 @@ abstract class SKCommonComboView<Binding : Any>(
     fun onError(error: String?) {
         inputLayout.error = error
     }
+
 
     protected var lockSelectedReaction = false
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## Version `1.2.43-ua`
+
+- add onFocus and onFocusLost to SKInputWithSuggestions
+
 ## Version `1.2.42-ua`
 
 ### fix

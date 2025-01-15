@@ -20,6 +20,7 @@ class SKInputWithSuggestionsViewProxy(
     hiddenInitial: Boolean? = null,
     dropDownDisplayedInitial: Boolean = false,
     override val onInputText: (input: String?) -> Unit,
+    val onFocusChange: ((hasFocus:Boolean) -> Unit)? = null,
     override val oldSchoolModeHint: Boolean = false
 ) : SKCommonComboViewProxy<SkInputWithSuggestionsBinding>(
     hint,
@@ -59,6 +60,7 @@ class SKInputWithSuggestionsViewProxy(
     ) = SKInputWithSuggestionsView(this, activity, fragment, binding).apply {
         bind()
         onOnInputText(onInputText)
+        onOnFocusChange(onFocusChange)
         requestFocusMessage.observe {
             requestFocus()
         }

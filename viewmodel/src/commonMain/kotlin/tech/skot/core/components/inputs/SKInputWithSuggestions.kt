@@ -4,7 +4,7 @@ import tech.skot.core.di.coreViewInjector
 import tech.skot.core.view.Color
 
 
-class SKInputWithSuggestions<D : Any?>(
+open class SKInputWithSuggestions<D : Any?>(
     hint: String? = null,
     errorInitial: String? = null,
     initialChoices: List<D> = emptyList(),
@@ -34,8 +34,22 @@ class SKInputWithSuggestions<D : Any?>(
         hiddenInitial = null,
         onInputText = onInputText,
         dropDownDisplayedInitial = false,
-        oldSchoolModeHint = oldSchoolModeHint
+        oldSchoolModeHint = oldSchoolModeHint,
+        onFocusChange = {
+                if (it) {
+                    onFocus()
+                } else {
+                    onFocusLost()
+                }
+            },
     )
+
+    protected open fun onFocus() {
+    }
+
+    protected open fun onFocusLost() {
+
+    }
 
 
 }
