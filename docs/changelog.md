@@ -44,6 +44,16 @@
 
 - update to kotlin 2
 
+## Version `1.2.43-ua`
+
+- add onFocus and onFocusLost to SKInputWithSuggestions
+
+## Version `1.2.42-ua`
+
+### fix
+
+- fix infinite scroll crash in list with 1 item
+
 ## Version `1.2.39-ua`
 
 ### FIX

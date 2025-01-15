@@ -117,6 +117,7 @@ abstract class SKCommonComboView<Binding : Any>(
         inputLayout.error = error
     }
 
+
     protected var lockSelectedReaction = false
 
     fun onOnSelected(onSelected: ((data: Any?) -> Unit)?) {

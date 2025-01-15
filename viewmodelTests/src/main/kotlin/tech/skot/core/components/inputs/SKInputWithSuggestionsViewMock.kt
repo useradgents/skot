@@ -12,6 +12,7 @@ class SKInputWithSuggestionsViewMock(
     hiddenInitial: Boolean?,
     dropDownDisplayedInitial: Boolean,
     onInputText: (input: String?) -> Unit,
+    onFocusChange: ((hasFocus:Boolean) -> Unit)?,
     override val oldSchoolModeHint: Boolean,
 ) : SKComponentViewMock(), SKInputWithSuggestionsVC {
     override val onInputText: (input: String?) -> Unit = onInputText

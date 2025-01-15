@@ -127,6 +127,7 @@ interface CoreViewInjector {
         hiddenInitial: Boolean?,
         dropDownDisplayedInitial: Boolean,
         onInputText: (input: String?) -> Unit,
+        onFocusChange: ((hasFocus: Boolean) -> Unit)?,
         oldSchoolModeHint: Boolean,
     ): SKInputWithSuggestionsVC
 

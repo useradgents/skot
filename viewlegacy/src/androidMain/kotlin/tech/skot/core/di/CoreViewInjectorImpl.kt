@@ -188,6 +188,7 @@ class CoreViewInjectorImpl : CoreViewInjector {
         hiddenInitial: Boolean?,
         dropDownDisplayedInitial: Boolean,
         onInputText: (input: String?) -> Unit,
+        onFocusChange: ((hasFocus:Boolean) -> Unit)?,
         oldSchoolModeHint: Boolean,
     ) = SKInputWithSuggestionsViewProxy(
         hint = hint,
@@ -199,6 +200,7 @@ class CoreViewInjectorImpl : CoreViewInjector {
         hiddenInitial = hiddenInitial,
         dropDownDisplayedInitial = dropDownDisplayedInitial,
         onInputText = onInputText,
+        onFocusChange = onFocusChange,
         oldSchoolModeHint = oldSchoolModeHint,
     )
 
