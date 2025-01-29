@@ -1,5 +1,10 @@
 # Changelog
 
+## Version `1.3.7-ua`
+
+### chore
+- update libraries + kotlin
+
 ## Version `1.3.6-ua`
 
 ### fix

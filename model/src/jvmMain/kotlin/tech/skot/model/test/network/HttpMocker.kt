@@ -3,6 +3,7 @@ package tech.skot.model.test.network
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import io.ktor.utils.io.readText
 import tech.skot.core.SKLog
 import tech.skot.model.test.network.HttpResponse.Companion._404
 import kotlin.test.assertEquals
