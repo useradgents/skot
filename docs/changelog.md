@@ -1,5 +1,9 @@
 # Changelog
 
+## Version `1.3.8-ua`
+### fix
+- Center Snackbar horizontally 
+
 ## Version `1.3.7-ua`
 
 ### chore

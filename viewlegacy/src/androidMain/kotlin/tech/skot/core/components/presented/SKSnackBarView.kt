@@ -137,7 +137,7 @@ class SKSnackBarView(
                             SKSnackBarVC.Position.TopWithInsetMargin -> {
                                 view.apply {
                                     (layoutParams as? FrameLayout.LayoutParams)?.let {
-                                        it.gravity = Gravity.TOP
+                                        it.gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
                                         it.topMargin =
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                                                 baseView.rootWindowInsets?.getInsets(WindowInsets.Type.systemBars())?.top
@@ -155,7 +155,7 @@ class SKSnackBarView(
                             SKSnackBarVC.Position.TopWithInsetPadding -> {
                                 view.apply {
                                     (layoutParams as? FrameLayout.LayoutParams)?.let {
-                                        it.gravity = Gravity.TOP
+                                        it.gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
                                         view.setPadding(
                                             view.paddingLeft,
                                             view.paddingTop + (
@@ -179,7 +179,7 @@ class SKSnackBarView(
                             is SKSnackBarVC.Position.TopWithCustomMargin -> {
                                 view.apply {
                                     (layoutParams as? FrameLayout.LayoutParams)?.let {
-                                        it.gravity = Gravity.TOP
+                                        it.gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
                                         it.topMargin = position.margin.toPx.toInt()
                                         layoutParams = it
                                     }
