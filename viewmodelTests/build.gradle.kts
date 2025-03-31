@@ -1,5 +1,4 @@
 plugins {
-    id("java-library")
     kotlin("multiplatform")
     id("maven-publish")
     signing
@@ -9,7 +8,8 @@ group = Versions.group
 version = Versions.version
 
 kotlin {
-    jvm("jvm")
+    jvm("jvm"){
+    }
 
     sourceSets {
         val jvmMain by getting {
