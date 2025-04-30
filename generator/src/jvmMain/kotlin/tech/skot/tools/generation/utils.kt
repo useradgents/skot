@@ -19,6 +19,23 @@ class ParamInfos(
     val default: String? = null,
 )
 
+internal fun FileSpec.Builder.suppressWarningTypes(types: List<String>) {
+    suppressWarningTypes(*types.toTypedArray())
+}
+
+internal fun FileSpec.Builder.suppressWarningTypes(vararg types: String) {
+    if (types.isEmpty()) {
+        return
+    }
+
+    val format = "%S,".repeat(types.size).trimEnd(',')
+    addAnnotation(
+        AnnotationSpec.builder(ClassName("", "Suppress"))
+            .addMember(format, *types)
+            .build()
+    )
+}
+
 fun TypeSpec.Builder.addPrimaryConstructorWithParams(vals: List<ParamInfos>): TypeSpec.Builder {
     primaryConstructor(
         FunSpec.constructorBuilder()
@@ -84,6 +101,7 @@ fun String.fullNameAsClassName() = ClassName(substring(0, lastIndexOf('.')), sub
 
 fun ClassName.fileClassBuilder(
     imports: List<ClassName> = emptyList(),
+    suppressWarnings : List<String> = emptyList(),
     block: TypeSpec.Builder.() -> Unit,
 ) = FileSpec.builder(packageName, simpleName)
     .addType(
@@ -95,6 +113,7 @@ fun ClassName.fileClassBuilder(
         imports.forEach {
             addImportClassName(it)
         }
+        suppressWarningTypes(suppressWarnings)
     }
     .build()
 

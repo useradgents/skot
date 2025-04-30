@@ -6,6 +6,7 @@ import com.squareup.kotlinpoet.PropertySpec
 import tech.skot.core.view.SKTransition
 import tech.skot.tools.generation.*
 import tech.skot.tools.generation.FrameworkClassNames.skTransitionMock
+import tech.skot.tools.generation.SuppressWarningsNames.resourcesWarning
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.typeOf
 
@@ -26,7 +27,9 @@ fun Generator.generateTransitions() {
         }
 
     if (!transitionsImpl.existsAndroidInModule(modules.view)) {
-        transitionsImpl.fileClassBuilder {
+        transitionsImpl.fileClassBuilder(
+            suppressWarnings = resourcesWarning
+        ) {
             addSuperinterface(transitionsInterface)
             addProperties(
                 transitionsNames.map {
@@ -45,7 +48,9 @@ fun Generator.generateTransitions() {
     }
 
     println("generate Transitions jvm mock .........")
-    transitionsMock.fileClassBuilder {
+    transitionsMock.fileClassBuilder(
+        suppressWarnings = resourcesWarning
+    ) {
         addSuperinterface(transitionsInterface)
         addProperties(
             transitionsNames.map {

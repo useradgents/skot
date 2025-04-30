@@ -3,6 +3,7 @@ package tech.skot.tools.generation.resources
 import com.squareup.kotlinpoet.*
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
 import tech.skot.tools.generation.Generator
+import tech.skot.tools.generation.SuppressWarningsNames.resourcesWarning
 import tech.skot.tools.generation.childElements
 import tech.skot.tools.generation.fileClassBuilder
 import tech.skot.tools.generation.getDocumentElement
@@ -46,7 +47,9 @@ fun Generator.generateStyles() {
         .writeTo(generatedCommonSources(modules.viewcontract))
 
     println("generate Styles android implementation .........")
-    stylesImpl.fileClassBuilder(listOf(viewR)) {
+    stylesImpl.fileClassBuilder(
+        imports = listOf(viewR),
+        suppressWarnings = resourcesWarning) {
         addSuperinterface(stylesInterface)
         addProperties(
             colors.map {
@@ -63,7 +66,8 @@ fun Generator.generateStyles() {
         .writeTo(generatedAndroidSources(feature ?: modules.app))
 
     println("generate Style jvm mock .........")
-    stylesMock.fileClassBuilder {
+    stylesMock.fileClassBuilder(
+        suppressWarnings = resourcesWarning) {
         addSuperinterface(stylesInterface)
         addProperties(
             colors.map {

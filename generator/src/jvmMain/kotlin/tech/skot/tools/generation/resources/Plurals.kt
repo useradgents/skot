@@ -6,6 +6,7 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
 import tech.skot.tools.generation.*
+import tech.skot.tools.generation.SuppressWarningsNames.resourcesWarning
 import java.nio.file.Files
 import java.util.stream.Collectors
 
@@ -97,14 +98,20 @@ fun Generator.generatePlurals() {
         )
     }
 
-    pluralsImpl.fileClassBuilder(listOf(viewR)) {
+    pluralsImpl.fileClassBuilder(
+        imports = listOf(viewR),
+        suppressWarnings = resourcesWarning
+    ) {
         pluralsImplTypeSpec(true)
     }
         .apply {
             writeTo(generatedAndroidSources(feature ?: modules.app))
         }
 
-    pluralsImpl.fileClassBuilder(listOf(viewR)) {
+    pluralsImpl.fileClassBuilder(
+        imports = listOf(viewR),
+        suppressWarnings = resourcesWarning
+    ) {
         pluralsImplTypeSpec(false)
     }
         .apply {
@@ -112,7 +119,9 @@ fun Generator.generatePlurals() {
         }
 
     println("generate Plurals jvm mock .........")
-    pluralsMock.fileClassBuilder {
+    pluralsMock.fileClassBuilder(
+        suppressWarnings = resourcesWarning
+    ) {
         addSuperinterface(pluralsInterface)
         addFunctions(
             plurals.map {

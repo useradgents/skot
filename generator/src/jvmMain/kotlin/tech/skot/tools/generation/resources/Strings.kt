@@ -3,6 +3,7 @@ package tech.skot.tools.generation.resources
 import com.squareup.kotlinpoet.*
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
 import tech.skot.tools.generation.*
+import tech.skot.tools.generation.SuppressWarningsNames.resourcesWarning
 import java.nio.file.Files
 import kotlin.io.path.exists
 import kotlin.streams.toList
@@ -10,11 +11,14 @@ import kotlin.streams.toList
 fun Generator.generateStrings() {
     val values =
         (
-            listOf(rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/values")) +
-                variantsCombinaison.map {
-                    rootPath.resolve(modules.view).resolve("src/androidMain/res${it}_referenced/values")
-                }
-        ).filter { it.exists() }
+                listOf(
+                    rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/values")
+                ) +
+                        variantsCombinaison.map {
+                            rootPath.resolve(modules.view)
+                                .resolve("src/androidMain/res${it}_referenced/values")
+                        }
+                ).filter { it.exists() }
 
     println("strings .........")
 
@@ -45,22 +49,22 @@ fun Generator.generateStrings() {
         stringsInterface.simpleName,
     )
         .addType(
-        TypeSpec.interfaceBuilder(stringsInterface.simpleName)
-            .addProperties(
-                strings.map {
-                    PropertySpec.builder(it.toStringsPropertyName(), String::class)
-                        .build()
-                },
-            )
-            .addFunction(
-                FunSpec.builder("get")
-                    .addParameter("key", String::class)
-                    .returns(String::class.asTypeName().copy(nullable = true))
-                    .addModifiers(KModifier.ABSTRACT)
-                    .build(),
-            )
-            .build(),
-    )
+            TypeSpec.interfaceBuilder(stringsInterface.simpleName)
+                .addProperties(
+                    strings.map {
+                        PropertySpec.builder(it.toStringsPropertyName(), String::class)
+                            .build()
+                    },
+                )
+                .addFunction(
+                    FunSpec.builder("get")
+                        .addParameter("key", String::class)
+                        .returns(String::class.asTypeName().copy(nullable = true))
+                        .addModifiers(KModifier.ABSTRACT)
+                        .build(),
+                )
+                .build(),
+        )
         .build()
         .writeTo(generatedCommonSources(modules.modelcontract))
 
@@ -125,20 +129,28 @@ fun Generator.generateStrings() {
             },
         )
     }
-    stringsImpl.fileClassBuilder(listOf(viewR)) {
+    stringsImpl.fileClassBuilder(
+        imports = listOf(viewR),
+        suppressWarnings = resourcesWarning
+    ) {
         stringsImplTypeSpecBuilder(true)
     }.apply {
         writeTo(generatedAndroidSources(feature ?: modules.app))
     }
 
-    stringsImpl.fileClassBuilder(listOf(viewR)) {
+    stringsImpl.fileClassBuilder(
+        imports = listOf(viewR),
+        suppressWarnings = resourcesWarning
+    ) {
         stringsImplTypeSpecBuilder(false)
     }.apply {
         writeTo(generatedAndroidTestSources(modules.view))
     }
 
     println("generate Strings jvm mock .........")
-    stringsMock.fileClassBuilder {
+    stringsMock.fileClassBuilder(
+        suppressWarnings = resourcesWarning
+    ) {
         addSuperinterface(stringsInterface)
 
         addProperties(

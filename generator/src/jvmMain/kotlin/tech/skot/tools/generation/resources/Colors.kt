@@ -4,8 +4,11 @@ import com.squareup.kotlinpoet.*
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
 import tech.skot.core.view.ColorRef
 import tech.skot.tools.generation.*
+import tech.skot.tools.generation.SuppressWarningsNames.resourcesWarning
 import java.nio.file.Files
 import java.util.stream.Collectors
+import kotlin.String
+import kotlin.collections.List
 
 fun String.toAndroidResourcePropertyName() = replace('.', '_')
 
@@ -72,7 +75,10 @@ fun Generator.generateColors() {
             .build()
 
     println("generate Colors android implementation .........")
-    colorsImpl.fileClassBuilder(listOf(viewR)) {
+    colorsImpl.fileClassBuilder(
+        imports = listOf(viewR),
+        suppressWarnings = resourcesWarning
+    ) {
         addSuperinterface(colorsInterface)
         addPrimaryConstructorWithParams(
             listOf(
@@ -99,7 +105,10 @@ fun Generator.generateColors() {
         .writeTo(generatedAndroidSources(feature ?: modules.app))
 
     println("generate Colors fot View Android Test .........")
-    colorsImpl.fileClassBuilder(listOf(viewR)) {
+    colorsImpl.fileClassBuilder(
+        imports = listOf(viewR),
+        suppressWarnings = resourcesWarning
+    ) {
         addSuperinterface(colorsInterface)
         addPrimaryConstructorWithParams(
             listOf(
@@ -126,7 +135,9 @@ fun Generator.generateColors() {
         .writeTo(generatedAndroidTestSources(modules.view))
 
     println("generate Colors jvm mock .........")
-    colorsMock.fileClassBuilder {
+    colorsMock.fileClassBuilder(
+        suppressWarnings = resourcesWarning
+    ) {
         addSuperinterface(colorsInterface)
         addProperties(
             colors.map {

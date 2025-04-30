@@ -4,6 +4,7 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
 import tech.skot.tools.generation.*
+import tech.skot.tools.generation.SuppressWarningsNames.genWarning
 
 @ExperimentalStdlibApi
 fun Generator.generateViewModel() {
@@ -15,6 +16,7 @@ fun Generator.generateViewModel() {
             }
         it.viewModelGen().fileClassBuilder(
             listOf(modelInjectorIntance) + initilizations.flatMap { it.getImportsList() },
+            genWarning
         ) {
             addModifiers(KModifier.ABSTRACT)
             superclass(it.superVM.parameterizedBy(it.vc.asTypeName()))

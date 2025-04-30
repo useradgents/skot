@@ -1,5 +1,14 @@
 # Changelog
 
+## Version `1.3.10-ua`
+### chore
+- Update dependencies
+- Remove some warning in generated code
+
+## Version `1.3.9-ua`
+### chore
+- Update dependencies
+
 ## Version `1.3.8-ua`
 ### fix
 - Center Snackbar horizontally 

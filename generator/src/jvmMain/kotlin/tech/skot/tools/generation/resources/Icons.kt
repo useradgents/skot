@@ -3,6 +3,7 @@ package tech.skot.tools.generation.resources
 import com.squareup.kotlinpoet.*
 import tech.skot.core.view.Icon
 import tech.skot.tools.generation.*
+import tech.skot.tools.generation.SuppressWarningsNames.resourcesWarning
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Locale
@@ -95,7 +96,9 @@ fun Generator.generateIcons() {
             .build()
 
     println("generate Icons android implementation .........")
-    iconsImpl.fileClassBuilder(listOf(viewR)) {
+    iconsImpl.fileClassBuilder(
+        imports = listOf(viewR),
+        suppressWarnings = resourcesWarning) {
         addSuperinterface(iconsInterface)
         addPrimaryConstructorWithParams(
             listOf(
@@ -127,7 +130,8 @@ fun Generator.generateIcons() {
         )
 
     println("generate Icons android for view androidTests .........")
-    iconsImpl.fileClassBuilder(listOf(viewR)) {
+    iconsImpl.fileClassBuilder( imports = listOf(viewR),
+        suppressWarnings = resourcesWarning) {
         addSuperinterface(iconsInterface)
         addPrimaryConstructorWithParams(
             listOf(
@@ -159,7 +163,8 @@ fun Generator.generateIcons() {
         )
 
     println("generate Icons mock  .........")
-    iconsMock.fileClassBuilder {
+    iconsMock.fileClassBuilder(
+        suppressWarnings = resourcesWarning) {
         addSuperinterface(iconsInterface)
         addProperties(
             icons.map {

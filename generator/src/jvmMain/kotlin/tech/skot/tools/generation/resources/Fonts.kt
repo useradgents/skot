@@ -5,6 +5,7 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import tech.skot.tools.generation.Generator
+import tech.skot.tools.generation.SuppressWarningsNames.resourcesWarning
 import tech.skot.tools.generation.fileClassBuilder
 import java.nio.file.Files
 import java.util.stream.Collectors
@@ -44,7 +45,8 @@ fun Generator.generateFonts() {
         .writeTo(generatedCommonSources(modules.viewcontract))
 
     println("generate Fonts android implementation .........")
-    fontsImpl.fileClassBuilder(listOf(viewR)) {
+    fontsImpl.fileClassBuilder(imports = listOf(viewR),
+        suppressWarnings = resourcesWarning) {
         addSuperinterface(fontsInterface)
         addProperties(
             fonts.map {

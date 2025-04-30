@@ -38,7 +38,9 @@ fun Generator.generateViewModelTests() {
     components.forEach {
         val isGeneric = it.vc.hasAnnotation<SKGenerics>()
         if (!it.vc.hasAnnotation<SKNoVM>()) {
-            it.viewModelTester().fileClassBuilder {
+            it.viewModelTester().fileClassBuilder(
+                suppressWarnings = listOf("unused")
+            ) {
                 primaryConstructor(
                     FunSpec.constructorBuilder()
                         .addParameter("component", it.viewModel().let {
@@ -65,7 +67,7 @@ fun Generator.generateViewModelTests() {
                 modules.viewmodel,
             ) && !it.oldTestViewModel().existsJvmTestInModule(modules.viewmodel)
         ) {
-            it.testViewModel().fileClassBuilder {
+            it.testViewModel().fileClassBuilder(suppressWarnings = listOf("unused")) {
                 superclass(abstractTestScreen)
                 val componentVarName = if (it.isScreen) "screen" else "component"
                 addFunction(

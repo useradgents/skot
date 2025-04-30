@@ -6,6 +6,7 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
 import tech.skot.tools.generation.Generator
+import tech.skot.tools.generation.SuppressWarningsNames.resourcesWarning
 import tech.skot.tools.generation.childElements
 import tech.skot.tools.generation.fileClassBuilder
 import tech.skot.tools.generation.getDocumentElement
@@ -70,19 +71,26 @@ fun Generator.generateDimens() {
 
     println("generate Dimens android implementation .........")
 
-    dimensImpl.fileClassBuilder(listOf(viewR)) {
+    dimensImpl.fileClassBuilder(
+        imports = listOf(viewR),
+            suppressWarnings = resourcesWarning
+    ) {
         addSuperinterface(dimensInterface)
         addProperties(dimensAndroidRes)
     }.writeTo(generatedAndroidSources(feature ?: modules.app))
 
     println("generate Dimens fot View Android Test .........")
-    dimensImpl.fileClassBuilder(listOf(viewR)) {
+    dimensImpl.fileClassBuilder(
+        imports = listOf(viewR),
+        suppressWarnings = resourcesWarning) {
         addSuperinterface(dimensInterface)
         addProperties(dimensAndroidRes)
     }.writeTo(generatedAndroidTestSources(modules.view))
 
     println("generate Dimens jvm mock .........")
-    dimensMock.fileClassBuilder {
+    dimensMock.fileClassBuilder(
+        suppressWarnings = resourcesWarning
+    ) {
         addSuperinterface(dimensInterface)
         addProperties(dimensJVmMock)
     }.writeTo(generatedJvmTestSources(feature ?: modules.viewmodel))
