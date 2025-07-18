@@ -1,5 +1,11 @@
 # Changelog
 
+## Version `1.3.11-ua`
+### fix
+
+- #### Webview
+  - save webview backstack on view destroy and restore it on go back to screen
+
 ## Version `1.3.10-ua`
 ### chore
 - Update dependencies

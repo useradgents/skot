@@ -1,5 +1,6 @@
 package tech.skot.core.components
 
+import android.os.Bundle
 import android.webkit.WebView
 import androidx.fragment.app.Fragment
 import tech.skot.view.live.MutableSKLiveData
@@ -17,6 +18,23 @@ class SKWebViewViewProxy(
     override val layoutId: Int?
         get() = LAYOUT_ID ?: R.layout.sk_webview
 
+
+    data class State(
+        val bundle: Bundle,
+        val launch: SKWebViewVC.Launch?,
+    )
+
+    var state: State? = null
+        private set(value) {
+            field = value
+
+        }
+
+    fun setState(bundle: Bundle?) {
+        state = bundle?.let {
+            State(it, launch)
+        }
+    }
 
 
     private val launchLD = MutableSKLiveData<SKWebViewVC.Launch?>(launchInitial)
@@ -50,22 +68,23 @@ class SKWebViewViewProxy(
         activity: SKActivity,
         fragment: Fragment?,
         binding: WebView,
-    ) = SKWebViewView(this, activity, fragment, binding).apply {
-        onConfig(config)
-        launchLD.observe {
-            onLaunch(it)
+    ) = SKWebViewView(this, activity, fragment, binding)
+        .apply {
+            onConfig(config)
+            launchLD.observe {
+                onLaunch(it)
+            }
+            goBackLD.observe {
+                onGoBackLD(it)
+            }
+            requestGoForwardMessage.observe {
+                onRequestGoForward()
+            }
+            requestReloadMessage.observe {
+                onRequestReload()
+            }
+            requestEvaluateJavascript.observe {
+                onEvaluateJavascript(it.first, it.second)
+            }
         }
-        goBackLD.observe {
-            onGoBackLD(it)
-        }
-        requestGoForwardMessage.observe {
-            onRequestGoForward()
-        }
-        requestReloadMessage.observe {
-            onRequestReload()
-        }
-        requestEvaluateJavascript.observe {
-            onEvaluateJavascript(it.first, it.second)
-        }
-    }
 }

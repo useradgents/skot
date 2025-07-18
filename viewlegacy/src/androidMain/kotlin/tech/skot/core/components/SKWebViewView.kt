@@ -4,11 +4,16 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.view.ViewGroup
 import android.webkit.*
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import tech.skot.core.SKLog
 import tech.skot.core.SKUri
 import tech.skot.core.toSKUri
@@ -21,9 +26,22 @@ class SKWebViewView(
     private var webView: WebView,
 ) : SKComponentView<WebView>(proxy, activity, fragment, webView) {
 
+    override fun onRecycle() {
+        super.onRecycle()
+    }
 
     init {
         binding.webChromeClient = SKWebChromeClient(activity, proxy)
+        lifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onDestroy(owner: LifecycleOwner) {
+                val bundle = Bundle()
+                webView.saveState(bundle)
+                proxy.setState(bundle)
+                lifecycleOwner.lifecycle.removeObserver(this)
+                super.onDestroy(owner)
+            }
+        }
+        )
     }
 
     fun onConfig(config: SKWebViewVC.Config) {
@@ -375,19 +393,25 @@ class SKWebViewView(
     fun onLaunch(launch: SKWebViewVC.Launch?) {
         oneRedirectionAskedForCurrentOpenUrl = false
         openingUrl = launch
-        if (launch != null) {
-            if (launch.removeCookies) {
-                CookieManager.getInstance().removeAllCookies {
+        val bundle = proxy.state?.takeIf { it.launch == launch }
+        if (bundle != null) {
+            webView.restoreState(bundle.bundle)
+            proxy.setState(null)
+        } else {
+            if (launch != null) {
+                if (launch.removeCookies) {
+                    CookieManager.getInstance().removeAllCookies {
+                        launch.cookie?.let {
+                            CookieManager.getInstance().setCookie(it.first, it.second)
+                        }
+                        launchNow(launch)
+                    }
+                } else {
                     launch.cookie?.let {
                         CookieManager.getInstance().setCookie(it.first, it.second)
                     }
                     launchNow(launch)
                 }
-            } else {
-                launch.cookie?.let {
-                    CookieManager.getInstance().setCookie(it.first, it.second)
-                }
-                launchNow(launch)
             }
         }
     }
@@ -453,11 +477,12 @@ class SKWebViewView(
         }
 
 
-    open class SKWebChromeClient(private val activity: SKActivity, val proxy : SKWebViewViewProxy) : WebChromeClient() {
-        var currentRequest : PermissionRequest? = null
+    open class SKWebChromeClient(private val activity: SKActivity, val proxy: SKWebViewViewProxy) :
+        WebChromeClient() {
+        var currentRequest: PermissionRequest? = null
 
-        fun String.toSKWebViewPermissionType() : SKWebViewVC.SKWebViewPermissionType?{
-            return when(this) {
+        fun String.toSKWebViewPermissionType(): SKWebViewVC.SKWebViewPermissionType? {
+            return when (this) {
                 PermissionRequest.RESOURCE_MIDI_SYSEX -> SKWebViewVC.SKWebViewPermissionType.MIDI
                 PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID -> SKWebViewVC.SKWebViewPermissionType.MEDIA
                 PermissionRequest.RESOURCE_VIDEO_CAPTURE -> SKWebViewVC.SKWebViewPermissionType.CAMERA
@@ -466,10 +491,10 @@ class SKWebViewView(
             }
         }
 
-        fun SKWebViewVC.SKWebViewPermissionType.toWebkitString() : String{
-            return when(this) {
-                SKWebViewVC.SKWebViewPermissionType.CAMERA ->  PermissionRequest.RESOURCE_VIDEO_CAPTURE
-                SKWebViewVC.SKWebViewPermissionType.MICROPHONE ->  PermissionRequest.RESOURCE_AUDIO_CAPTURE
+        fun SKWebViewVC.SKWebViewPermissionType.toWebkitString(): String {
+            return when (this) {
+                SKWebViewVC.SKWebViewPermissionType.CAMERA -> PermissionRequest.RESOURCE_VIDEO_CAPTURE
+                SKWebViewVC.SKWebViewPermissionType.MICROPHONE -> PermissionRequest.RESOURCE_AUDIO_CAPTURE
                 SKWebViewVC.SKWebViewPermissionType.MEDIA -> PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID
                 SKWebViewVC.SKWebViewPermissionType.MIDI -> PermissionRequest.RESOURCE_MIDI_SYSEX
             }
@@ -494,15 +519,15 @@ class SKWebViewView(
                 currentRequest = it
                 proxy.config.onPermissionRequested?.invoke(it.resources.mapNotNull {
                     it.toSKWebViewPermissionType()
-                }){
+                }) {
 
                     val permissions = it.map {
                         it.toWebkitString()
                     }
 
-                    if(permissions.isEmpty()){
+                    if (permissions.isEmpty()) {
                         currentRequest?.deny()
-                    }else {
+                    } else {
                         currentRequest?.grant(permissions.toTypedArray())
                     }
                     currentRequest = null
