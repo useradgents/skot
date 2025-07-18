@@ -35,9 +35,20 @@ abstract class SKScreenView<B : ViewBinding>(
     open fun onResume() {
         if (fragment !is DialogFragment) {
             if (secured) {
-                activity.window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
+                activity.window.setFlags(
+                    WindowManager.LayoutParams.FLAG_SECURE,
+                    WindowManager.LayoutParams.FLAG_SECURE
+                )
             } else {
                 activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
+            if (keepScreenOn) {
+                activity.window.setFlags(
+                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                )
+            } else {
+                activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
 
             if (fragment?.arguments?.getBoolean(ScreensManager.SK_ARGUMENT_CAN_SET_FULL_SCREEN) != false) {
@@ -46,18 +57,18 @@ abstract class SKScreenView<B : ViewBinding>(
                     proxy.statusBarColor,
                     lightStatusBar,
                     onWindowInset ?: (
-                        if (withWindowsInsetsPaddingTop) {
-                            {
-                                view.updatePadding(top = originalPaddingTop + it.systemBars().top)
+                            if (withWindowsInsetsPaddingTop) {
+                                {
+                                    view.updatePadding(top = originalPaddingTop + it.systemBars().top)
+                                }
+                            } else {
+                                null
                             }
-                        } else {
-                            null
-                        }
-                    ),
+                            ),
                 )
             }
         }
-       // onStatusBarColor(proxy.statusBarColor)
+        // onStatusBarColor(proxy.statusBarColor)
         proxy.onResume()
     }
 
@@ -69,6 +80,8 @@ abstract class SKScreenView<B : ViewBinding>(
     open val fullScreen: Boolean = false
     open val lightStatusBar: Boolean? = null
     open val secured: Boolean = false
+
+    open val keepScreenOn: Boolean = false
 
     fun onStatusBarColor(color: Color?) {
 //        if (fragment !is DialogFragment) {

@@ -195,14 +195,19 @@ abstract class SKActivity : AppCompatActivity() {
         screen?.view?.let {
 
             val systemBarColor = statusBarColor?.toColor(applicationContext) ?: bgColor ?: Color.TRANSPARENT
-            val systemBarStyle = if(lightStatusBar ?: themeWindowLightStatusBar) SystemBarStyle.light(systemBarColor, systemBarColor)
+            val systemBarStyle = if(lightStatusBar ?: themeWindowLightStatusBar) SystemBarStyle.light(systemBarColor, Color.GRAY)
             else SystemBarStyle.dark(systemBarColor)
+
+            val navSystemBarStyle = if(lightStatusBar ?: themeWindowLightStatusBar) SystemBarStyle.light(systemBarColor, Color.GRAY)
+            else SystemBarStyle.dark(systemBarColor)
+
+
 
             it.post {
                 if(!fullScreen){
                     enableEdgeToEdge(
                         statusBarStyle = systemBarStyle,
-                        navigationBarStyle =  systemBarStyle
+                        navigationBarStyle =  navSystemBarStyle
                     )
 
                     loadingInsetsCounter++
@@ -241,8 +246,8 @@ abstract class SKActivity : AppCompatActivity() {
                 }else{
                     enableEdgeToEdge(
                         statusBarStyle =
-                        if(lightStatusBar ?: themeWindowLightStatusBar) SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)else SystemBarStyle.dark(Color.TRANSPARENT),
-                        navigationBarStyle =  systemBarStyle
+                        if(lightStatusBar ?: themeWindowLightStatusBar) SystemBarStyle.light(Color.TRANSPARENT, Color.GRAY) else SystemBarStyle.dark( Color.TRANSPARENT),
+                        navigationBarStyle =  navSystemBarStyle
                     )
                     loadingInsetsCounter++
                     val loadedInsets = ViewCompat.getRootWindowInsets(it)
@@ -273,8 +278,6 @@ abstract class SKActivity : AppCompatActivity() {
                             windowInsets
                         }
                 }
-
-
                 }
             }
         }

@@ -24,7 +24,6 @@ plugins {
     alias(libs.plugins.benmanesVersion)
     alias(libs.plugins.kotlin.serialization).apply(false)
     alias(libs.plugins.sqldelight).apply(false)
-    //id("org.sonarqube").version("4.4.1.3373")
 }
 
 tasks.register("clean", Delete::class) {
