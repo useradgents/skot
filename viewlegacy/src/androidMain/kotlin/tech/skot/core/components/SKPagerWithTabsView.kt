@@ -22,7 +22,6 @@ class SKPagerWithTabsView(
 
     fun onLabels(tabConfigs: List<SKPagerWithTabsVC.TabConfig>) {
         tabLayoutMediator?.takeIf { it.isAttached }?.detach()
-
         tabLayoutMediator =
             TabLayoutMediator(
                 tabLayout,

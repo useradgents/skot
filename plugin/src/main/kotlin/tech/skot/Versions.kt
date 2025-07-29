@@ -7,7 +7,7 @@ import kotlin.String
  * This code is generated from build.gradle.kts
  */
 public object Versions {
-  public const val skot: String = "1.3.11-ua"
+  public const val skot: String = "1.3.12-ua"
 
   public const val group: String = "com.github.useradgents.skot"
 
