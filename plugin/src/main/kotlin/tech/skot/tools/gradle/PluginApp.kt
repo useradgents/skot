@@ -9,13 +9,8 @@ import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.project
 import tech.skot.Versions
 
-// open class SKPluginAppExtension {
-//    var message: String? = null
-// }
-
 class PluginApp : Plugin<Project> {
     override fun apply(project: Project) {
-//        val extension = project.extensions.create<SKPluginAppExtension>("skot")
         project.plugins.apply("com.android.application")
 
         project.extensions.findByType(BaseAppModuleExtension::class)?.conf(project)

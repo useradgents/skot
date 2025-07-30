@@ -14,13 +14,18 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
+    compilerOptions {
+        optIn.add("kotlin.time.ExperimentalTime")
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     sourceSets {
         commonMain {
             dependencies {
                 api(project(":core"))
                 api(libs.jetbrains.kotlin.stdlib)
                 api(libs.kotlinx.coroutines.core)
-                api(libs.jetbrains.kotlinx.serialization.core)
+                api(libs.kotlinx.serialization.core)
                 api(libs.kotlinx.datetime)
             }
         }

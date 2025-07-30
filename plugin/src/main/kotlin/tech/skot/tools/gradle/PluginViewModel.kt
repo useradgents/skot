@@ -34,7 +34,9 @@ class PluginViewModel : Plugin<Project> {
 
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
+            optIn.add("kotlin.time.ExperimentalTime")
+
         }
         androidTarget {
         }

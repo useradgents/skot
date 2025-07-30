@@ -1,12 +1,11 @@
 package tech.skot.tools.generation.resources
 
-import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeSpec
 import tech.skot.tools.generation.Generator
 import tech.skot.tools.generation.SuppressWarningsNames.resourcesWarning
 import tech.skot.tools.generation.fileClassBuilder
+import tech.skot.tools.generation.fileInterfaceBuilder
 import java.nio.file.Files
 import java.util.stream.Collectors
 import kotlin.io.path.nameWithoutExtension
@@ -28,21 +27,14 @@ fun Generator.generateFonts() {
 
     fun String.toFontsPropertyName() = this
 
-    FileSpec.builder(
-        fontsInterface.packageName,
-        fontsInterface.simpleName,
-    ).addType(
-        TypeSpec.interfaceBuilder(fontsInterface.simpleName)
-            .addProperties(
-                fonts.map {
-                    PropertySpec.builder(it.toFontsPropertyName(), tech.skot.core.view.Font::class)
-                        .build()
-                },
-            )
-            .build(),
-    )
-        .build()
-        .writeTo(generatedCommonSources(modules.viewcontract))
+    fontsInterface.fileInterfaceBuilder(suppressWarnings = resourcesWarning){
+        addProperties(
+            fonts.map {
+                PropertySpec.builder(it.toFontsPropertyName(), tech.skot.core.view.Font::class)
+                    .build()
+            },
+        )
+    }.writeTo(generatedCommonSources(modules.viewcontract))
 
     println("generate Fonts android implementation .........")
     fontsImpl.fileClassBuilder(imports = listOf(viewR),

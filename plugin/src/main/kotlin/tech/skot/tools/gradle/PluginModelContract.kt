@@ -9,7 +9,6 @@ import org.gradle.kotlin.dsl.get
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
-import tech.skot.Versions.kotlin
 
 open class SKPluginModelContractExtension {
     var buildFiles: List<Any>? = null
@@ -85,7 +84,8 @@ class PluginModelContract : Plugin<Project> {
         jvmToolchain(17)
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
+            optIn.add("kotlin.time.ExperimentalTime")
         }
         jvm()
         androidTarget {

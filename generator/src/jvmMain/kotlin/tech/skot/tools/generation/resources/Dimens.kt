@@ -1,14 +1,13 @@
 package tech.skot.tools.generation.resources
 
-import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeSpec
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
 import tech.skot.tools.generation.Generator
 import tech.skot.tools.generation.SuppressWarningsNames.resourcesWarning
 import tech.skot.tools.generation.childElements
 import tech.skot.tools.generation.fileClassBuilder
+import tech.skot.tools.generation.fileInterfaceBuilder
 import tech.skot.tools.generation.getDocumentElement
 import java.nio.file.Files
 import java.util.stream.Collectors
@@ -58,16 +57,9 @@ fun Generator.generateDimens() {
         )
     }
 
-    FileSpec.builder(
-        dimensInterface.packageName,
-        dimensInterface.simpleName,
-    ).addType(
-        TypeSpec.interfaceBuilder(dimensInterface.simpleName)
-            .addProperties(dimensInt)
-            .build(),
-    )
-        .build()
-        .writeTo(generatedCommonSources(modules.viewcontract))
+    dimensInterface.fileInterfaceBuilder(suppressWarnings = resourcesWarning){
+        addProperties(dimensInt)
+    }.writeTo(generatedCommonSources(modules.viewcontract))
 
     println("generate Dimens android implementation .........")
 

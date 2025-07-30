@@ -1,7 +1,16 @@
 package tech.skot.tools.generation
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LambdaTypeName
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asTypeName
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
 import org.w3c.dom.Document
@@ -9,9 +18,25 @@ import org.w3c.dom.Element
 import tech.skot.core.components.SKComponentVC
 import tech.skot.core.components.SKScreenVC
 import tech.skot.tools.generation.model.generateModel
-import tech.skot.tools.generation.resources.*
-import tech.skot.tools.generation.viewlegacy.*
-import tech.skot.tools.generation.viewmodel.*
+import tech.skot.tools.generation.resources.generateColors
+import tech.skot.tools.generation.resources.generateDimens
+import tech.skot.tools.generation.resources.generateFonts
+import tech.skot.tools.generation.resources.generateIcons
+import tech.skot.tools.generation.resources.generatePermissions
+import tech.skot.tools.generation.resources.generatePlurals
+import tech.skot.tools.generation.resources.generateStrings
+import tech.skot.tools.generation.resources.generateStyles
+import tech.skot.tools.generation.resources.generateTransitions
+import tech.skot.tools.generation.viewlegacy.generateViewLegacy
+import tech.skot.tools.generation.viewmodel.InitializationPlan
+import tech.skot.tools.generation.viewmodel.generateModelInjectorMock
+import tech.skot.tools.generation.viewmodel.generateModelMock
+import tech.skot.tools.generation.viewmodel.generateModuleMock
+import tech.skot.tools.generation.viewmodel.generateStatesMocks
+import tech.skot.tools.generation.viewmodel.generateViewInjectorMock
+import tech.skot.tools.generation.viewmodel.generateViewMock
+import tech.skot.tools.generation.viewmodel.generateViewModel
+import tech.skot.tools.generation.viewmodel.generateViewModelTests
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Locale
@@ -19,14 +44,6 @@ import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.jvmErasure
-
-// val project by lazy {
-//    KotlinCoreEnvironment.createForProduction(
-//        Disposer.newDisposable(),
-//        CompilerConfiguration(),
-//        EnvironmentConfigFiles.JVM_CONFIG_FILES
-//    ).project
-// }
 
 class Generator(
     val appPackage: String,
@@ -181,13 +198,14 @@ class Generator(
 
     val shortCuts = ClassName("$appPackage.di", "shortCuts")
 
-    val moduleFun = ClassName("tech.skot.core.di", "module")
-    val module = ClassName("tech.skot.core.di", "Module")
-    val getFun = ClassName("tech.skot.core.di", "get")
-    val baseInjector = ClassName("tech.skot.core.di", "BaseInjector")
-    val mockInjector = ClassName("tech.skot.core.di", "InjectorMock")
+    val moduleFun = ClassName(SKOT_DI_PACKAGE_NAME, "module")
+    val module = ClassName(SKOT_DI_PACKAGE_NAME, "Module")
+    val getFun = ClassName(SKOT_DI_PACKAGE_NAME, "get")
+    val baseInjector = ClassName(SKOT_DI_PACKAGE_NAME, "BaseInjector")
+    val mockInjector = ClassName(SKOT_DI_PACKAGE_NAME, "InjectorMock")
 
     companion object {
+        const val SKOT_DI_PACKAGE_NAME = "tech.skot.core.di"
         const val VISIBILITY_LISTENER_VAR_NAME = "visibilityListener"
     }
 
@@ -229,53 +247,6 @@ class Generator(
         generateDimens()
         generateApp()
         generateCodeMap()
-
-//        components.forEach {
-//            val file = it.viewModel().run {
-//                commonSources(Modules.viewmodel).resolve(it.packageName.packageToPathFragment())
-//                    .resolve("$simpleName.kt")
-//            }
-//            val text = String(Files.readAllBytes(file))
-//            println("---- ${it.name}")
-// //            println(text)
-//
-//            try {
-//                val vFile = LightVirtualFile(
-//                    it.name,KotlinFileType.INSTANCE, text
-//                )
-//
-// //                println(project)
-//
-//                val viewProvider = PsiManager.getInstance(project).findViewProvider(vFile)
-//                val ktFile = viewProvider?.getPsi(viewProvider.baseLanguage)  as KtFile
-// //
-// ////                val viewProvider: FileViewProvider = this.findViewProvider(vFile)
-// ////                return viewProvider.getPsi(viewProvider.baseLanguage)
-// //
-// ////                val ktFile = PsiManager.getInstance(project)
-// ////                    .findFile() as KtFile
-// //
-//                ktFile.children.forEach {
-//                    when (it) {
-//                        is KtClass -> {
-//                            println("analyse name: ${it.name}")
-//                            it.children.forEach {
-//                                when (it) {
-//                                    is  KtFunction-> {
-//
-//                                    }
-//                                }
-//                            }
-//                            println(it.text)
-//                        }
-//                    }
-//                }
-//            }
-//            catch (ex:Exception) {
-//                println("&&&&&&&&&&&& Exception     $ex")
-//            }
-//
-//        }
     }
 
     fun generatedCommonSources(
@@ -487,7 +458,6 @@ class Generator(
     fun generateApp() {
         if (feature == null) {
             generateAppModule()
-            generateStartsIfNeeded()
         }
     }
 
@@ -589,65 +559,8 @@ class Generator(
                     addImport("$appPackage.states", "restoreState")
                 }
             }
-//            .apply {
-//                getUsedSKLibrariesGroups().map {
-//                    addImport("$it.di", it.libraryModuleName())
-//                }
-//            }
             .build()
             .writeTo(generatedAndroidSources(modules.app))
-    }
-
-    fun generateStartsIfNeeded() {
-//        val initializeView = ClassName("$appPackage.di", "initializeView")
-//        if (!initializeView.existsAndroidInModule(modules.view)) {
-//            FileSpec.builder(initializeView.packageName, initializeView.simpleName)
-//                .addImportClassName(FrameworkClassNames.skComponentView)
-//                .addImportClassName(ClassName("android.view", "Gravity"))
-//                .addImportClassName(AndroidClassNames.frameLayout)
-//                .addImportClassName(AndroidClassNames.snackBar)
-//                .addImportClassName(AndroidClassNames.build)
-//                .addFunction(
-//                    FunSpec.builder(initializeView.simpleName)
-//                        .addModifiers(KModifier.SUSPEND)
-//                        .addCode(
-//                            CodeBlock.of(
-//                                """SKComponentView.displayError = { message ->
-//        Snackbar.make(activity.window.decorView, message, Snackbar.LENGTH_LONG)
-//            .apply {
-//                view.apply {
-//                    (layoutParams as? FrameLayout.LayoutParams)?.let {
-//                        it.gravity = Gravity.TOP
-//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                            it.topMargin = activity.window?.decorView?.rootWindowInsets?.systemWindowInsetTop
-//                                ?: 0
-//                        }
-//
-//                        layoutParams = it
-//                    }
-//                }
-//                show()
-//            }
-//    }"""
-//                            )
-//                        )
-//                        .build()
-//                )
-//                .build()
-//                .writeTo(androidSources(modules.view))
-//        }
-//
-//        val startModel = ClassName("$appPackage.di", "startModel")
-//        if (!startModel.existsCommonInModule(modules.model)) {
-//            FileSpec.builder(startModel.packageName, startModel.simpleName)
-//                .addFunction(
-//                    FunSpec.builder(startModel.simpleName)
-//                        .addModifiers(KModifier.SUSPEND)
-//                        .build()
-//                )
-//                .build()
-//                .writeTo(commonSources(modules.model))
-//        }
     }
 
     fun getUsedSKLibrariesModules(): List<String> {
@@ -680,13 +593,6 @@ class Generator(
         migrateTo29()
     }
 }
-
-fun getAndroidPackageName(path: Path): String {
-    val manifest = path.resolve("AndroidManifest.xml")
-    return manifest.getDocumentElement().getAttribute("package")
-}
-
-// fun List<String>.packageToPath() = map { it.replace('.','/') }.joinToString(separator = "/")
 
 fun Path.getDocument(): Document =
     DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(this.toFile())

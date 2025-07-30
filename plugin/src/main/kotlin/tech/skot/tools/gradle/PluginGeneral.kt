@@ -5,11 +5,11 @@ import org.gradle.api.Project
 
 class PluginGeneral : Plugin<Project> {
     override fun apply(project: Project) {
-        project.task("initialize") {
+        project.tasks.register("initialize"){
+            group = "SKot"
             doLast {
-                println("------- Generate from Plugin General App essai")
-//                StarterGenerator(project.rootDir).generateSkeletton()
+                println("------- Generate from Plugin General essai")
             }
-        }.group = "SKot"
+        }
     }
 }

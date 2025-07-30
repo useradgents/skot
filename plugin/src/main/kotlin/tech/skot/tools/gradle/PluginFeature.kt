@@ -12,7 +12,6 @@ import tech.skot.Versions
 
 class PluginFeature : Plugin<Project> {
     override fun apply(project: Project) {
-//        project.plugins.apply("com.android.library")
         project.plugins.apply("com.android.dynamic-feature")
         println("############## project.extensions ${project.extensions}")
         println("############## applying skot-feature !!!")

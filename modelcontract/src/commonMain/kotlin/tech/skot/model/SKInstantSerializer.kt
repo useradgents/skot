@@ -1,12 +1,12 @@
 package tech.skot.model
 
-import kotlinx.datetime.Instant
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import tech.skot.core.SKDateFormat
+import kotlin.time.Instant
 
 open class SKInstantSerializer(name: String, pattern: String) : KSerializer<Instant> {
     override val descriptor = PrimitiveSerialDescriptor(name, PrimitiveKind.STRING)

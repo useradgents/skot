@@ -1,3 +1,4 @@
+
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import java.util.Locale
 
@@ -94,8 +95,8 @@ android {
     namespace = "tech.skot.model"
 
     packaging {
-        if (gradle.startParameter.taskNames.any {
-                it.uppercase(Locale.getDefault()).contains("ANDROIDTEST")
+        if (gradle.startParameter.taskNames.any { task ->
+                task.uppercase(Locale.getDefault()).contains("ANDROIDTEST")
             }
         ) {
             resources.excludes.add("META-INF/*")

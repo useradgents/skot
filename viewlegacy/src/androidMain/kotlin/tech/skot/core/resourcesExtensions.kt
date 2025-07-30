@@ -8,13 +8,20 @@ import android.view.View
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.graphics.toColorInt
 import androidx.core.widget.ImageViewCompat
-import tech.skot.core.view.*
-import android.graphics.Color as AndroidColor
+import tech.skot.core.view.Color
+import tech.skot.core.view.ColorHex
+import tech.skot.core.view.ColorRef
+import tech.skot.core.view.Dimen
+import tech.skot.core.view.DimenDP
+import tech.skot.core.view.DimenRef
+import tech.skot.core.view.Icon
+import tech.skot.core.view.Resource
 
 fun Color.toColor(context: Context): Int {
     return when (this) {
-        is ColorHex -> AndroidColor.parseColor(this.color)
+        is ColorHex -> this.color.toColorInt()
         is ColorRef -> ContextCompat.getColor(context, this.res)
         else -> android.graphics.Color.WHITE
     }

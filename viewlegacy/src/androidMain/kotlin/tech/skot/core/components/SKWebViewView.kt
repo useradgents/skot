@@ -1,19 +1,27 @@
 package tech.skot.core.components
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.ViewGroup
-import android.webkit.*
+import android.webkit.CookieManager
+import android.webkit.HttpAuthHandler
+import android.webkit.PermissionRequest
+import android.webkit.RenderProcessGoneDetail
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
+import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import tech.skot.core.SKLog
 import tech.skot.core.SKUri
 import tech.skot.core.toSKUri
@@ -208,7 +216,7 @@ class SKWebViewView(
                 @Deprecated("Deprecated in Java")
                 override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
 
-                    url?.let { Uri.parse(url).toSKUri() }?.let { skUri ->
+                    url?.let { url.toUri().toSKUri() }?.let { skUri ->
                         try {
                             if (config.shouldOverrideUrlLoading?.invoke(skUri) == true) {
                                 return true
@@ -511,7 +519,7 @@ class SKWebViewView(
         }
 
         override fun getDefaultVideoPoster(): Bitmap? {
-            return Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
+            return createBitmap(50, 50)
         }
 
         override fun onPermissionRequest(request: PermissionRequest?) {

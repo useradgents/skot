@@ -2,9 +2,6 @@ package tech.skot.tools.gradle
 
 import org.gradle.api.Project
 
-// fun getProjectPath(): String = File("..").absolutePath
-//
-// fun projectDir(): File = File(getProjectPath())
 
 fun Project.commandLine(vararg strCmd: String): String {
     val process =

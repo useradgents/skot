@@ -1,5 +1,6 @@
 package tech.skot.core.components
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Parcelable
 import android.view.LayoutInflater
@@ -103,6 +104,7 @@ class SKListView(
     }
 
     var items: List<Triple<SKComponentViewProxy<*>, Any, (() -> Unit)?>> = emptyList()
+        @SuppressLint("NotifyDataSetChanged")
         set(newVal) {
             field.forEach { proxy ->
                 if (!newVal.any { it.first == proxy.first }) {
@@ -115,7 +117,7 @@ class SKListView(
                 DiffUtil.calculateDiff(diffCallBack, true).dispatchUpdatesTo(adapter)
             } else {
                 field = newVal
-                adapter.notifyDataSetChanged() //TODO necessary on infinite scroll with 1 item
+                adapter.notifyDataSetChanged() // necessary on infinite scroll with 1 item
             }
         }
 

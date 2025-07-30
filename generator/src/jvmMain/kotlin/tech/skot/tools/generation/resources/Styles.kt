@@ -1,11 +1,13 @@
 package tech.skot.tools.generation.resources
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.PropertySpec
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
 import tech.skot.tools.generation.Generator
 import tech.skot.tools.generation.SuppressWarningsNames.resourcesWarning
 import tech.skot.tools.generation.childElements
 import tech.skot.tools.generation.fileClassBuilder
+import tech.skot.tools.generation.fileInterfaceBuilder
 import tech.skot.tools.generation.getDocumentElement
 import java.nio.file.Files
 import java.util.stream.Collectors
@@ -27,29 +29,26 @@ fun Generator.generateStyles() {
 
     fun String.toStylesPropertyName() = decapitalizeAsciiOnly().replace('.', '_')
 
-    FileSpec.builder(
-        stylesInterface.packageName,
-        stylesInterface.simpleName,
-    ).addType(
-        TypeSpec.interfaceBuilder(stylesInterface.simpleName)
-            .addProperties(
-                colors.map {
-                    PropertySpec.builder(
-                        it.toStylesPropertyName(),
-                        tech.skot.core.view.Style::class,
-                    )
+
+    stylesInterface.fileInterfaceBuilder(suppressWarnings = resourcesWarning) {
+        addProperties(
+            colors
+                .map {
+                    PropertySpec
+                        .builder(
+                            it.toStylesPropertyName(),
+                            tech.skot.core.view.Style::class,
+                        )
                         .build()
                 },
-            )
-            .build(),
-    )
-        .build()
-        .writeTo(generatedCommonSources(modules.viewcontract))
+        )
+    }.writeTo(generatedCommonSources(modules.viewcontract))
 
     println("generate Styles android implementation .........")
     stylesImpl.fileClassBuilder(
         imports = listOf(viewR),
-        suppressWarnings = resourcesWarning) {
+        suppressWarnings = resourcesWarning
+    ) {
         addSuperinterface(stylesInterface)
         addProperties(
             colors.map {
@@ -67,11 +66,16 @@ fun Generator.generateStyles() {
 
     println("generate Style jvm mock .........")
     stylesMock.fileClassBuilder(
-        suppressWarnings = resourcesWarning) {
+        suppressWarnings = resourcesWarning
+    ) {
         addSuperinterface(stylesInterface)
         addProperties(
             colors.map {
-                PropertySpec.builder(it.toStylesPropertyName(), tech.skot.core.view.Style::class, KModifier.OVERRIDE)
+                PropertySpec.builder(
+                    it.toStylesPropertyName(),
+                    tech.skot.core.view.Style::class,
+                    KModifier.OVERRIDE
+                )
                     .initializer("Style(\"${it.toStylesPropertyName()}\".hashCode())")
                     .build()
             },

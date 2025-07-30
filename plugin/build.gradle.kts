@@ -1,3 +1,5 @@
+import com.squareup.kotlinpoet.ClassName
+
 group = Versions.group
 version = Versions.version
 
@@ -168,9 +170,15 @@ fun buildVersionsFile() {
     }
 
     val file = com.squareup.kotlinpoet.FileSpec.builder("tech.skot", "Versions")
+        .addAnnotation(
+        com.squareup.kotlinpoet.AnnotationSpec.builder(ClassName("", "Suppress"))
+            .addMember("%S, %S, %S","RedundantVisibilityModifier", "unused", "ConstPropertyName" )
+            .build()
+    )
     val classBuilderCommon =
         com.squareup.kotlinpoet.TypeSpec.objectBuilder("Versions")
             .addKdoc("This code is generated from build.gradle.kts")
+
             .addStringConst("skot", Versions.version)
             .addStringConst("group", Versions.group)
             .addStringConst("serialization", libs.versions.kotlinx.serialization.get())

@@ -42,7 +42,9 @@ class PluginLibrary : Plugin<Project> {
     private fun KotlinMultiplatformExtension.conf() {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
+
+
         }
 
         jvm()

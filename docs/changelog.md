@@ -1,5 +1,10 @@
 # Changelog
 
+## Version `1.3.12-ua`
+### chore
+- update dependencies
+- refactor code (replace deprecated code and remove some warning one generated code )
+
 ## Version `1.3.11-ua`
 ### fix
 

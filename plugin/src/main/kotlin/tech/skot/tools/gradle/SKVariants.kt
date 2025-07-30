@@ -5,8 +5,8 @@ import org.gradle.api.tasks.SourceSetContainer
 import java.io.FileInputStream
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.*
-import kotlin.io.path.name
+import java.util.Locale
+import java.util.Properties
 
 data class SKVariants(val variants: List<String>, val env: String?) {
     fun toList(): List<String> =
@@ -81,7 +81,7 @@ fun Project.skSwitchTask(
     environment: String,
     vararg variant: String,
 ) {
-    task(name) {
+    tasks.register(name) {
         doFirst {
             println("Switch to Variant environment=$environment  variants=${variant.joinToString(" ")} ")
             val rootPath = rootProject.rootDir.toPath()

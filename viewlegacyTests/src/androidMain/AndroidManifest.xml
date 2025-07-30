@@ -5,7 +5,6 @@
         <activity
             android:name="tech.skot.view.tests.SKTestActivity"
             android:allowTaskReparenting="true"
-            android:screenOrientation="portrait"
             android:usesCleartextTraffic="false"
             android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
             />

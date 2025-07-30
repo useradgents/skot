@@ -30,15 +30,13 @@ val json by lazy {
 }
 
 private fun Project.skComputeVersionCodeAndReleaseNote(nbMaxCommitsInReleaseNote: Int) {
-    task("compute_version_code_and_release_note") {
+    tasks.register("compute_version_code_and_release_note") {
         doFirst {
             println("setting version Code from server")
             println("--fetch last uploaded versionCode")
             val lastUploadedInfos: UploadedInfos? =
                 try {
                     val strInfos = commandLine("scripts/versions/getLastUploadedInfos.sh")
-//                    val tab = strInfos.split("_")
-//                    UploadedInfos(tab[0], tab[1].toInt())
                     if (strInfos.contains("result"))
                         {
                             // back4app version server
@@ -79,7 +77,7 @@ private fun Project.skComputeVersionCodeAndReleaseNote(nbMaxCommitsInReleaseNote
 }
 
 private fun Project.skSaveUploadedInfos() {
-    task("save_uploaded_versions_infos") {
+    tasks.register("save_uploaded_versions_infos") {
         doFirst {
             val lastCommitHash = commandLine("git", "show", "-s", "--format=%h").substringBefore("\n")
             println("save_uploaded_versions_infos lastCommitHash = $lastCommitHash")

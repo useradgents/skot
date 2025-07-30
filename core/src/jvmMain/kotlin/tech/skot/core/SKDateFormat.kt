@@ -1,11 +1,14 @@
-@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-
+@file:OptIn(ExperimentalTime::class)
 package tech.skot.core
 
-import kotlinx.datetime.*
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 actual class SKDateFormat actual constructor(pattern: String) {
     private val sdf = SimpleDateFormat(pattern)
@@ -13,6 +16,7 @@ actual class SKDateFormat actual constructor(pattern: String) {
     actual fun format(instant: Instant): String {
         return sdf.format(Date(instant.toEpochMilliseconds()))
     }
+
 
     actual fun format(localDateTime: LocalDateTime): String {
         return format(localDateTime.toInstant(TimeZone.currentSystemDefault()))

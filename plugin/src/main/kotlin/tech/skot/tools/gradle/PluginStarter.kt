@@ -15,7 +15,8 @@ open class SKPluginStarterExtension {
 class PluginStarter : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create<SKPluginStarterExtension>("skot")
-        project.task("start") {
+        project.tasks.register("start") {
+            group = "SKot"
             doLast {
                 val appPackage = extension.appPackage
                 val appName = extension.appName
@@ -34,9 +35,8 @@ class PluginStarter : Plugin<Project> {
                     ).generateSkeletton()
                 }
             }
-        }.group = "SKot"
-
-        project.task("version") {
+        }
+        project.tasks.register("version") {
             println("Skot version ${Versions.skot}")
         }
     }

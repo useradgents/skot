@@ -1,14 +1,24 @@
 package tech.skot.tools.generation.resources
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.asTypeName
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
 import tech.skot.core.view.ColorRef
-import tech.skot.tools.generation.*
+import tech.skot.tools.generation.AndroidClassNames
+import tech.skot.tools.generation.Generator
+import tech.skot.tools.generation.ParamInfos
 import tech.skot.tools.generation.SuppressWarningsNames.resourcesWarning
+import tech.skot.tools.generation.addPrimaryConstructorWithParams
+import tech.skot.tools.generation.childElements
+import tech.skot.tools.generation.fileClassBuilder
+import tech.skot.tools.generation.fileInterfaceBuilder
+import tech.skot.tools.generation.getDocumentElement
 import java.nio.file.Files
 import java.util.stream.Collectors
-import kotlin.String
-import kotlin.collections.List
 
 fun String.toAndroidResourcePropertyName() = replace('.', '_')
 
@@ -29,31 +39,24 @@ fun Generator.generateColors() {
 
     fun String.toColorsPropertyName() = decapitalizeAsciiOnly().replace('.', '_')
 
-    FileSpec.builder(
-        colorsInterface.packageName,
-        colorsInterface.simpleName,
-    ).addType(
-        TypeSpec.interfaceBuilder(colorsInterface.simpleName)
-            .addProperties(
-                colors.map {
-                    PropertySpec.builder(
-                        it.toColorsPropertyName(),
-                        ColorRef::class,
-                    )
-                        .build()
-                },
-            )
-            .addFunction(
-                FunSpec.builder("get")
-                    .addParameter("key", String::class)
-                    .returns(ColorRef::class.asTypeName().copy(nullable = true))
-                    .addModifiers(KModifier.ABSTRACT)
-                    .build(),
-            )
-            .build(),
-    )
-        .build()
-        .writeTo(generatedCommonSources(modules.viewcontract))
+    colorsInterface.fileInterfaceBuilder(suppressWarnings = resourcesWarning){
+        addProperties(
+            colors.map {
+                PropertySpec.builder(
+                    it.toColorsPropertyName(),
+                    ColorRef::class,
+                )
+                    .build()
+            },
+        )
+        addFunction(
+            FunSpec.builder("get")
+                .addParameter("key", String::class)
+                .returns(ColorRef::class.asTypeName().copy(nullable = true))
+                .addModifiers(KModifier.ABSTRACT)
+                .build(),
+        )
+    }.writeTo(generatedCommonSources(modules.viewcontract))
 
     val funGetSpec =
         FunSpec.builder("get")

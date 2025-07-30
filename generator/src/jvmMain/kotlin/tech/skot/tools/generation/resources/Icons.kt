@@ -1,9 +1,20 @@
 package tech.skot.tools.generation.resources
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.asTypeName
 import tech.skot.core.view.Icon
-import tech.skot.tools.generation.*
+import tech.skot.tools.generation.AndroidClassNames
+import tech.skot.tools.generation.FrameworkClassNames
+import tech.skot.tools.generation.Generator
+import tech.skot.tools.generation.ParamInfos
 import tech.skot.tools.generation.SuppressWarningsNames.resourcesWarning
+import tech.skot.tools.generation.addPrimaryConstructorWithParams
+import tech.skot.tools.generation.fileClassBuilder
+import tech.skot.tools.generation.fileInterfaceBuilder
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Locale
@@ -48,33 +59,26 @@ fun Generator.generateIcons() {
 
     fun String.toIconsPropertyName() = replaceFirstChar { it.lowercase(Locale.getDefault()) }
 
-    FileSpec.builder(
-        iconsInterface.packageName,
-        iconsInterface.simpleName,
-    ).addType(
-        TypeSpec.interfaceBuilder(iconsInterface.simpleName)
-            .addProperties(
-                icons.map {
-                    PropertySpec.builder(it.toIconsPropertyName(), Icon::class)
-                        .build()
-                },
-            )
-            .addFunction(
-                FunSpec.builder("get")
-                    .addParameter("key", String::class)
-                    .returns(Icon::class.asTypeName().copy(nullable = true))
-                    .addModifiers(KModifier.ABSTRACT)
-                    .build(),
-            )
-            .build(),
-    )
-        .build()
-        .writeTo(
-            generatedCommonSources(
-                modules.viewcontract,
-                if (referenceIconsByVariant) mainVariant else null,
-            ),
+    iconsInterface.fileInterfaceBuilder(suppressWarnings = resourcesWarning) {
+        addProperties(
+            icons.map {
+                PropertySpec.builder(it.toIconsPropertyName(), Icon::class)
+                    .build()
+            },
         )
+        addFunction(
+            FunSpec.builder("get")
+                .addParameter("key", String::class)
+                .returns(Icon::class.asTypeName().copy(nullable = true))
+                .addModifiers(KModifier.ABSTRACT)
+                .build(),
+        )
+    }.writeTo(
+        generatedCommonSources(
+            modules.viewcontract,
+            if (referenceIconsByVariant) mainVariant else null,
+        ),
+    )
 
     val funGetSpec =
         FunSpec.builder("get")
@@ -85,7 +89,7 @@ fun Generator.generateIcons() {
             )
             .addParameter("key", String::class)
             .returns(Icon::class.asTypeName().copy(nullable = true))
-        .addStatement("val id = applicationContext.resources.getIdentifier(key,\"drawable\",applicationContext.packageName)")
+            .addStatement("val id = applicationContext.resources.getIdentifier(key,\"drawable\",applicationContext.packageName)")
             .beginControlFlow("return if(id > 0)")
             .addStatement("Icon(id)")
             .endControlFlow()
@@ -98,7 +102,8 @@ fun Generator.generateIcons() {
     println("generate Icons android implementation .........")
     iconsImpl.fileClassBuilder(
         imports = listOf(viewR),
-        suppressWarnings = resourcesWarning) {
+        suppressWarnings = resourcesWarning
+    ) {
         addSuperinterface(iconsInterface)
         addPrimaryConstructorWithParams(
             listOf(
@@ -130,8 +135,10 @@ fun Generator.generateIcons() {
         )
 
     println("generate Icons android for view androidTests .........")
-    iconsImpl.fileClassBuilder( imports = listOf(viewR),
-        suppressWarnings = resourcesWarning) {
+    iconsImpl.fileClassBuilder(
+        imports = listOf(viewR),
+        suppressWarnings = resourcesWarning
+    ) {
         addSuperinterface(iconsInterface)
         addPrimaryConstructorWithParams(
             listOf(
@@ -164,7 +171,8 @@ fun Generator.generateIcons() {
 
     println("generate Icons mock  .........")
     iconsMock.fileClassBuilder(
-        suppressWarnings = resourcesWarning) {
+        suppressWarnings = resourcesWarning
+    ) {
         addSuperinterface(iconsInterface)
         addProperties(
             icons.map {

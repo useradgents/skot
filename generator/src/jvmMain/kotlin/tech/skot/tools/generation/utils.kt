@@ -1,6 +1,15 @@
 package tech.skot.tools.generation
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.TypeSpec
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.reflect.KCallable
@@ -109,6 +118,7 @@ fun ClassName.fileClassBuilder(
             .apply(block)
             .build(),
     )
+    .addKotlinDefaultImports()
     .apply {
         imports.forEach {
             addImportClassName(it)
@@ -119,6 +129,7 @@ fun ClassName.fileClassBuilder(
 
 fun ClassName.fileInterfaceBuilder(
     imports: List<ClassName> = emptyList(),
+    suppressWarnings : List<String> = emptyList(),
     block: TypeSpec.Builder.() -> Unit,
 ) = FileSpec.builder(packageName, simpleName)
     .addType(
@@ -126,15 +137,18 @@ fun ClassName.fileInterfaceBuilder(
             .apply(block)
             .build(),
     )
+    .addKotlinDefaultImports()
     .apply {
         imports.forEach {
             addImportClassName(it)
         }
+        suppressWarningTypes(suppressWarnings)
     }
     .build()
 
 fun ClassName.fileObjectBuilder(
     imports: List<ClassName> = emptyList(),
+    suppressWarnings : List<String> = emptyList(),
     block: TypeSpec.Builder.() -> Unit,
 ) = FileSpec.builder(packageName, simpleName)
     .addType(
@@ -142,10 +156,12 @@ fun ClassName.fileObjectBuilder(
             .apply(block)
             .build(),
     )
+    .addKotlinDefaultImports()
     .apply {
         imports.forEach {
             addImportClassName(it)
         }
+        suppressWarningTypes(suppressWarnings)
     }
     .build()
 

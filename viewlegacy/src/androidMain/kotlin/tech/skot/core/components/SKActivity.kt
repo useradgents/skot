@@ -11,7 +11,6 @@ import android.os.PersistableBundle
 import android.util.TypedValue
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
-import androidx.activity.BackEventCompat
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -67,18 +66,6 @@ abstract class SKActivity : AppCompatActivity() {
         object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 ScreensManager.backPressed.post(Unit)
-            }
-
-            override fun handleOnBackCancelled() {
-                super.handleOnBackCancelled()
-            }
-
-            override fun handleOnBackStarted(backEvent: BackEventCompat) {
-                super.handleOnBackStarted(backEvent)
-            }
-
-            override fun handleOnBackProgressed(backEvent: BackEventCompat) {
-                super.handleOnBackProgressed(backEvent)
             }
         }
 
