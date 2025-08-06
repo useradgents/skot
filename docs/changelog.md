@@ -1,5 +1,10 @@
 # Changelog
 
+## Version `1.3.13-ua`
+### feat
+- #### SkInput
+  - add fun getCursorSelection(onResult : (Pair<Int, Int>) -> Unit)
+
 ## Version `1.3.12-ua`
 ### chore
 - update dependencies

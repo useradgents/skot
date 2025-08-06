@@ -49,8 +49,14 @@ abstract class SKInputViewProxyCommon<V : View>(
 
     private val requestFocusMessage = SKMessage<Unit>()
 
+    private val requestCursorSelection = SKMessage<(Pair<Int, Int>)-> Unit>()
+
     override fun requestFocus() {
         requestFocusMessage.post(Unit)
+    }
+
+    override fun getCursorSelection(onResult: (Pair<Int, Int>)-> Unit) {
+        return requestCursorSelection.post(onResult)
     }
 
     abstract fun createView(
@@ -90,6 +96,9 @@ abstract class SKInputViewProxyCommon<V : View>(
             }
             requestFocusMessage.observe {
                 requestFocus()
+            }
+            requestCursorSelection.observe {
+                getCursorSelection(it)
             }
         }
 }
@@ -131,6 +140,8 @@ class SKInputViewProxy(
         fragment: Fragment?,
         binding: TextInputLayout,
     ) = SKInputView(this, activity, fragment, binding)
+
+
 }
 
 class SKSimpleInputViewProxy(

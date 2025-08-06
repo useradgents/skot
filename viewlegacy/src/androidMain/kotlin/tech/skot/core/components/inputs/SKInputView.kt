@@ -126,6 +126,10 @@ abstract class SKInputViewCommon<V : View>(
         }
     }
 
+    fun getCursorSelection(onResult: (Pair<Int, Int>) -> Unit) {
+        onResult(editText.selectionStart to editText.selectionEnd)
+    }
+
     fun requestFocus() {
         editText.post {
             editText.requestFocus()

@@ -44,6 +44,8 @@ interface SKInputVC : SKComponentVC {
     var showPassword: Boolean?
 
     fun requestFocus()
+    fun getCursorSelection(onResult : (Pair<Int, Int>) -> Unit)
+
 }
 
 @SKLayoutIsSimpleView

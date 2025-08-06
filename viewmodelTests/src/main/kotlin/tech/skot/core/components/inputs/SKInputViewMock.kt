@@ -32,6 +32,10 @@ class SKInputViewMock(
     override fun requestFocus() {
         requestFocusCounter++
     }
+
+    override fun getCursorSelection(onResult: (Pair<Int, Int>) -> Unit) {
+        onResult((text?.length?:0) to (text?.length?:0))
+    }
 }
 
 fun SKInputVC.requestFocusCount(): Int = (this as SKInputViewMock).requestFocusCounter
