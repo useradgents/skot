@@ -1,5 +1,5 @@
 # Create a new version
-- update version name in `buildSrc/src/main/kotlin/Versions`
+- update version name in [buildSrc/src/main/kotlin/Versions](./buildSrc/src/main/kotlin/Versions.kt)
 - Add new version to changelog in `docs/changelog`
 - launch `./script/check.sh` to verify that all tests still pass.
 - push change

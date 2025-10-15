@@ -24,7 +24,7 @@ fun View.setOnClick(
 
                 override fun onClick(v: View?) {
                     val now = System.currentTimeMillis()
-                    if (now - lastClick > delay || now - lastClick <= 0) {
+                    if (now - lastClick !in 1..delay) {
                         lastClick = now
                         myOnClick?.invoke()
                     }

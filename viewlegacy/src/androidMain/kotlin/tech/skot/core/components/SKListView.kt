@@ -31,7 +31,7 @@ class SKListView(
         fun getRealItemCount(): Int
     }
 
-    inner class ViewHolder(idLayout: Int, parent: ViewGroup) : RecyclerView.ViewHolder(
+    class ViewHolder(idLayout: Int, parent: ViewGroup) : RecyclerView.ViewHolder(
         LayoutInflater.from(parent.context).inflate(idLayout, parent, false),
     ) {
         var bindedOnce: Boolean = false
@@ -239,6 +239,7 @@ class SKListView(
     }
 }
 
+@Suppress("unused")
 abstract class SKListItemTouchHelperCallBack(private val listView: SKListView) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
     override fun onSwiped(

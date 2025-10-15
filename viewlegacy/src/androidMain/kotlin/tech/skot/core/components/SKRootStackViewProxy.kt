@@ -21,7 +21,7 @@ object SKRootStackViewProxy : SKComponentViewProxy<Unit>(), SKStackVC {
             )
         }
 
-    @Throws(java.lang.IllegalAccessException::class)
+    @Throws(IllegalAccessException::class)
     override fun bindTo(
         activity: SKActivity,
         fragment: Fragment?,

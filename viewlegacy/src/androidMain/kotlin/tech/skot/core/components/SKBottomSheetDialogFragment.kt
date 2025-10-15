@@ -24,7 +24,7 @@ class SKBottomSheetDialogFragment() : BottomSheetDialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments?.getBoolean(SK_BOTTOM_SHEET_DIALOG_RESIZE_ON_KEYBOARD, false) == true) {
-            setStyle(DialogFragment.STYLE_NORMAL, R.style.sk_bottomsheet_dialog_resize)
+            setStyle(STYLE_NORMAL, R.style.sk_bottomsheet_dialog_resize)
         }
     }
 

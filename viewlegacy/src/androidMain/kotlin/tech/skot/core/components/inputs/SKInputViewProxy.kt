@@ -132,7 +132,7 @@ class SKInputViewProxy(
         var LAYOUT_ID: Int? = null
     }
 
-    override val layoutId: Int?
+    override val layoutId: Int
         get() = LAYOUT_ID ?: R.layout.sk_input
 
     override fun createView(
@@ -174,7 +174,7 @@ class SKSimpleInputViewProxy(
         var LAYOUT_ID: Int? = null
     }
 
-    override val layoutId: Int?
+    override val layoutId: Int
         get() = LAYOUT_ID ?: R.layout.sk_simple_input
 
     override fun createView(

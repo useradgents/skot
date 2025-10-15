@@ -19,7 +19,7 @@ class SKImageButtonViewProxy(
         var LAYOUT_ID: Int? = null
     }
 
-    override val layoutId: Int?
+    override val layoutId: Int
         get() = LAYOUT_ID ?: R.layout.sk_image_button
 
     private val onTapLD = MutableSKLiveData(onTapInitial)

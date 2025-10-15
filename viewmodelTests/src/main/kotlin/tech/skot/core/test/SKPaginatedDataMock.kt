@@ -35,7 +35,7 @@ class SKPaginatedDataMock<D : Any>(val name: String) : SKPaginatedData<D> {
         get() = internalManual?.flow ?: throw errorNotSetMessage
     override val defaultValidity: Long
         get() = internalManual?.defaultValidity ?: throw errorNotSetMessage
-    override val _current: DatedData<List<D>>?
+    override val _current: DatedData<List<D>>
         get() = error?.let { throw it } ?: internalManual?._current ?: throw errorNotSetMessage
 
     override suspend fun update(): List<D> {
@@ -43,7 +43,7 @@ class SKPaginatedDataMock<D : Any>(val name: String) : SKPaginatedData<D> {
         return error?.let { throw it } ?: internalManual?.update() ?: throw errorNotSetMessage
     }
 
-    override suspend fun fallBackValue(): List<D>? {
+    override suspend fun fallBackValue(): List<D> {
         return error?.let { throw it } ?: internalManual?.fallBackValue() ?: throw errorNotSetMessage
     }
 }

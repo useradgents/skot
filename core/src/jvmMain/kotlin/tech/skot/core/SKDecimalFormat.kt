@@ -3,9 +3,13 @@
 package tech.skot.core
 
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.Locale
 
-actual class SKDecimalFormat actual constructor(pattern: String) {
-    private val df = DecimalFormat(pattern)
+actual class SKDecimalFormat actual constructor(pattern: String, locale: Locale) {
+    private val df = DecimalFormat(pattern).apply {
+        decimalFormatSymbols = DecimalFormatSymbols.getInstance(locale)
+    }
 
     actual fun format(number: Number): String {
         return df.format(number)

@@ -57,7 +57,19 @@ abstract class SKComponentView<B : Any>(
         subViews.clear()
     }
 
+    /**
+     * Called when the component is bound for the first time.
+     *
+     * This method is invoked during the initial binding phase of the component's lifecycle,
+     * allowing subclasses to perform one-time initialization logic that should only occur
+     * on the first bind and not on subsequent rebinds or recycling operations.
+     *
+     * The default implementation is empty and should be overridden in subclasses that need
+     * to perform specific first-time binding operations such as setting up initial UI state,
+     * configuring listeners, or performing expensive initialization tasks.
+     */
     open fun onFirstBind() {
+        // Override in subclasses to implement first bind logic
     }
 
     fun <D> SKMessage<D>.observe(onReceive: (D) -> Unit) {
@@ -81,19 +93,15 @@ abstract class SKComponentView<B : Any>(
     }
 
     protected fun setOnWindowInset(onWindowInset: ((windowInsets: WindowInsets) -> Unit)?) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            val loadedInsets = activity.window?.decorView?.rootWindowInsets
-            if (loadedInsets != null) {
-                onWindowInset?.invoke(loadedInsets)
-            } else {
-                ((binding as? ViewBinding)?.root ?: binding as? View)
-                    ?.setOnApplyWindowInsetsListener { view, windowInsets ->
-                        onWindowInset?.invoke(windowInsets)
-                        windowInsets
-                    }
-            }
+        val loadedInsets = activity.window?.decorView?.rootWindowInsets
+        if (loadedInsets != null) {
+            onWindowInset?.invoke(loadedInsets)
         } else {
-//            TODO("VERSION.SDK_INT < M")
+            ((binding as? ViewBinding)?.root ?: binding as? View)
+                ?.setOnApplyWindowInsetsListener { view, windowInsets ->
+                    onWindowInset?.invoke(windowInsets)
+                    windowInsets
+                }
         }
     }
 

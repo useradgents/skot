@@ -18,7 +18,6 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.createBitmap
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -34,10 +33,6 @@ class SKWebViewView(
     private var webView: WebView,
 ) : SKComponentView<WebView>(proxy, activity, fragment, webView) {
 
-    override fun onRecycle() {
-        super.onRecycle()
-    }
-
     init {
         binding.webChromeClient = SKWebChromeClient(activity, proxy)
         lifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
@@ -52,275 +47,26 @@ class SKWebViewView(
         )
     }
 
-    fun onConfig(config: SKWebViewVC.Config) {
+    private fun SKWebViewVC.Config.configureWebViewSettings() {
         webView.settings.apply {
-            userAgentString = config.userAgent
-            javaScriptEnabled = config.javascriptEnabled
-            domStorageEnabled = config.domStorageEnabled
+            userAgentString = userAgent
+            javaScriptEnabled = javascriptEnabled
+            domStorageEnabled = domStorageEnabled
         }
+    }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            webView.webViewClient = object : WebViewClient() {
-                override fun onRenderProcessGone(
-                    view: WebView?,
-                    detail: RenderProcessGoneDetail?
-                ): Boolean {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        if (view == webView && detail?.didCrash() == true) {
-                            recreateWebView()
-                            return true
-                        }
-                    }
-                    return super.onRenderProcessGone(view, detail)
-                }
-
-
-                override fun shouldOverrideUrlLoading(
-                    view: WebView?,
-                    request: WebResourceRequest?
-                ): Boolean {
-                    request?.url?.toSKUri()?.let { skUri ->
-                        try {
-                            if (config.shouldOverrideUrlLoading?.invoke(skUri) == true) {
-                                return true
-                            }
-                        } catch (ex: Exception) {
-                            SKLog.e(
-                                ex,
-                                "Erreur dans l'invocation de shouldOverrideUrlLoading depuis SKWebViewView"
-                            )
-                        }
-
-                        try {
-                            if (activity.featureInitializer.onDeepLink?.invoke(skUri, true) == true
-                            ) {
-                                return true
-                            }
-                        } catch (ex: Exception) {
-                            SKLog.e(
-                                ex,
-                                "Erreur dans l'invocation de onDeepLink depuis SKWebViewView"
-                            )
-                        }
-                    }
-                    request?.let {
-                        if (it.isForMainFrame && it.isRedirect) {
-                            oneRedirectionAskedForCurrentOpenUrl = true
-                        }
-                    }
-                    return super.shouldOverrideUrlLoading(view, request)
-                }
-
-
-                override fun onReceivedHttpError(
-                    view: WebView?,
-                    request: WebResourceRequest?,
-                    errorResponse: WebResourceResponse?
-                ) {
-                    request?.url?.toSKUri()?.let { url ->
-                        errorResponse?.statusCode?.let { statusCode ->
-                            config.httpError(url, statusCode)
-                        }
-                    }
-                    super.onReceivedHttpError(view, request, errorResponse)
-                }
-
-                override fun onReceivedHttpAuthRequest(
-                    view: WebView?,
-                    handler: HttpAuthHandler?,
-                    host: String?,
-                    realm: String?
-                ) {
-                    config.onHttpAuthRequest?.invoke(host, realm) { login, password ->
-                        if (login == null || password == null) {
-                            super.onReceivedHttpAuthRequest(view, handler, host, realm)
-                        } else {
-                            handler?.proceed(login, password)
-                        }
-                    } ?: super.onReceivedHttpAuthRequest(view, handler, host, realm)
-                }
-
-                override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                    config.javascriptOnStart?.invoke()?.let {
-                        onEvaluateJavascript(it) {
-
-                        }
-                    }
-                    super.onPageStarted(view, url, favicon)
-                }
-
-                override fun onPageFinished(view: WebView?, url: String?) {
-                    openingUrl?.finished(url)
-                    config.javascriptOnFinished?.invoke()?.let {
-                        onEvaluateJavascript(it) {
-
-                        }
-                    }
-                    super.onPageFinished(view, url)
-                }
-
-                override fun onReceivedError(
-                    view: WebView?,
-                    request: WebResourceRequest?,
-                    error: WebResourceError?
-                ) {
-                    openingUrl?.error(request?.url, error?.errorCode)
-                    super.onReceivedError(view, request, error)
-                }
-
-                @Deprecated("Deprecated in Java")
-                @Suppress("deprecation")
-                override fun onReceivedError(
-                    view: WebView?,
-                    errorCode: Int,
-                    description: String?,
-                    failingUrl: String?
-                ) {
-                    openingUrl?.error(failingUrl?.toUri(), errorCode)
-                    super.onReceivedError(view, errorCode, description, failingUrl)
-                }
-
-                override fun shouldInterceptRequest(
-                    view: WebView?,
-                    request: WebResourceRequest?
-                ): WebResourceResponse? {
-                    request?.url?.toSKUri()?.let { skUri ->
-                        try {
-                            config.onRequest?.invoke(skUri)
-                        } catch (ex: Exception) {
-                            SKLog.e(
-                                ex,
-                                "Erreur dans l'invocation de shouldInterceptRequest depuis SKWebViewView"
-                            )
-                        }
-                    }
-                    return super.shouldInterceptRequest(view, request)
-                }
-            }
+    private fun SKWebViewVC.Config.createWebViewClient(): WebViewClient {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            ModernWebViewClient(this)
         } else {
-            webView.webViewClient = object : WebViewClient() {
-                override fun onReceivedHttpError(
-                    view: WebView?,
-                    request: WebResourceRequest?,
-                    errorResponse: WebResourceResponse?
-                ) {
-                    request?.url?.toSKUri()?.let { url ->
-                        errorResponse?.statusCode?.let { statusCode ->
-                            config.httpError(url, statusCode)
-                        }
-                    }
-                    super.onReceivedHttpError(view, request, errorResponse)
-                }
+            LegacyWebViewClient(this)
+        }
+    }
 
-                @Suppress("DEPRECATION")
-                @Deprecated("Deprecated in Java")
-                override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-
-                    url?.let { url.toUri().toSKUri() }?.let { skUri ->
-                        try {
-                            if (config.shouldOverrideUrlLoading?.invoke(skUri) == true) {
-                                return true
-                            }
-                        } catch (ex: Exception) {
-                            SKLog.e(
-                                ex,
-                                "Erreur dans l'invocation de shouldOverrideUrlLoading depuis SKWebViewView"
-                            )
-                        }
-
-                        try {
-                            if (activity.featureInitializer.onDeepLink?.invoke(
-                                    skUri,
-                                    true
-                                ) == true
-                            ) {
-                                return true
-                            }
-                        } catch (ex: Exception) {
-                            SKLog.e(
-                                ex,
-                                "Erreur dans l'invocation de onDeepLink depuis SKWebViewView"
-                            )
-                        }
-                    }
-
-                    oneRedirectionAskedForCurrentOpenUrl = true
-
-                    return super.shouldOverrideUrlLoading(view, url)
-                }
-
-                override fun onReceivedHttpAuthRequest(
-                    view: WebView?,
-                    handler: HttpAuthHandler?,
-                    host: String?,
-                    realm: String?
-                ) {
-                    config.onHttpAuthRequest?.invoke(host, realm) { login, password ->
-                        handler?.proceed(login, password)
-                    }
-                }
-
-                override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                    config.javascriptOnStart?.invoke()?.let {
-                        webView.evaluateJavascript(it, null)
-                    }
-                    super.onPageStarted(view, url, favicon)
-                }
-
-                override fun onPageFinished(view: WebView?, url: String?) {
-                    openingUrl?.finished(url)
-                    config.javascriptOnFinished?.invoke()?.let {
-                        webView.evaluateJavascript(it, null)
-                    }
-                    super.onPageFinished(view, url)
-
-                }
-
-
-                @RequiresApi(Build.VERSION_CODES.M)
-                override fun onReceivedError(
-                    view: WebView?,
-                    request: WebResourceRequest?,
-                    error: WebResourceError?
-                ) {
-                    SKLog.d(
-                        "WebView onReceivedError ${error?.errorCode}"
-                    )
-                    openingUrl?.error(request?.url, error?.errorCode)
-                    super.onReceivedError(view, request, error)
-                }
-
-                @Deprecated("Deprecated in Java")
-                @Suppress("DEPRECATION")
-                override fun onReceivedError(
-                    view: WebView?,
-                    errorCode: Int,
-                    description: String?,
-                    failingUrl: String?
-                ) {
-                    openingUrl?.error(failingUrl?.toUri(), errorCode)
-                    super.onReceivedError(view, errorCode, description, failingUrl)
-                }
-
-                override fun shouldInterceptRequest(
-                    view: WebView?,
-                    request: WebResourceRequest?
-                ): WebResourceResponse? {
-                    request?.url?.toSKUri()?.let { skUri ->
-                        try {
-                            config.onRequest?.invoke(skUri)
-                        } catch (ex: Exception) {
-                            SKLog.e(
-                                ex,
-                                "Erreur dans l'invocation de shouldInterceptRequest depuis SKWebViewView"
-                            )
-                        }
-                    }
-                    return super.shouldInterceptRequest(view, request)
-                }
-
-
-            }
+    fun onConfig(config: SKWebViewVC.Config) {
+        with(config) {
+            configureWebViewSettings()
+            webView.webViewClient = createWebViewClient()
         }
     }
 
@@ -543,6 +289,247 @@ class SKWebViewView(
             }
         }
 
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private inner class ModernWebViewClient(private val config: SKWebViewVC.Config) :
+        WebViewClient() {
+
+        override fun onRenderProcessGone(
+            view: WebView?,
+            detail: RenderProcessGoneDetail?
+        ): Boolean {
+            return handleRenderProcessGone(view, detail).takeIf { it } ?: super.onRenderProcessGone(
+                view,
+                detail
+            )
+        }
+
+        override fun shouldOverrideUrlLoading(
+            view: WebView?,
+            request: WebResourceRequest?
+        ): Boolean {
+            return handleUrlLoading(request, config)
+        }
+
+        override fun onReceivedHttpError(
+            view: WebView?,
+            request: WebResourceRequest?,
+            errorResponse: WebResourceResponse?
+        ) {
+            handleHttpError(request, errorResponse, config)
+            super.onReceivedHttpError(view, request, errorResponse)
+        }
+
+        override fun onReceivedHttpAuthRequest(
+            view: WebView?,
+            handler: HttpAuthHandler?,
+            host: String?,
+            realm: String?
+        ) {
+            handleHttpAuthRequest(handler, host, realm, config)
+        }
+
+        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+            executeJavaScriptOnStart(config)
+            super.onPageStarted(view, url, favicon)
+        }
+
+        override fun onPageFinished(view: WebView?, url: String?) {
+            handlePageFinished(url, config)
+            super.onPageFinished(view, url)
+        }
+
+        override fun onReceivedError(
+            view: WebView?,
+            request: WebResourceRequest?,
+            error: WebResourceError?
+        ) {
+            handleReceivedError(request, error)
+            super.onReceivedError(view, request, error)
+        }
+
+        override fun shouldInterceptRequest(
+            view: WebView?,
+            request: WebResourceRequest?
+        ): WebResourceResponse? {
+            handleInterceptRequest(request, config)
+            return super.shouldInterceptRequest(view, request)
+        }
+    }
+
+
+    private inner class LegacyWebViewClient(private val config: SKWebViewVC.Config) :
+        WebViewClient() {
+        override fun onReceivedHttpError(
+            view: WebView?,
+            request: WebResourceRequest?,
+            errorResponse: WebResourceResponse?
+        ) {
+            handleHttpError(request, errorResponse, config)
+            super.onReceivedHttpError(view, request, errorResponse)
+        }
+
+        override fun shouldOverrideUrlLoading(
+            view: WebView?,
+            request: WebResourceRequest?
+        ): Boolean {
+            oneRedirectionAskedForCurrentOpenUrl = true
+            return handleUrlLoading(request, config)
+        }
+
+        override fun onReceivedHttpAuthRequest(
+            view: WebView?,
+            handler: HttpAuthHandler?,
+            host: String?,
+            realm: String?
+        ) {
+            config.onHttpAuthRequest?.invoke(host, realm) { login, password ->
+                handler?.proceed(login, password)
+            }
+        }
+
+        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+            config.javascriptOnStart?.invoke()?.let {
+                webView.evaluateJavascript(it, null)
+            }
+            super.onPageStarted(view, url, favicon)
+        }
+
+        override fun onPageFinished(view: WebView?, url: String?) {
+            openingUrl?.finished(url)
+            config.javascriptOnFinished?.invoke()?.let {
+                webView.evaluateJavascript(it, null)
+            }
+            super.onPageFinished(view, url)
+        }
+
+        override fun onReceivedError(
+            view: WebView?,
+            request: WebResourceRequest?,
+            error: WebResourceError?
+        ) {
+            SKLog.d("WebView onReceivedError ${error?.errorCode}")
+            handleReceivedError(request, error)
+            super.onReceivedError(view, request, error)
+        }
+
+        override fun shouldInterceptRequest(
+            view: WebView?,
+            request: WebResourceRequest?
+        ): WebResourceResponse? {
+            handleInterceptRequest(request, config)
+            return super.shouldInterceptRequest(view, request)
+        }
+    }
+
+
+    private fun handleRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (view == webView && detail?.didCrash() == true) {
+                recreateWebView()
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun handleUrlLoading(
+        request: WebResourceRequest?,
+        config: SKWebViewVC.Config
+    ): Boolean {
+        request?.url?.toSKUri()?.let { skUri ->
+            if (shouldOverrideUrl(skUri, config) || shouldHandleDeepLink(skUri)) {
+                return true
+            }
+        }
+
+        request?.let {
+            if (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    it.isForMainFrame && it.isRedirect
+                } else {
+                    true
+                }
+            ) {
+                oneRedirectionAskedForCurrentOpenUrl = true
+            }
+        }
+        return false
+    }
+
+    private fun shouldOverrideUrl(skUri: SKUri, config: SKWebViewVC.Config): Boolean {
+        return try {
+            config.shouldOverrideUrlLoading?.invoke(skUri) == true
+        } catch (ex: Exception) {
+            SKLog.e(ex, "Erreur dans l'invocation de shouldOverrideUrlLoading depuis SKWebViewView")
+            false
+        }
+    }
+
+    private fun shouldHandleDeepLink(skUri: SKUri): Boolean {
+        return try {
+            activity.featureInitializer.onDeepLink?.invoke(skUri, true) == true
+        } catch (ex: Exception) {
+            SKLog.e(ex, "Erreur dans l'invocation de onDeepLink depuis SKWebViewView")
+            false
+        }
+    }
+
+    private fun handleHttpError(
+        request: WebResourceRequest?,
+        errorResponse: WebResourceResponse?,
+        config: SKWebViewVC.Config
+    ) {
+        request?.url?.toSKUri()?.let { url ->
+            errorResponse?.statusCode?.let { statusCode ->
+                config.httpError(url, statusCode)
+            }
+        }
+    }
+
+    private fun handleHttpAuthRequest(
+        handler: HttpAuthHandler?,
+        host: String?,
+        realm: String?,
+        config: SKWebViewVC.Config
+    ) {
+        config.onHttpAuthRequest?.invoke(host, realm) { login, password ->
+            if (login == null || password == null) {
+                handler?.cancel()
+            } else {
+                handler?.proceed(login, password)
+            }
+        } ?: handler?.cancel()
+    }
+
+    private fun executeJavaScriptOnStart(config: SKWebViewVC.Config) {
+        config.javascriptOnStart?.invoke()?.let {
+            onEvaluateJavascript(it) {}
+        }
+    }
+
+    private fun handlePageFinished(url: String?, config: SKWebViewVC.Config) {
+        openingUrl?.finished(url)
+        config.javascriptOnFinished?.invoke()?.let {
+            onEvaluateJavascript(it) {}
+        }
+    }
+
+    private fun handleReceivedError(request: WebResourceRequest?, error: WebResourceError?) {
+        openingUrl?.error(request?.url, error?.errorCode)
+    }
+
+    private fun handleInterceptRequest(request: WebResourceRequest?, config: SKWebViewVC.Config) {
+        request?.url?.toSKUri()?.let { skUri ->
+            try {
+                config.onRequest?.invoke(skUri)
+            } catch (ex: Exception) {
+                SKLog.e(
+                    ex,
+                    "Erreur dans l'invocation de shouldInterceptRequest depuis SKWebViewView"
+                )
+            }
+        }
     }
 
 

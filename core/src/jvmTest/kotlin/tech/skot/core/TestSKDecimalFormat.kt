@@ -1,13 +1,14 @@
 package tech.skot.core
 
 import org.junit.Test
+import java.util.Locale
 import kotlin.test.assertEquals
 
 class TestSKDecimalFormat {
     @Test
     fun testFormat() {
-        val format1 = SKDecimalFormat("#0")
-        val format2 = SKDecimalFormat("#0.##")
+        val format1 = SKDecimalFormat("#0",Locale.FRANCE)
+        val format2 = SKDecimalFormat("#0.##",Locale.FRANCE)
 
         assertEquals(
             expected = "3",
@@ -32,8 +33,8 @@ class TestSKDecimalFormat {
 
     @Test
     fun testParse() {
-        val format1 = SKDecimalFormat("#0")
-        val format2 = SKDecimalFormat("#0.##")
+        val format1 = SKDecimalFormat("#0",Locale.FRANCE)
+        val format2 = SKDecimalFormat("#0.##",Locale.FRANCE)
 
         assertEquals(
             expected = 3.4,

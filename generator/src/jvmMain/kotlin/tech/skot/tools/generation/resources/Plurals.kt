@@ -131,7 +131,7 @@ fun Generator.generatePlurals() {
                     .addParameter("quantity", Int::class)
                     .addParameter("formatArgs", Any::class, KModifier.VARARG)
                     .returns(String::class)
-                    .addCode("return \"${it.toPluralsFunNAme()}_\${quantity}_\${formatArgs.joinToString(\"_\")}\"")
+                    .addCode($$"return \"$${it.toPluralsFunNAme()}_${quantity}_${formatArgs.joinToString(\"_\")}\"")
                     .build()
             },
         )

@@ -51,6 +51,6 @@ open class SKFunMock<C : Any, R : Any?>(val name: String) {
 
 class SKFunUnitMock<C : Any>(name: String) : SKFunMock<C, Unit>(name) {
     override fun getReturn() {
-        return Unit
+        return
     }
 }

@@ -75,7 +75,7 @@ fun LibraryExtension.androidBaseConfig(project: Project) {
 fun BaseAppModuleExtension.androidBaseConfig(project: Project) {
     val androidProperties = project.skReadAndroidProperties()
     androidBaseConfig(androidProperties)
-    compileSdk = tech.skot.Versions.android_compileSdk
+    compileSdk = Versions.android_compileSdk
     lint {
         abortOnError = false
     }

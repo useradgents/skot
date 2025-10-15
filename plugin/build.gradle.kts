@@ -185,7 +185,7 @@ fun buildVersionsFile() {
             .addStringConst("kotlinxDateTime", libs.versions.kotlinx.datetime.get())
             .addStringConst("ktor", libs.versions.ktor.get())
             .addStringConst("kotlin", libs.versions.kotlin.get())
-            .addStringConst("kotlinCoroutines", libs.versions.kotlinx.coroutines.asProvider().get())
+            .addStringConst("kotlinCoroutines", libs.versions.kotlinx.coroutines.get())
             .addStringConst("kotlinpoet", libs.versions.kotlinpoet.get())
             .addIntConst("android_minSdk", libs.versions.android.minSdk.get().toInt())
             .addIntConst("android_compileSdk", libs.versions.android.compileSdk.get().toInt())

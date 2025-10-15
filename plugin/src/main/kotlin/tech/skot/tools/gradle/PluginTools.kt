@@ -28,7 +28,6 @@ data class App(
     // le fullname d'une variable globale donnant la classe de base
     val baseActivityVar: String? = null,
     val initializationPlans: List<String> = emptyList(),
-    val iOs: Boolean = false,
     val referenceIconsByVariant: Boolean = false,
     val ktlintOnGeneratedFiles: Boolean = true,
 )
@@ -100,7 +99,6 @@ class PluginTools : Plugin<Project> {
                                     } else {
                                         app.initializationPlans.joinToString("_")
                                     },
-                                    app.iOs.toString(),
                                     app.referenceIconsByVariant.toString(),
                                 )
                         }

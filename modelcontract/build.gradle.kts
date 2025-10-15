@@ -10,9 +10,6 @@ version = Versions.version
 
 kotlin {
     jvm()
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
 
     compilerOptions {
         optIn.add("kotlin.time.ExperimentalTime")

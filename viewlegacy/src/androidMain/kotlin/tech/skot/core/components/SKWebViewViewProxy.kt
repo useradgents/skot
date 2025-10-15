@@ -15,7 +15,7 @@ class SKWebViewViewProxy(
         var LAYOUT_ID: Int? = null
     }
 
-    override val layoutId: Int?
+    override val layoutId: Int
         get() = LAYOUT_ID ?: R.layout.sk_webview
 
 
@@ -25,10 +25,7 @@ class SKWebViewViewProxy(
     )
 
     var state: State? = null
-        private set(value) {
-            field = value
-
-        }
+        private set
 
     fun setState(bundle: Bundle?) {
         state = bundle?.let {

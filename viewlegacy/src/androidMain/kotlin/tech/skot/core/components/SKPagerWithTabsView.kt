@@ -57,7 +57,7 @@ class SKPagerWithTabsView(
                                 fragment,
                                 it,
                             )
-                            tab.setCustomView(it)
+                            tab.customView = it
                         }
                     }
                     is SKPagerWithTabsVC.TabConfig.SpannableTitle -> {
@@ -70,10 +70,6 @@ class SKPagerWithTabsView(
                 this.attach()
             }
         automaticShowTabs()
-    }
-
-    override fun onRecycle() {
-        super.onRecycle()
     }
 
     private fun automaticShowTabs() {

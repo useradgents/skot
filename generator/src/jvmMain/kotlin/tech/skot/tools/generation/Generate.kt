@@ -89,8 +89,7 @@ fun buildGenerator(args: Array<String>): Generator {
         feature,
         baseActivityVar,
         initializationPlans = initPlans,
-        iOs = args[8].toBoolean(),
-        referenceIconsByVariant = args[9].toBoolean(),
+        referenceIconsByVariant = args[8].toBoolean(),
     )
 }
 
