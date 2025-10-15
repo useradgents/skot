@@ -11,7 +11,7 @@ class TestWrapSKData {
         val skdata: SKManualData<Int> = SKManualData<Int>(0)
 
         fun increment() {
-            skdata.value = skdata.value + 1
+            skdata.value += 1
         }
     }
 

@@ -148,7 +148,7 @@ open class GenericAdapter(vararg possibleDefs: ItemDef, private val noDiff: Bool
         item.bind(holder.itemView, position)
     }
 
-    inner class Holder(val item: ItemDef, parent: ViewGroup) : RecyclerView.ViewHolder(
+    class Holder(val item: ItemDef, parent: ViewGroup) : RecyclerView.ViewHolder(
         LayoutInflater.from(parent.context).inflate(item.idLayout, parent, false),
     ) {
         init {

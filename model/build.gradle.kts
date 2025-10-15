@@ -20,9 +20,6 @@ kotlin {
     compilerOptions {
         apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
     }
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
 
     jvm()
 
@@ -105,7 +102,6 @@ android {
 }
 
 dependencies {
-
     androidTestImplementation(libs.jetbrains.kotlin.test.junit)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.espresso.core)

@@ -54,7 +54,6 @@ class Generator(
     val feature: String?,
     val baseActivityVar: String?,
     val initializationPlans: List<InitializationPlan>,
-    val iOs: Boolean,
     val referenceIconsByVariant: Boolean,
 ) {
     class ModulesNames(

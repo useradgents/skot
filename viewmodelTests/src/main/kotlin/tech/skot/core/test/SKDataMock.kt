@@ -29,7 +29,7 @@ class SKDataMock<D : Any?>(val name: String) : SKData<D> {
     override val defaultValidity: Long
         @Throws(Exception::class)
         get() = internalManual?.defaultValidity ?: throw errorNotSetMessage
-    override val _current: DatedData<D>?
+    override val _current: DatedData<D>
         @Throws(Exception::class)
         get() {
             val currentInternalManual = internalManual

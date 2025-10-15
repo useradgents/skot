@@ -9,13 +9,7 @@ version = Versions.version
 
 kotlin {
     jvm()
-
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
-
     sourceSets {
-
         commonMain {
             dependencies {
                 api(project(":core"))
@@ -23,7 +17,6 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
             }
         }
-
         jvmTest {
             dependencies {
                 implementation(libs.jetbrains.kotlin.test.junit)

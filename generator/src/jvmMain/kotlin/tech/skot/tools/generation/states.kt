@@ -1,7 +1,14 @@
 package tech.skot.tools.generation
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.WildcardTypeName
+import com.squareup.kotlinpoet.asTypeName
 import kotlinx.serialization.Serializable
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
 import java.util.Locale
@@ -108,7 +115,7 @@ fun Generator.generateStates(rootState: StateDef) {
                                     separator = "_",
                                     prefix = "\"",
                                     postfix = "\""
-                                ) { "\${$it.key}" },
+                                ) { $$"${$$it.key}" },
                             ),
                         )
                         .build(),
@@ -134,7 +141,7 @@ fun Generator.generateStates(rootState: StateDef) {
                                     ) +
                                             keyProperties.map { "infos.${it.name}" }
                                     ).joinToString(separator = "_", prefix = "\"", postfix = "\"") {
-                                    "\${$it}"
+                                    $$"${$$it}"
                                 }
                         }
                     addProperty(

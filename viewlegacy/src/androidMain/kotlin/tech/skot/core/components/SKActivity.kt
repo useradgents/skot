@@ -1,6 +1,5 @@
 package tech.skot.core.components
 
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -43,9 +42,9 @@ abstract class SKActivity : AppCompatActivity() {
                 val data: Intent? = result.data
                 // This always logs ActivityResult{resultCode=RESULT_CANCELED, data=null}
                 SKLog.i("info data $result")
-                SKLog.i("info result code ${result.resultCode} ${Activity.RESULT_OK}")
+                SKLog.i("info result code ${result.resultCode} ${RESULT_OK}")
                 val returnedValue: Array<Uri>? =
-                    if (result.resultCode != Activity.RESULT_OK) {
+                    if (result.resultCode != RESULT_OK) {
                         null
                     } else if (data?.clipData != null) {
                         // The files are in data.clipData if the user selected multiple files
@@ -114,7 +113,6 @@ abstract class SKActivity : AppCompatActivity() {
                     try {
                         ContextCompat.getColor(applicationContext, typedValue.resourceId)
                     } catch (e: Exception) {
-                        null
                         Color.TRANSPARENT
                     }
                 }

@@ -13,7 +13,7 @@ open class SKInput(
     private val maxSize: Int? = null,
     private val regex: Regex? = null,
     private val modeErrorOnTap: Boolean = false,
-    private val afterValidation: ((validity: SKInput.Validity) -> Unit)? = null,
+    private val afterValidation: ((validity: Validity) -> Unit)? = null,
 ) : SKComponent<SKInputVC>() {
     sealed class Validity(val errorMessage: String?) {
         abstract val isValid: Boolean
@@ -27,7 +27,7 @@ open class SKInput(
         }
     }
 
-    public var setErrorLambda: ((error: String?) -> Unit)? = null
+    var setErrorLambda: ((error: String?) -> Unit)? = null
 
     protected open fun setError(error: String?) {
         setErrorLambda?.invoke(error) ?: run {
@@ -87,7 +87,7 @@ open class SKInput(
         }
     }
 
-    public fun updateValidy() {
+    fun updateValidy() {
         updateValidityWith(value)
         setError(validity.errorMessage)
     }
@@ -96,7 +96,18 @@ open class SKInput(
 
     private var validity: Validity = if (nullable) Validity.Valid else _error
 
+    /**
+     * Called when the input component gains focus.
+     *
+     * This method is invoked when the user taps on or navigates to the input field,
+     * making it the active input element. Override this method in subclasses to
+     * implement custom behavior when the input receives focus, such as clearing
+     * error states, updating UI elements, or triggering validation logic.
+     *
+     * The default implementation is empty and performs no action.
+     */
     protected open fun onFocus() {
+        // Default implementation is empty - override in subclasses to implement focus behavior
     }
 
     protected open fun onFocusLost() {
@@ -145,7 +156,7 @@ open class SKInputRegExp(
     maxSize: Int? = null,
     regex: Regex? = null,
     modeErrorOnTap: Boolean = false,
-    afterValidation: ((validity: SKInput.Validity) -> Unit)? = null,
+    afterValidation: ((validity: Validity) -> Unit)? = null,
 ) : SKInput(
         hint,
         nullable,
@@ -169,7 +180,7 @@ open class SKSimpleInput(
     maxSize: Int? = null,
     regex: Regex? = null,
     modeErrorOnTap: Boolean = false,
-    afterValidation: ((validity: SKInput.Validity) -> Unit)? = null,
+    afterValidation: ((validity: Validity) -> Unit)? = null,
 ) : SKInput(
         hint,
         nullable,

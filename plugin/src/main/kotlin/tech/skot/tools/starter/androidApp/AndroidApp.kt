@@ -1,6 +1,10 @@
 package tech.skot.tools.starter.androidApp
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.TypeSpec
 import tech.skot.tools.starter.BuildGradleGenerator
 import tech.skot.tools.starter.ModuleGenerator
 import tech.skot.tools.starter.StarterGenerator
@@ -79,7 +83,7 @@ fun StarterGenerator.androidApp()  {
                         FunSpec.builder("onCreate")
                             .addModifiers(KModifier.OVERRIDE)
                             .addCode(
-"""super.onCreate()
+                                """super.onCreate()
 Timber.plant(Timber.DebugTree())
 injector = BaseInjector(this,
                     generatedAppModules +

@@ -33,5 +33,10 @@ kotlin {
                 implementation(libs.jetbrains.kotlin.compiler.embeddable)
             }
         }
+        val jvmTest by getting {
+            dependencies {
+                implementation(libs.jetbrains.kotlin.test.junit)
+            }
+        }
     }
 }

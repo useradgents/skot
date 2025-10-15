@@ -17,9 +17,6 @@ kotlin {
     compilerOptions {
         apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
     }
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
 
     jvm()
 

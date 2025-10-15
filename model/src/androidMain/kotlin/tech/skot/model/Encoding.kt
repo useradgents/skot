@@ -1,3 +1,5 @@
+@file:Suppress("SameParameterValue")
+
 package tech.skot.model
 
 import android.util.Base64
@@ -5,6 +7,8 @@ import java.security.MessageDigest
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
+
+private const val HEX_CHARS = "0123456789ABCDEF"
 
 actual fun decodeBase64(
     str: String,
@@ -30,7 +34,7 @@ private fun hashString(
     type: String,
     input: String,
 ): String {
-    val HEX_CHARS = "0123456789ABCDEF"
+
     val bytes =
         MessageDigest
             .getInstance(type)

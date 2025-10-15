@@ -1,37 +1,62 @@
 # Changelog
 
+## Version `1.4.0-ua`
+
+### CHORE
+
+- remove ios target
+- update libraries
+- update to target sdk 36
+- clean a lot of code
+
+> [!IMPORTANT]  
+> remove the line iOS = true or false if present in the skot block of skot/build.gradle.kts, in the app initialization
+
+
 ## Version `1.3.13-ua`
+
 ### feat
+
 - #### SkInput
-  - add fun getCursorSelection(onResult : (Pair<Int, Int>) -> Unit)
+    - add fun getCursorSelection(onResult : (Pair<Int, Int>) -> Unit)
 
 ## Version `1.3.12-ua`
+
 ### chore
+
 - update dependencies
 - refactor code (replace deprecated code and remove some warning one generated code )
 
 ## Version `1.3.11-ua`
+
 ### fix
 
 - #### Webview
-  - save webview backstack on view destroy and restore it on go back to screen
+    - save webview backstack on view destroy and restore it on go back to screen
 
 ## Version `1.3.10-ua`
+
 ### chore
+
 - Update dependencies
 - Remove some warning in generated code
 
 ## Version `1.3.9-ua`
+
 ### chore
+
 - Update dependencies
 
 ## Version `1.3.8-ua`
+
 ### fix
-- Center Snackbar horizontally 
+
+- Center Snackbar horizontally
 
 ## Version `1.3.7-ua`
 
 ### chore
+
 - update libraries + kotlin
 
 ## Version `1.3.6-ua`
@@ -43,16 +68,19 @@
 ## Version `1.3.5-ua`
 
 ### feat
+
 - add infinite scroll on recyclerview
 
 ## Version `1.3.4-ua`
 
 ### chore
+
 - update libraries + kotlin
 
 ## Version `1.3.3-ua`
 
 ### feat
+
 - add exit() function on SKScreen to kill the Application
 
 ## Version `1.3.2-ua`
@@ -86,6 +114,7 @@
 ## Version `1.2.39-ua`
 
 ### FIX
+
 - add the possibility to do something via the config webview content crash
 
 ## Version `1.2.38-ua`
