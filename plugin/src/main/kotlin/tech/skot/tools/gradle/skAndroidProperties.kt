@@ -8,7 +8,7 @@ import tech.skot.Versions
 import java.io.FileInputStream
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.*
+import java.util.Properties
 
 const val SKOT_ANDROID_PROPERIES_FILE_NAME = "skot_android.properties"
 const val SKOT_IMPORTS_PROPERIES_FILE_NAME = "skot_imports.properties"
@@ -58,7 +58,6 @@ fun TestedExtension.androidBaseConfig(androidProperties: SKAndroidProperties?) {
     defaultConfig {
         minSdk = androidProperties?.minSdk ?: Versions.android_minSdk
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        targetSdk = Versions.android_compileSdk
     }
 }
 

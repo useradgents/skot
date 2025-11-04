@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import tech.skot.core.SKLog
+import java.lang.System.currentTimeMillis
 
 abstract class SimpleSKData<D : Any?> : SKData<D> {
     override val flow = MutableStateFlow<DatedData<D>?>(null)

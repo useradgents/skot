@@ -6,9 +6,9 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import tech.skot.core.SKLog
-import tech.skot.core.currentTimeMillis
 import tech.skot.core.di.get
 import tech.skot.model.persist.PersistDb
+import java.lang.System.currentTimeMillis
 
 data class DatedDataWithKey<D : Any>(val data: D, val id: String?, val timestamp: Long)
 

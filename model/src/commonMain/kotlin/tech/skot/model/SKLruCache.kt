@@ -2,7 +2,7 @@ package tech.skot.model
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import tech.skot.core.currentTimeMillis
+import java.lang.System.currentTimeMillis
 
 interface SKLruCache<K : Any, D : Any?> {
     suspend fun get(key: K): D

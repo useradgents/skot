@@ -1,4 +1,3 @@
-@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 @file:OptIn(ExperimentalTime::class)
 
 package tech.skot.core
@@ -6,21 +5,43 @@ package tech.skot.core
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-expect class SKDateFormat(pattern: String, formatTimeZone: TimeZone?=null) {
-    fun format(instant: Instant): String
 
-    fun format(localDateTime: LocalDateTime): String
+class SKDateFormat constructor(pattern: String, formatTimeZone: TimeZone?=null) {
+    private val sdf = SimpleDateFormat(pattern, Locale.getDefault()).apply {
+        formatTimeZone?.let {
+            timeZone = java.util.TimeZone.getTimeZone(it.id)
+        }
+    }
 
-    fun format(localDate: LocalDate): String
+    fun format(instant: Instant): String {
+        return sdf.format(Date(instant.toEpochMilliseconds()))
+    }
 
-    fun parse(str: String): Instant
+    fun format(localDateTime: LocalDateTime): String {
+        return format(localDateTime.toInstant(TimeZone.currentSystemDefault()))
+    }
+
+    fun format(localDate: LocalDate): String {
+        return format(localDate.toLocalDateTime())
+    }
+
+    @Throws(java.text.ParseException::class)
+    fun parse(str: String): Instant {
+        return Instant.fromEpochMilliseconds(sdf.parse(str).time)
+    }
 }
 
+
 fun LocalDate.toLocalDateTime() =
-    LocalDateTime(year = year,
+    LocalDateTime(
+        year = year,
         month = month,
         day = day,
         hour = 0,
