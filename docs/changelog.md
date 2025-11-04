@@ -1,5 +1,12 @@
 # Changelog
 
+## Version  `1.4.1-ua`
+
+### feat
+
+- #### SkCombo
+    - Make SKCombo choice item layout customizable
+
 ## Version `1.4.0-ua`
 
 ### CHORE

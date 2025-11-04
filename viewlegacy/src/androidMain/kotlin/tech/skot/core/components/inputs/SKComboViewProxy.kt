@@ -51,6 +51,13 @@ class SKComboViewProxy(
         SkComboBinding.inflate(layoutInflater, parent, attachToParent).also {
             it.root.tag = this.hashCode()
         }
+
+    companion object {
+        var CHOICE_LAYOUT_ID: Int? = null
+    }
+
+     val choiceItemLayoutID: Int
+        get() = CHOICE_LAYOUT_ID ?: R.layout.sk_combo_choice_item
 }
 
 abstract class SKCommonComboViewProxy<Binding : Any>(

@@ -4,7 +4,12 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.AutoCompleteTextView
+import android.widget.BaseAdapter
+import android.widget.Filter
+import android.widget.Filterable
+import android.widget.TextView
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import com.google.android.material.textfield.TextInputLayout
 import tech.skot.core.components.SKActivity
@@ -12,7 +17,6 @@ import tech.skot.core.components.SKComponentView
 import tech.skot.core.toColor
 import tech.skot.view.extensions.setVisible
 import tech.skot.view.extensions.strike
-import tech.skot.viewlegacy.R
 import tech.skot.viewlegacy.databinding.SkComboBinding
 
 class SKComboView(
@@ -21,13 +25,13 @@ class SKComboView(
     fragment: Fragment?,
     binding: SkComboBinding,
 ) : SKCommonComboView<SkComboBinding>(
-        proxy,
-        activity,
-        fragment,
-        binding,
-        binding.root,
-        binding.autoComplete,
-        R.layout.sk_combo_choice_item,
+    proxy = proxy,
+    activity = activity,
+    fragment = fragment,
+    binding = binding,
+    inputLayout = binding.root,
+    autoComplete = binding.autoComplete,
+    choiceItemLayoutID = proxy.choiceItemLayoutID
     ) {
     init {
         autoComplete.apply {
@@ -58,19 +62,24 @@ abstract class SKCommonComboView<Binding : Any>(
                     p1: View?,
                     viewGroup: ViewGroup?,
                 ): View {
-                    val tv =
+                    val v =
                         p1 ?: LayoutInflater.from(context)
                             .inflate(choiceItemLayoutID, viewGroup, false)
                     val choice = _choices[position]
 
-                    (tv as? TextView)?.let { textView ->
+
+                    val tv = (v as? ViewGroup)?.let { container ->
+                        (container.children.firstOrNull() as? TextView)
+                    } ?:  (v as? TextView)
+
+                    tv?.let { textView ->
                         textView.text = choice.text
                         textView.strike(choice.strikethrough)
                         choice.textColor?.toColor(context)?.let {
                             textView.setTextColor(it)
                         }
                     }
-                    return tv
+                    return v
                 }
 
                 override fun getItem(position: Int): Any {
