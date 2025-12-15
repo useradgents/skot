@@ -1,5 +1,11 @@
 # Changelog
+## Version `1.4.2-ua`
 
+### feat
+
+- #### Colors Generation
+    - Add support for variants in referenced colors generation
+  
 ## Version  `1.4.1-ua`
 
 ### feat

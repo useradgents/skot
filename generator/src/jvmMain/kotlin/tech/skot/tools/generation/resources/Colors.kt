@@ -18,6 +18,7 @@ import tech.skot.tools.generation.fileClassBuilder
 import tech.skot.tools.generation.fileInterfaceBuilder
 import tech.skot.tools.generation.getDocumentElement
 import java.nio.file.Files
+import java.nio.file.Path
 import java.util.stream.Collectors
 
 fun String.toAndroidResourcePropertyName() = replace('.', '_')
@@ -25,17 +26,26 @@ fun String.toAndroidResourcePropertyName() = replace('.', '_')
 fun Generator.generateColors() {
     println("colors .........")
     println("generate Colors interface .........")
-    val values = rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/values")
 
-    val colors =
-        if (!Files.exists(values)) {
-            emptyList()
+    fun Path.list(): List<String> =
+        if (!Files.exists(this)) {
+            emptyList<String>()
         } else {
-            Files.list(values).flatMap {
+            Files.list(this).flatMap {
                 it.getDocumentElement().childElements().stream().filter { it.tagName == "color" }
                     .map { it.getAttribute("name") }
             }.collect(Collectors.toList())
         }
+
+    val colors = (rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/values").list() +
+    if (referenceIconsByVariant) {
+        variantsCombinaison.flatMap {
+            rootPath.resolve(modules.view)
+                .resolve("src/androidMain/res${it}_referenced/values").list()
+        }
+    } else {
+        emptyList()
+    }).toSet()
 
     fun String.toColorsPropertyName() = decapitalizeAsciiOnly().replace('.', '_')
 
