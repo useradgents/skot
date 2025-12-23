@@ -5,10 +5,11 @@ package tech.skot.core
 
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-expect class SKDateFormat(pattern: String) {
+expect class SKDateFormat(pattern: String, locale: TimeZone?=null) {
     fun format(instant: Instant): String
 
     fun format(localDateTime: LocalDateTime): String

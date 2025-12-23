@@ -10,7 +10,7 @@ import java.util.Date
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-actual class SKDateFormat actual constructor(pattern: String) {
+actual class SKDateFormat actual constructor(pattern: String, locale: TimeZone?) {
     private val sdf = SimpleDateFormat(pattern)
 
     actual fun format(instant: Instant): String {

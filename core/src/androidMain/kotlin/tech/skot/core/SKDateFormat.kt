@@ -12,8 +12,10 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 
-actual class SKDateFormat actual constructor(pattern: String) {
-    private val sdf = SimpleDateFormat(pattern, Locale.getDefault())
+actual class SKDateFormat actual constructor(pattern: String, val locale: TimeZone?) {
+    private val sdf = SimpleDateFormat(pattern, Locale.getDefault()).apply {
+        locale?.let { timeZone = java.util.TimeZone.getTimeZone(it.id) }
+    }
 
     actual fun format(instant: Instant): String {
         return sdf.format(Date(instant.toEpochMilliseconds()))

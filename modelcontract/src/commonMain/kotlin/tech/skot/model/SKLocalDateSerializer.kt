@@ -10,10 +10,10 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import tech.skot.core.SKDateFormat
 
-open class SKLocalDateSerializer(name: String, pattern: String) : KSerializer<LocalDate> {
+open class SKLocalDateSerializer(name: String, pattern: String, locale: TimeZone?=null) : KSerializer<LocalDate> {
     override val descriptor = PrimitiveSerialDescriptor(name, PrimitiveKind.STRING)
 
-    private val dateFormat = SKDateFormat(pattern)
+    private val dateFormat = SKDateFormat(pattern, locale)
 
     fun serialize(obj: LocalDate) = dateFormat.format(obj)
 
