@@ -1,4 +1,11 @@
 # Changelog
+## Version `1.4.3-ua`
+
+### feat
+
+- #### SKDateFormat
+  - Add `timeZone` argument to `SKDateFormat` to specify the time zone used for formatting
+
 ## Version `1.4.2-ua`
 
 ### feat

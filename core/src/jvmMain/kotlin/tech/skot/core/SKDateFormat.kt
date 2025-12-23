@@ -7,11 +7,14 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-actual class SKDateFormat actual constructor(pattern: String) {
-    private val sdf = SimpleDateFormat(pattern)
+actual class SKDateFormat actual constructor(pattern: String, formatTimeZone: TimeZone?) {
+    private val sdf = SimpleDateFormat(pattern, Locale.getDefault()).apply {
+        formatTimeZone?.let { timeZone = java.util.TimeZone.getTimeZone(it.id) }
+    }
 
     actual fun format(instant: Instant): String {
         return sdf.format(Date(instant.toEpochMilliseconds()))
