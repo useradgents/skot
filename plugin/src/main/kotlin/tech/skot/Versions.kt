@@ -19,7 +19,7 @@ public object Versions {
 
   public const val ktor: String = "3.3.1"
 
-  public const val kotlin: String = "2.2.0"
+  public const val kotlin: String = "2.3.0"
 
   public const val kotlinCoroutines: String = "1.10.2"
 
