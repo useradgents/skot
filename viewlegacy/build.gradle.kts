@@ -34,6 +34,9 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     namespace = "tech.skot.viewlegacy"
     testNamespace = "tech.skot.viewlegacytests"
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 kotlin {
@@ -55,8 +58,4 @@ kotlin {
 
     sourceSets["androidMain"].dependencies {
     }
-
-    // sourceSets["androidInstrumentedTest"].resources.srcDir("src/androidMain/res_test")
-
-    println("-----@@@@@@@---- ${sourceSets.asMap}")
 }

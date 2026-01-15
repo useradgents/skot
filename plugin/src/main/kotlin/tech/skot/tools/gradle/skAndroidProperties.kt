@@ -56,6 +56,7 @@ fun Project.skReadImportsProperties(): SKImportsProperties? = skReadImportsPrope
 
 fun TestedExtension.androidBaseConfig(androidProperties: SKAndroidProperties?) {
     defaultConfig {
+        targetSdk = Versions.android_targetSdk
         minSdk = androidProperties?.minSdk ?: Versions.android_minSdk
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

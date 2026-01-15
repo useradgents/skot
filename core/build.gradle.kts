@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
     kotlin("multiplatform")
-    id("com.android.library")
+    id("com.android.kotlin.multiplatform.library")
     id("maven-publish")
     signing
 }
@@ -19,9 +19,17 @@ kotlin {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
     jvm()
-    androidTarget {
-        publishLibraryVariants("release")
+
+    androidLibrary {
+        namespace = "tech.skot.core"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
+        withDeviceTest {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
     }
+
     sourceSets {
         commonMain {
             dependencies {
@@ -49,7 +57,8 @@ kotlin {
                 implementation(libs.jetbrains.kotlin.test.junit)
             }
         }
-        val androidInstrumentedTest by getting {
+
+        getByName("androidDeviceTest") {
             dependencies {
                 implementation(libs.espresso.core)
                 implementation(libs.core.ktx)
@@ -58,15 +67,6 @@ kotlin {
             }
         }
     }
-}
-
-android {
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    namespace = "tech.skot.core"
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
