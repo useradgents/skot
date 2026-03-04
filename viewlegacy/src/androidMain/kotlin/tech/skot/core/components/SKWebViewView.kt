@@ -50,8 +50,8 @@ class SKWebViewView(
     private fun SKWebViewVC.Config.configureWebViewSettings() {
         webView.settings.apply {
             userAgentString = userAgent
-            javaScriptEnabled = javascriptEnabled
-            domStorageEnabled = domStorageEnabled
+            javaScriptEnabled = this@configureWebViewSettings.javascriptEnabled
+            domStorageEnabled = this@configureWebViewSettings.domStorageEnabled
         }
     }
 

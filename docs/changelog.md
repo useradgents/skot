@@ -1,4 +1,11 @@
 # Changelog
+## Version `1.4.4-ua`
+
+### fix
+
+- #### SkWebView
+  - fix domStorageEnabled settings
+
 ## Version `1.4.3-ua`
 
 ### feat
