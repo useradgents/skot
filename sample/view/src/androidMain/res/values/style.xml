@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="windowNoTitle">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
+    <style name="SplashTheme" parent="AppTheme">
+        <!--Ici ajouter un background qui sera affiché dès le lancement de l'app, avant le calcul du premier écran-->
+        <!--item name="android:windowBackground">@drawable/background_splash</item-->
+    </style>
+</resources>            

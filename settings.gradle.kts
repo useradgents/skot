@@ -13,3 +13,5 @@ include(":plugin")
 include(":generator")
 include(":viewmodelTests")
 include(":viewlegacyTests")
+
+includeBuild("sample")

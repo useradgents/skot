@@ -2,6 +2,9 @@
 
 package tech.skot
 
+import kotlin.Int
+import kotlin.String
+
 /**
  * This code is generated from build.gradle.kts
  */

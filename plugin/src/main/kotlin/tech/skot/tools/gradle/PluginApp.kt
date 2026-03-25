@@ -7,13 +7,16 @@ import org.gradle.kotlin.dsl.DependencyHandlerScope
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.project
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import tech.skot.Versions
 
 class PluginApp : Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.apply("com.android.application")
+        project.plugins.apply("org.jetbrains.kotlin.android")
 
         project.extensions.findByType(BaseAppModuleExtension::class)?.conf(project)
+        project.extensions.findByType(KotlinAndroidProjectExtension::class)?.jvmToolchain(17)
 
         project.dependencies {
             dependencies(project)

@@ -9,7 +9,8 @@ import kotlin.reflect.full.memberProperties
 
 fun copyBuildFileToImplementation(
     build: Any,
-    project: Project,
+    outputDir: java.io.File,
+    versionCode: Int,
     addingVersionCodeAndDebug: Boolean,
     debug: Boolean,
 ) {
@@ -34,7 +35,7 @@ fun copyBuildFileToImplementation(
                             Int::class,
                             com.squareup.kotlinpoet.KModifier.CONST,
                         )
-                            .initializer(project.skVersionCode().toString())
+                            .initializer(versionCode.toString())
                             .build(),
                     )
 
@@ -77,5 +78,5 @@ fun copyBuildFileToImplementation(
                 }
             }
     file.addType(classBuilderCommon.build())
-    file.build().writeTo(project.projectDir.resolve("generated/commonMain/kotlin"))
+    file.build().writeTo(outputDir)
 }

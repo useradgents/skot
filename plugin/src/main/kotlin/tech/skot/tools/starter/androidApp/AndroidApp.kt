@@ -68,7 +68,6 @@ fun StarterGenerator.androidApp()  {
 
         buildGradle {
             plugin(BuildGradleGenerator.Plugin.Id("tech.skot.app"))
-            plugin(BuildGradleGenerator.Plugin.Kotlin("android"))
 
             androidBlock = startGradleAndroidBlock.replace("###APPLICATION_ID###", androidApplicationId)
         }

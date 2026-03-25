@@ -8,6 +8,7 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.project
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
 import tech.skot.tools.gradle.SKLibrary.Companion.addDependenciesToViewLegacy
@@ -16,6 +17,11 @@ import tech.skot.tools.gradle.SKLibrary.Companion.addDependenciesToViewLegacy
 class PluginViewLegacy : Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.apply("com.android.library")
+
+        if (!project.plugins.hasPlugin("org.jetbrains.kotlin.multiplatform")) {
+            project.plugins.apply("org.jetbrains.kotlin.android")
+            project.extensions.findByType(KotlinAndroidProjectExtension::class)?.jvmToolchain(17)
+        }
 
         project.extensions.findByType(LibraryExtension::class)?.android(project)
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
