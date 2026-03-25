@@ -5,7 +5,12 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
-import tech.skot.tools.generation.*
+import tech.skot.tools.generation.ComponentDef
+import tech.skot.tools.generation.FrameworkClassNames
+import tech.skot.tools.generation.Generator
+import tech.skot.tools.generation.addImportClassName
+import tech.skot.tools.generation.addImportTypeName
+import tech.skot.tools.generation.simpleName
 
 fun Generator.generateViewInjectorMock() {
     FileSpec.builder(viewInjectorMock.packageName, viewInjectorMock.simpleName)
@@ -17,6 +22,8 @@ fun Generator.generateViewInjectorMock() {
                 )
                 .build(),
         )
+        .addKotlinDefaultImports()
+        .indent("    ")
         .apply {
             components.forEach {
                 addImportClassName(it.viewMock())

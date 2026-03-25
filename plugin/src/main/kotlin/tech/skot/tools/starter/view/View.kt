@@ -1,6 +1,12 @@
 package tech.skot.tools.starter.view
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeSpec
 import tech.skot.Versions
 import tech.skot.tools.generation.writeStringTo
 import tech.skot.tools.starter.BuildGradleGenerator
@@ -37,6 +43,8 @@ fun StarterGenerator.view() {
             )
 
         FileSpec.builder(baseActivityClassName.packageName, baseActivityClassName.simpleName)
+            .addKotlinDefaultImports()
+            .indent("    ")
             .addType(
                 TypeSpec.classBuilder(baseActivityClassName.simpleName)
                     .superclass(ClassName("tech.skot.core.components", "SKActivity"))
@@ -66,6 +74,8 @@ fun StarterGenerator.view() {
 
         val initializeView = ClassName("${configuration.appPackage}.di", "initializeView")
         FileSpec.builder(initializeView.packageName, initializeView.simpleName)
+            .addKotlinDefaultImports()
+            .indent("    ")
             .addImport("tech.skot.core.components", "SKComponentView")
             .addImport("android.view", "Gravity")
             .addImport("android.widget", "FrameLayout")

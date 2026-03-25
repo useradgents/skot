@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+	<application >
+        <activity
+            android:name="io.uad.skotsample.android.RootActivity"
+            android:allowTaskReparenting="true"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.VIEW" />-->
+
+<!--                <category android:name="android.intent.category.DEFAULT" />-->
+<!--                <category android:name="android.intent.category.BROWSABLE" />-->
+<!--                -->
+<!--                <data-->
+<!--                    android:host="my_host"-->
+<!--                    android:pathPattern="/my/path/*/pattern"-->
+<!--                    android:scheme="https" />-->
+<!--            </intent-filter>-->
+        </activity>
+        <activity
+            android:name="io.uad.skotsample.android.BaseActivity"
+            android:allowTaskReparenting="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"/>
+        
+	</application>
+</manifest>

@@ -1,8 +1,17 @@
 package tech.skot.tools.generation.viewlegacy
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import tech.skot.tools.generation.*
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeName
+import tech.skot.tools.generation.FrameworkClassNames
+import tech.skot.tools.generation.Generator
+import tech.skot.tools.generation.addImportClassName
+import tech.skot.tools.generation.fileClassBuilder
+import tech.skot.tools.generation.suffix
 import java.nio.file.Files
 
 fun Generator.generateViewLegacy() {
@@ -42,6 +51,8 @@ fun Generator.generateViewLegacy() {
                     it.proxy().packageName,
                     it.proxy().simpleName,
                 )
+                    .addKotlinDefaultImports()
+                    .indent("    ")
                     .addType(it.buildProxy(this, viewModuleAndroidPackage, baseActivity))
                     .addType(it.buildRAI(viewModuleAndroidPackage))
                     .apply {
@@ -61,6 +72,8 @@ fun Generator.generateViewLegacy() {
                 it.viewImpl().packageName,
                 it.viewImpl().simpleName,
             )
+                .addKotlinDefaultImports()
+                .indent("    ")
                 .addType(it.buildViewImpl(viewModuleAndroidPackage))
                 .apply {
                     it.interfacesImpl.forEach {

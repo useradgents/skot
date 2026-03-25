@@ -1,11 +1,20 @@
 package tech.skot.tools.gradle
 
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
+import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
@@ -14,69 +23,83 @@ open class SKPluginModelContractExtension {
     var buildFiles: List<Any>? = null
 }
 
-@Suppress( "UNUSED_PARAMETER")
+abstract class SKCopyBuildFileTask : DefaultTask() {
+    @get:Internal
+    abstract val buildFiles: ListProperty<Any>
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @get:Input
+    abstract val versionCode: Property<Int>
+
+    @get:Input
+    abstract val addingVersionCodeAndDebug: Property<Boolean>
+
+    @get:Input
+    abstract val debug: Property<Boolean>
+
+    @TaskAction
+    fun copy() {
+        buildFiles.get().forEach {
+            copyBuildFileToImplementation(
+                build = it,
+                outputDir = outputDir.get().asFile,
+                versionCode = versionCode.get(),
+                addingVersionCodeAndDebug = addingVersionCodeAndDebug.get(),
+                debug = debug.get()
+            )
+        }
+    }
+}
+
+@Suppress("UNUSED_PARAMETER")
 class PluginModelContract : Plugin<Project> {
     override fun apply(project: Project) {
+        println("==== PluginModelContract.apply() DEBUT pour ${project.name} ====")
         val extension = project.extensions.create<SKPluginModelContractExtension>("skot")
-        project.plugins.apply("com.android.library")
+        project.plugins.apply("com.android.kotlin.multiplatform.library")
         project.plugins.apply("maven-publish")
         project.plugins.apply("kotlinx-serialization")
 
-        project.extensions.findByType(LibraryExtension::class)?.conf(project, extension)
+        val outputDirValue = project.layout.projectDirectory.dir("generated/commonMain/kotlin")
+        val appProvider = project.provider { extension.buildFiles ?: emptyList<Any>() }
+        val versionCodeProvider = project.providers.provider { project.skVersionCode() }
 
+        val copyDebug = project.tasks.register<SKCopyBuildFileTask>("skCopyBuildFileDebug") {
+            buildFiles.set(appProvider)
+            this.outputDir.set(outputDirValue)
+            this.versionCode.set(versionCodeProvider)
+            this.addingVersionCodeAndDebug.set(true)
+            this.debug.set(true)
+            onlyIf {
+                project.gradle.taskGraph.allTasks.any { it.name == "preDebugBuild" }
+            }
+        }
+
+        val copyRelease = project.tasks.register<SKCopyBuildFileTask>("skCopyBuildFileRelease") {
+            buildFiles.set(appProvider)
+            this.outputDir.set(outputDirValue)
+            this.versionCode.set(versionCodeProvider)
+            this.addingVersionCodeAndDebug.set(true)
+            this.debug.set(false)
+            onlyIf {
+                project.gradle.taskGraph.allTasks.any { it.name == "preReleaseBuild" }
+            }
+        }
+
+        project.extensions.findByType(KotlinMultiplatformAndroidLibraryExtension::class)?.androidBaseConfig(project)
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
 
         project.afterEvaluate {
-            project.tasks.getByName("preDebugBuild").doFirst {
-                extension.buildFiles?.let {
-                    it.forEach {
-                        copyBuildFileToImplementation(
-                            build = it,
-                            project = project,
-                            addingVersionCodeAndDebug = true,
-                            debug = true
-                        )
+            project.extensions.findByType(KotlinMultiplatformExtension::class)
+                ?.targets
+                ?.flatMap { it.compilations }
+                ?.forEach { compilation ->
+                    compilation.compileTaskProvider.configure {
+                        dependsOn(copyDebug, copyRelease)
                     }
                 }
-            }
-            project.tasks.getByName("preReleaseBuild").doFirst {
-                extension.buildFiles?.let {
-                    it.forEach {
-                        copyBuildFileToImplementation(
-                            build = it,
-                            project = project,
-                            addingVersionCodeAndDebug = true,
-                            debug = false
-                        )
-                    }
-                }
-            }
-            project.tasks.getByName("compileKotlinJvm").doFirst {
-                extension.buildFiles?.let {
-                    it.forEach {
-                        copyBuildFileToImplementation(
-                            build = it,
-                            project = project,
-                            addingVersionCodeAndDebug = true,
-                            debug = false
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun LibraryExtension.conf(
-        project: Project,
-        extension: SKPluginModelContractExtension,
-    ) {
-        androidBaseConfig(project)
-
-        sourceSets {
-            getByName("main").java.srcDirs("generated/androidMain/kotlin")
-            getByName("main").java.srcDirs("src/androidMain/kotlin")
-            getByName("main").manifest.srcFile("src/androidMain/AndroidManifest.xml")
-            getByName("main").res.srcDir("src/androidMain/res")
         }
     }
 
@@ -84,12 +107,10 @@ class PluginModelContract : Plugin<Project> {
         jvmToolchain(17)
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)
             optIn.add("kotlin.time.ExperimentalTime")
         }
         jvm()
-        androidTarget {
-        }
 
         sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
         sourceSets["commonMain"].dependencies {

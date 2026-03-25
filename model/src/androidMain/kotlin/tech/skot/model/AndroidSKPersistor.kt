@@ -1,7 +1,7 @@
 package tech.skot.model
 
 import android.content.Context
-import com.squareup.sqldelight.android.AndroidSqliteDriver
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import tech.skot.model.persist.PersistDb
 
 class AndroidSKPersistor(context: Context, dbFilename: String, cache: Boolean = false) : CommonSKPersistor() {

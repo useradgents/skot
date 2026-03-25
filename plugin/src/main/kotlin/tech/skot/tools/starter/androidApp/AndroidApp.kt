@@ -68,7 +68,6 @@ fun StarterGenerator.androidApp()  {
 
         buildGradle {
             plugin(BuildGradleGenerator.Plugin.Id("tech.skot.app"))
-            plugin(BuildGradleGenerator.Plugin.Kotlin("android"))
 
             androidBlock = startGradleAndroidBlock.replace("###APPLICATION_ID###", androidApplicationId)
         }
@@ -76,6 +75,8 @@ fun StarterGenerator.androidApp()  {
         println("------generate Application")
 
         FileSpec.builder(configuration.appPackage + ".android", androidApplicationClass!!)
+            .addKotlinDefaultImports()
+            .indent("    ")
             .addType(
                 TypeSpec.classBuilder(androidApplicationClass!!)
                     .superclass(ClassName("android.app", "Application"))

@@ -1,6 +1,6 @@
 package tech.skot.model
 
-import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
+import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import tech.skot.model.persist.PersistDb
 
 class JvmSKPersistor(dbFilename: String) : CommonSKPersistor() {

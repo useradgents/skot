@@ -304,16 +304,16 @@ class Generator(
                                 LambdaTypeName.get(
                                     null,
                                     parameters =
-                                    listOf(
-                                        ParameterSpec.builder(
-                                            name = "uri",
-                                            type = FrameworkClassNames.skUri,
-                                        ).build(),
-                                        ParameterSpec.builder(
-                                            name = "fromWebView",
-                                            type = Boolean::class.asTypeName(),
-                                        ).build(),
-                                    ),
+                                        listOf(
+                                            ParameterSpec.builder(
+                                                name = "uri",
+                                                type = FrameworkClassNames.skUri,
+                                            ).build(),
+                                            ParameterSpec.builder(
+                                                name = "fromWebView",
+                                                type = Boolean::class.asTypeName(),
+                                            ).build(),
+                                        ),
                                     returnType = Boolean::class.asTypeName(),
                                 ),
                             )
@@ -325,12 +325,12 @@ class Generator(
                                 LambdaTypeName.get(
                                     returnType = Unit::class.asTypeName(),
                                     parameters =
-                                    listOf(
-                                        ParameterSpec(
-                                            name = "action",
-                                            type = String::class.asTypeName().nullable()
+                                        listOf(
+                                            ParameterSpec(
+                                                name = "action",
+                                                type = String::class.asTypeName().nullable()
+                                            ),
                                         ),
-                                    ),
                                 )
                                     .copy(suspending = true),
                             )
@@ -355,37 +355,40 @@ class Generator(
         FileSpec.builder(
             viewInjectorInterface.packageName,
             viewInjectorInterface.simpleName,
-        ).addType(
-            TypeSpec.interfaceBuilder(viewInjectorInterface.simpleName)
-                .addFunctions(
-                    components.map {
-                        FunSpec.builder(it.name.decapitalizeAsciiOnly())
-                            .addModifiers(KModifier.ABSTRACT)
-                            .apply {
-                                if (it.isScreen) {
-                                    addParameter(
-                                        name = VISIBILITY_LISTENER_VAR_NAME,
-                                        type = FrameworkClassNames.skVisiblityListener,
-                                    )
-                                }
-                            }
-                            .addParameters(
-                                it.subComponents.map { it.asParam() },
-                            )
-                            .addParameters(
-                                it.fixProperties.map { it.asParam() },
-                            )
-                            .addParameters(
-                                it.mutableProperties.map {
-                                    it.initial().asParam(withDefaultNullIfNullable = true)
-                                },
-                            )
-                            .returns(it.vc)
-                            .build()
-                    },
-                )
-                .build(),
         )
+            .addKotlinDefaultImports()
+            .indent("    ")
+            .addType(
+                TypeSpec.interfaceBuilder(viewInjectorInterface.simpleName)
+                    .addFunctions(
+                        components.map {
+                            FunSpec.builder(it.name.decapitalizeAsciiOnly())
+                                .addModifiers(KModifier.ABSTRACT)
+                                .apply {
+                                    if (it.isScreen) {
+                                        addParameter(
+                                            name = VISIBILITY_LISTENER_VAR_NAME,
+                                            type = FrameworkClassNames.skVisiblityListener,
+                                        )
+                                    }
+                                }
+                                .addParameters(
+                                    it.subComponents.map { it.asParam() },
+                                )
+                                .addParameters(
+                                    it.fixProperties.map { it.asParam() },
+                                )
+                                .addParameters(
+                                    it.mutableProperties.map {
+                                        it.initial().asParam(withDefaultNullIfNullable = true)
+                                    },
+                                )
+                                .returns(it.vc)
+                                .build()
+                        },
+                    )
+                    .build(),
+            )
             .build().writeTo(generatedCommonSources(modules.viewcontract))
     }
 
@@ -463,6 +466,8 @@ class Generator(
     @ExperimentalStdlibApi
     fun generateAppModule() {
         FileSpec.builder(generatedAppModules.packageName, generatedAppModules.simpleName)
+            .addKotlinDefaultImports()
+            .indent("    ")
             .addProperty(
                 PropertySpec.builder(
                     generatedAppModules.simpleName,
@@ -470,6 +475,7 @@ class Generator(
                         module.parameterizedBy(baseInjector),
                     ),
                 )
+
                     .initializer(
                         CodeBlock.builder()
                             .beginControlFlow("listOf(module")

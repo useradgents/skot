@@ -7,12 +7,13 @@ import com.squareup.kotlinpoet.TypeSpec
 import tech.skot.Versions
 import tech.skot.tools.generation.writeLinesTo
 import tech.skot.tools.starter.StarterGenerator
-import tech.skot.tools.starter.buildsrc.buildGradle
 
 fun StarterGenerator.buildSrc() {
     rootDir.writeLinesTo("buildSrc/build.gradle.kts", buildGradle())
 
     FileSpec.builder("", "Build")
+        .addKotlinDefaultImports()
+        .indent("    ")
         .addType(
             TypeSpec.objectBuilder("Build")
                 .addProperty(
@@ -38,6 +39,8 @@ fun StarterGenerator.buildSrc() {
         ).build().writeTo(rootDir.resolve("buildSrc/src/main/kotlin"))
 
     FileSpec.builder("", "Versions")
+        .addKotlinDefaultImports()
+        .indent("    ")
         .addType(
             TypeSpec.objectBuilder("Versions")
                 .addProperty(

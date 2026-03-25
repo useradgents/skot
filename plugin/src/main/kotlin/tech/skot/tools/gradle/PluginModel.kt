@@ -1,6 +1,7 @@
 package tech.skot.tools.gradle
 
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
+import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.findByType
@@ -9,55 +10,30 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
 
-// open class SKPluginModelExtension {
-//    var message: String? = null
-// }
-
 class PluginModel : Plugin<Project> {
     override fun apply(project: Project) {
-//        val extension = project.extensions.create<SKPluginContractExtension>("skot")
-        project.plugins.apply("com.android.library")
+        project.plugins.apply("com.android.kotlin.multiplatform.library")
         project.plugins.apply("kotlinx-serialization")
 
-        project.extensions.findByType(LibraryExtension::class)?.conf(project)
-
+        project.extensions.findByType(KotlinMultiplatformAndroidLibraryExtension::class)?.androidBaseConfig(project)
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
-    }
-
-    private fun LibraryExtension.conf(project: Project) {
-        androidBaseConfig(project)
-
-        sourceSets {
-            getByName("main") {
-                java.srcDirs("src/androidMain/kotlin")
-                res.srcDir("src/androidMain/res")
-                manifest.srcFile("src/androidMain/AndroidManifest.xml")
-
-                skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
-                    res.srcDir("src/androidMain/res$it")
-                    java.srcDir("src/androidMain/kotlin$it")
-                }
+        project.extensions.findByType(KotlinMultiplatformAndroidComponentsExtension::class)?.onVariants { variant ->
+            skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
+                variant.sources.res?.addStaticSourceDirectory("src/androidMain/res$it")
             }
-        }
-
-        packaging {
-            resources.excludes.add("META-INF/*.kotlin_module")
-            resources.excludes.add("META-INF/*")
         }
     }
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)
             optIn.add("kotlin.time.ExperimentalTime")
-        }
-        androidTarget {
         }
         jvm()
 
-        sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
 
+        sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
         val parentProjectPath = project.parent?.path ?: ""
 
         sourceSets["commonMain"].dependencies {
@@ -76,6 +52,7 @@ class PluginModel : Plugin<Project> {
         skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
             sourceSets["commonMain"].kotlin.srcDir("src/commonMain/kotlin$it")
             sourceSets["androidMain"].kotlin.srcDir("src/androidMain/kotlin$it")
+            sourceSets["androidMain"].resources.srcDir("src/androidMain/res$it")
         }
 
         sourceSets["jvmTest"].kotlin.srcDir("generated/jvmTest")

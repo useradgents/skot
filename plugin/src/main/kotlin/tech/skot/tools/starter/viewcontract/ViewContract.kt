@@ -19,6 +19,8 @@ fun StarterGenerator.viewContract()  {
 
         val splashVC = ClassName("${configuration.appPackage}.screens", "SplashVC")
         FileSpec.builder(splashVC.packageName, splashVC.simpleName)
+            .addKotlinDefaultImports()
+            .indent("    ")
             .addType(
                 TypeSpec.interfaceBuilder(splashVC.simpleName)
                     .addSuperinterface(ClassName("tech.skot.core.components", "SKScreenVC"))

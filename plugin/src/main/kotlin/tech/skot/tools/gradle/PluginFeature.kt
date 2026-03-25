@@ -28,11 +28,11 @@ class PluginFeature : Plugin<Project> {
         println("############## applying skot-feature LibraryExtension !!!")
         sourceSets {
             getByName("main") {
-                java.srcDir("src/androidMain/kotlin")
-                java.srcDir("generated/androidMain/kotlin")
+                kotlin.srcDir("src/androidMain/kotlin")
+                kotlin.srcDir("generated/androidMain/kotlin")
                 skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach<String> {
-                    java.srcDir("src/androidMain/kotlin$it")
-                    java.srcDir("generated$it/androidMain/kotlin")
+                    kotlin.srcDir("src/androidMain/kotlin$it")
+                    kotlin.srcDir("generated$it/androidMain/kotlin")
                     res.srcDir("src/androidMain/res$it")
                 }
                 res.srcDir("src/androidMain/res")
@@ -41,7 +41,7 @@ class PluginFeature : Plugin<Project> {
                 manifest.srcFile("src/androidMain/AndroidManifest.xml")
             }
             getByName("androidTest") {
-                java.srcDir("src/androidTest/kotlin")
+                kotlin.srcDir("src/androidTest/kotlin")
             }
         }
 

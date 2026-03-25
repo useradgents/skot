@@ -1,6 +1,6 @@
 package tech.skot.tools.gradle
 
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.findByType
@@ -10,30 +10,14 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
 import tech.skot.tools.gradle.SKLibrary.Companion.addDependenciesToLibraries
 
-// open class SKPluginViewContractExtension {
-// }
-
 class PluginViewContract : Plugin<Project> {
     override fun apply(project: Project) {
-//        val extension = project.extensions.create<SKPluginContractExtension>("skot")
-        project.plugins.apply("com.android.library")
+        project.plugins.apply("com.android.kotlin.multiplatform.library")
         project.plugins.apply("maven-publish")
         project.plugins.apply("kotlinx-serialization")
 
-        project.extensions.findByType(LibraryExtension::class)?.conf(project)
-
+        project.extensions.findByType(KotlinMultiplatformAndroidLibraryExtension::class)?.androidBaseConfig(project)
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
-    }
-
-    private fun LibraryExtension.conf(project: Project) {
-        androidBaseConfig(project)
-
-        sourceSets {
-            getByName("main").kotlin.srcDirs("generated/androidMain/kotlin")
-            getByName("main").kotlin.srcDirs("src/androidMain/kotlin")
-            getByName("main").manifest.srcFile("src/androidMain/AndroidManifest.xml")
-            getByName("main").res.srcDir("src/androidMain/res")
-        }
     }
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
@@ -41,12 +25,10 @@ class PluginViewContract : Plugin<Project> {
 
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)
             optIn.add("kotlin.time.ExperimentalTime")
         }
         jvm()
-        androidTarget {
-        }
 
         sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
         sourceSets["commonMain"].dependencies {

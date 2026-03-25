@@ -1,10 +1,27 @@
 package tech.skot.tools.generation.viewmodel
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asTypeName
 import tech.skot.model.SKData
 import tech.skot.model.SKPaginatedData
-import tech.skot.tools.generation.*
+import tech.skot.tools.generation.FrameworkClassNames
+import tech.skot.tools.generation.Generator
+import tech.skot.tools.generation.ParamInfos
+import tech.skot.tools.generation.addPrimaryConstructorWithParams
+import tech.skot.tools.generation.fileClassBuilder
+import tech.skot.tools.generation.isNullableString
+import tech.skot.tools.generation.isString
+import tech.skot.tools.generation.isUnit
+import tech.skot.tools.generation.ownFuncs
+import tech.skot.tools.generation.ownProperties
+import tech.skot.tools.generation.primitiveDefaultInit
+import tech.skot.tools.generation.stripJsAnnotations
 import tech.skot.tools.generation.viewlegacy.callClassName
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -45,7 +62,7 @@ fun Generator.generateModelMock() {
                         when {
                             it.returnType.isString() || it.returnType.isNullableString() -> {
                                 addProperty(
-                                    PropertySpec.builder(it.name, it.returnType.asTypeName())
+                                    PropertySpec.builder(it.name, it.returnType.asTypeName().stripJsAnnotations())
                                         .addModifiers(KModifier.OVERRIDE)
                                         .mutable(true)
                                         .initializer("\"${it.name}\"")
@@ -57,7 +74,7 @@ fun Generator.generateModelMock() {
                                     PropertySpec.builder(
                                         it.name,
                                         FrameworkClassNames.skPaginatedDataMock.parameterizedBy(
-                                            it.returnType.arguments.first().type!!.asTypeName(),
+                                            it.returnType.arguments.first().type!!.asTypeName().stripJsAnnotations(),
                                         ),
                                     )
                                         .addModifiers(KModifier.OVERRIDE)
@@ -69,7 +86,7 @@ fun Generator.generateModelMock() {
                                 addProperty(
                                     PropertySpec.builder(
                                         it.name,
-                                        FrameworkClassNames.skDataMock.parameterizedBy(it.returnType.arguments.first().type!!.asTypeName()),
+                                        FrameworkClassNames.skDataMock.parameterizedBy(it.returnType.arguments.first().type!!.asTypeName().stripJsAnnotations()),
                                     )
                                         .addModifiers(KModifier.OVERRIDE)
                                         .initializer("${FrameworkClassNames.skDataMock.simpleName}(\"${it.name}\")")
@@ -80,7 +97,7 @@ fun Generator.generateModelMock() {
                                 val primInit = it.returnType.primitiveDefaultInit()
                                 if (primInit != null) {
                                     addProperty(
-                                        PropertySpec.builder(it.name, it.returnType.asTypeName())
+                                        PropertySpec.builder(it.name, it.returnType.asTypeName().stripJsAnnotations())
                                             .addModifiers(KModifier.OVERRIDE)
                                             .mutable(true)
                                             .apply {
@@ -90,7 +107,7 @@ fun Generator.generateModelMock() {
                                     )
                                 } else {
                                     addProperty(
-                                        PropertySpec.builder(it.name, it.returnType.asTypeName())
+                                        PropertySpec.builder(it.name, it.returnType.asTypeName().stripJsAnnotations())
                                             .addModifiers(KModifier.OVERRIDE)
                                             .mutable(true)
                                             .apply {
@@ -139,7 +156,7 @@ fun Generator.generateModelMock() {
                                     } else {
                                         FrameworkClassNames.skFunMock.parameterizedBy(
                                             callClassName,
-                                            it.returnType.asTypeName(),
+                                            it.returnType.asTypeName().stripJsAnnotations(),
                                         )
                                     },
                             )
@@ -175,7 +192,7 @@ fun Generator.generateModelMock() {
                                         ParameterSpec(it.name!!, it.type.asTypeName())
                                     },
                                 )
-                                .returns(it.returnType.asTypeName())
+                                .returns(it.returnType.asTypeName().stripJsAnnotations())
                                 .addModifiers(KModifier.OVERRIDE)
                                 .addStatement("return ${it.name}Mock(${callObject(it)})")
                                 .build(),

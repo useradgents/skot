@@ -12,6 +12,8 @@ import tech.skot.tools.generation.addImportClassName
 
 fun Generator.generateModuleMock() {
     FileSpec.builder(viewModelModuleMock.packageName, viewModelModuleMock.simpleName)
+        .addKotlinDefaultImports()
+        .indent("    ")
         .addProperty(
             PropertySpec.builder(
                 viewModelModuleMock.simpleName,
