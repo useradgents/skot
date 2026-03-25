@@ -1,6 +1,6 @@
 package tech.skot.tools.gradle
 
-import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
+import com.android.build.api.dsl.ApplicationExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.DependencyHandlerScope
@@ -12,29 +12,31 @@ import tech.skot.Versions
 class PluginApp : Plugin<Project> {
     override fun apply(project: Project) {
         project.plugins.apply("com.android.application")
+        // kotlin.android removed: AGP 9.0 has built-in Kotlin support
 
-        project.extensions.findByType(BaseAppModuleExtension::class)?.conf(project)
+        project.extensions.findByType(ApplicationExtension::class)?.conf(project)
 
         project.dependencies {
             dependencies(project)
         }
     }
 
-    private fun BaseAppModuleExtension.conf(project: Project) {
+    private fun ApplicationExtension.conf(project: Project) {
         sourceSets {
             getByName("main") {
-                java.srcDir("src/androidMain/kotlin")
-                java.srcDir("generated/androidMain/kotlin")
+                kotlin.srcDir("src/androidMain/kotlin")
+                kotlin.srcDir("generated/androidMain/kotlin")
                 skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach<String> {
-                    java.srcDir("src/androidMain/kotlin$it")
-                    java.srcDir("generated$it/androidMain/kotlin")
+                    kotlin.srcDir("src/androidMain/kotlin$it")
+                    kotlin.srcDir("generated$it/androidMain/kotlin")
+                    res.srcDir("src/androidMain/res$it")
                 }
                 res.srcDir("src/androidMain/res")
                 assets.srcDir("src/androidMain/assets")
                 manifest.srcFile("src/androidMain/AndroidManifest.xml")
             }
             getByName("androidTest") {
-                java.srcDir("src/androidTest/kotlin")
+                kotlin.srcDir("src/androidTest/kotlin")
             }
         }
 

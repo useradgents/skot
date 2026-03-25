@@ -1,0 +1,7 @@
+[versions]
+
+skot = "1.5.0-ua"
+
+plugin-skot = { module = "com.github.useradgents.skot:plugin", version.ref = "skot" }
+
+[plugins]

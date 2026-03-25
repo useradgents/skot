@@ -27,6 +27,8 @@ fun StarterGenerator.model()  {
 
         val startModel = ClassName("${configuration.appPackage}.di", "startModel")
         FileSpec.builder(startModel.packageName, startModel.simpleName)
+            .addKotlinDefaultImports()
+            .indent("    ")
             .addFunction(
                 FunSpec.builder(startModel.simpleName)
                     .addModifiers(KModifier.SUSPEND)

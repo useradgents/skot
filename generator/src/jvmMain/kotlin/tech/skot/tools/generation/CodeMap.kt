@@ -44,6 +44,8 @@ fun Generator.generateCodeMap() {
     }
 
     FileSpec.builder(packageName = appPackage, "CodeMap")
+        .addKotlinDefaultImports()
+        .indent("    ")
         .addType(
             TypeSpec.classBuilder("CodeMap")
                 .addKdoc(buildMap())

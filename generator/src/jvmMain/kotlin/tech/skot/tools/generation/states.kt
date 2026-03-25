@@ -394,6 +394,8 @@ fun Generator.generateStates(rootState: StateDef) {
     if (!statePersistenceManager.existsCommonInModule(modules.model)) {
         val keyName = "${rootStatePropertyName!!.uppercase()}_GLOBAL_KEY"
         FileSpec.builder(statePersistenceManager.packageName, statePersistenceManager.simpleName)
+            .addKotlinDefaultImports()
+            .indent("    ")
             .addProperty(
                 PropertySpec.builder(keyName, String::class)
                     .addModifiers(KModifier.CONST)

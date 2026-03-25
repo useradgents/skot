@@ -53,8 +53,7 @@ class StarterGenerator(val rootDir: Path, val configuration: StarterConfiguratio
 
         rootDir.writeStringTo(
             "gradle.properties",
-            """android.enableJetifier=true
-org.gradle.jvmargs=-XX\:MaxHeapSize\=4096 -Xmx4096M
+            """org.gradle.jvmargs=-XX\:MaxHeapSize\=4096 -Xmx4096M
 org.gradle.daemon=true
 android.useAndroidX=true""",
         )

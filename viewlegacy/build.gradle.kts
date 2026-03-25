@@ -1,16 +1,15 @@
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-
 group = Versions.group
 version = Versions.version
 
 plugins {
-    kotlin("multiplatform")
     id("com.android.library")
     id("maven-publish")
     signing
 }
 
 dependencies {
+    api(project(":core"))
+    api(project(":viewcontract"))
     api(libs.core)
     api(libs.appcompat)
     api(libs.androidx.activity)
@@ -24,39 +23,58 @@ dependencies {
 }
 
 android {
-    lint {
-        baseline = file("lint-baseline.xml")
-    }
+    namespace = "tech.skot.viewlegacy"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    testNamespace = "tech.skot.viewlegacytests"
+
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    namespace = "tech.skot.viewlegacy"
-    testNamespace = "tech.skot.viewlegacytests"
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    lint {
+        baseline = file("lint-baseline.xml")
+        abortOnError = false
+    }
+
+    sourceSets {
+        getByName("main") {
+            kotlin {
+                directories.add("src/androidMain/kotlin")
+                directories.add("generated/androidMain/kotlin")
+            }
+            res{
+                directories.add("src/androidMain/res")
+            }
+            manifest.srcFile("src/androidMain/AndroidManifest.xml")
+        }
+        getByName("androidTest") {
+            kotlin {
+                directories.add("generated/androidTest/kotlin")
+            }
+        }
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
+    publishing {
+        singleVariant("release")
+    }
 }
 
-kotlin {
-    jvmToolchain(17)
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
-    compilerOptions {
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+            }
+        }
     }
-    androidTarget("android") {
-        publishLibraryVariants("release", "debug")
-        publishLibraryVariantsGroupedByFlavor = true
-    }
-
-    sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
-    sourceSets["commonMain"].dependencies {
-        api(project(":core"))
-        api(project(":viewcontract"))
-    }
-
-    sourceSets["androidMain"].dependencies {
-    }
-
-    // sourceSets["androidInstrumentedTest"].resources.srcDir("src/androidMain/res_test")
-
-    println("-----@@@@@@@---- ${sourceSets.asMap}")
 }

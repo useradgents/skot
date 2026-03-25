@@ -1,4 +1,10 @@
 # Changelog
+## Version `1.5.0-ua`
+
+### chore
+- update AGP to 9
+- update kotlin to 2.3.20
+
 ## Version `1.4.4-ua`
 
 ### fix

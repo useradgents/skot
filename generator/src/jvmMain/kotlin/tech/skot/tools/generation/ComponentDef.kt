@@ -219,18 +219,18 @@ fun KClass<out SKComponentVC>.def(): ComponentDef {
                 }
                 PropertyDef(
                     it.name,
-                    it.returnType.asTypeName(),
+                    it.returnType.asTypeName().stripJsAnnotations(),
                     meOrSubComponentHasState = (it.returnType.classifier as KClass<out SKComponentVC>).meOrSubComponentHasState(),
                     passToParentView = it.hasAnnotation<SKPassToParentView>(),
                 )
             },
         fixProperties =
             stateProperties.filter { (it !is KMutableProperty) }.map {
-                PropertyDef(name = it.name, type = it.returnType.asTypeName())
+                PropertyDef(name = it.name, type = it.returnType.asTypeName().stripJsAnnotations())
             },
         mutableProperties =
             stateProperties.filterIsInstance<KMutableProperty<*>>().map {
-                PropertyDef(name = it.name, type = it.returnType.asTypeName())
+                PropertyDef(name = it.name, type = it.returnType.asTypeName().stripJsAnnotations())
             },
         state = nestedClasses.find { it.hasAnnotation<SKUIState>() }?.asClassName(),
         ownFunctions = ownFunctions(),

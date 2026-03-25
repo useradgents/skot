@@ -1,7 +1,6 @@
 package tech.skot.tools.gradle
 
 import com.squareup.kotlinpoet.asTypeName
-import org.gradle.api.Project
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.memberProperties
 
@@ -9,7 +8,8 @@ import kotlin.reflect.full.memberProperties
 
 fun copyBuildFileToImplementation(
     build: Any,
-    project: Project,
+    outputDir: java.io.File,
+    versionCode: Int,
     addingVersionCodeAndDebug: Boolean,
     debug: Boolean,
 ) {
@@ -23,6 +23,8 @@ fun copyBuildFileToImplementation(
             buildObjectType.packageName,
             buildObjectType.simpleName,
         )
+            .addKotlinDefaultImports()
+            .indent("    ")
     val classBuilderCommon =
         com.squareup.kotlinpoet.TypeSpec.objectBuilder(buildObjectType.simpleName)
             .apply {
@@ -34,7 +36,7 @@ fun copyBuildFileToImplementation(
                             Int::class,
                             com.squareup.kotlinpoet.KModifier.CONST,
                         )
-                            .initializer(project.skVersionCode().toString())
+                            .initializer(versionCode.toString())
                             .build(),
                     )
 
@@ -62,6 +64,7 @@ fun copyBuildFileToImplementation(
                                     .build(),
                             )
                         }
+
                         intType -> {
                             addProperty(
                                 com.squareup.kotlinpoet.PropertySpec.builder(
@@ -77,5 +80,5 @@ fun copyBuildFileToImplementation(
                 }
             }
     file.addType(classBuilderCommon.build())
-    file.build().writeTo(project.projectDir.resolve("generated/commonMain/kotlin"))
+    file.build().writeTo(outputDir)
 }

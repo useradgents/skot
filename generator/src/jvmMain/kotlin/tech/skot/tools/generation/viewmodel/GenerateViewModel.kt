@@ -1,10 +1,22 @@
 package tech.skot.tools.generation.viewmodel
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.asTypeName
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
-import tech.skot.tools.generation.*
+import tech.skot.tools.generation.FrameworkClassNames
+import tech.skot.tools.generation.Generator
+import tech.skot.tools.generation.ParamInfos
 import tech.skot.tools.generation.SuppressWarningsNames.genWarning
+import tech.skot.tools.generation.addImportClassName
+import tech.skot.tools.generation.addPrimaryConstructorWithParams
+import tech.skot.tools.generation.fileClassBuilder
 
 @ExperimentalStdlibApi
 fun Generator.generateViewModel() {
@@ -188,6 +200,8 @@ fun Generator.generateViewModel() {
     }
 
     FileSpec.builder(shortCuts.packageName, shortCuts.simpleName)
+        .addKotlinDefaultImports()
+        .indent("    ")
         .addProperty(
             PropertySpec
                 .builder(viewInjectorIntance.simpleName, viewInjectorInterface)
@@ -281,6 +295,8 @@ fun Generator.generateViewModel() {
     if (!start.existsCommonInModule(modules.viewmodel)) {
         val startViewModel = components.first().viewModel()
         FileSpec.builder(start.packageName, start.simpleName)
+            .addKotlinDefaultImports()
+            .indent("    ")
             .addFunction(
                 FunSpec
                     .builder("start")

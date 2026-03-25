@@ -7,6 +7,7 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
@@ -89,6 +90,24 @@ fun TypeSpec.Builder.addPrimaryConstructorWithParams(vals: List<ParamInfos>): Ty
 
 fun TypeName.nullable() = this.copy(true)
 
+/**
+ * Strips JS-specific annotations (e.g. @JsImplicitExport) added by Kotlin 2.x on multiplatform
+ * types when calling KType.asTypeName(). These annotations must not appear in generated code
+ * targeting non-JS platforms.
+ */
+fun TypeName.stripJsAnnotations(): TypeName {
+    val cleanAnnotations = annotations.filter {
+        (it.typeName as? ClassName)?.packageName?.startsWith("kotlin.js") != true
+    }
+    return when (this) {
+        is ParameterizedTypeName -> {
+            val cleanArgs = typeArguments.map { it.stripJsAnnotations() }
+            rawType.parameterizedBy(cleanArgs).copy(nullable = isNullable, annotations = cleanAnnotations)
+        }
+        else -> copy(nullable = isNullable, annotations = cleanAnnotations)
+    }
+}
+
 fun TypeName.simpleName(): String? =
     when {
         (this is ClassName) -> simpleName
@@ -113,6 +132,8 @@ fun ClassName.fileClassBuilder(
     suppressWarnings : List<String> = emptyList(),
     block: TypeSpec.Builder.() -> Unit,
 ) = FileSpec.builder(packageName, simpleName)
+    .addKotlinDefaultImports()
+    .indent("    ")
     .addType(
         TypeSpec.classBuilder(simpleName)
             .apply(block)
@@ -132,6 +153,8 @@ fun ClassName.fileInterfaceBuilder(
     suppressWarnings : List<String> = emptyList(),
     block: TypeSpec.Builder.() -> Unit,
 ) = FileSpec.builder(packageName, simpleName)
+    .addKotlinDefaultImports()
+    .indent("    ")
     .addType(
         TypeSpec.interfaceBuilder(simpleName)
             .apply(block)
@@ -151,6 +174,8 @@ fun ClassName.fileObjectBuilder(
     suppressWarnings : List<String> = emptyList(),
     block: TypeSpec.Builder.() -> Unit,
 ) = FileSpec.builder(packageName, simpleName)
+    .addKotlinDefaultImports()
+    .indent("    ")
     .addType(
         TypeSpec.objectBuilder(simpleName)
             .apply(block)

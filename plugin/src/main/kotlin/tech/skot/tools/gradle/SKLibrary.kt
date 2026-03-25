@@ -34,11 +34,13 @@ data class SKLibrary(val group: String, val version: String, val viewModule: Str
             path: Path,
             sourcesSet: String = "commonMain",
             module: String,
+            useApi: Boolean = true,
         ) {
             kotlinExtension.addDependenciesToLibraries(
                 getDeclaredLibraries(path),
                 sourcesSet,
                 module,
+                useApi,
             )
         }
 
@@ -46,16 +48,19 @@ data class SKLibrary(val group: String, val version: String, val viewModule: Str
             libraries: List<SKLibrary>,
             sourcesSet: String,
             module: String,
+            useApi: Boolean = true,
         ) {
             sourceSets[sourcesSet].dependencies {
-                libraries.forEach { skApi(it, module) }
+                libraries.forEach { skDependency(it, module, useApi) }
             }
         }
 
-        fun KotlinDependencyHandler.skApi(
+        fun KotlinDependencyHandler.skDependency(
             library: SKLibrary,
             module: String,
-        ) = api("${library.group}:$module:${library.version}")
+            useApi: Boolean = true,
+        ) = if (useApi) api("${library.group}:$module:${library.version}")
+            else implementation("${library.group}:$module:${library.version}")
 
         fun addDependenciesToViewLegacy(
             dependenciesHandler: DependencyHandlerScope,

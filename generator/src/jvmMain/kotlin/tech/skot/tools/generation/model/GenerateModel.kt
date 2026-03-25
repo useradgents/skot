@@ -1,8 +1,21 @@
 package tech.skot.tools.generation.model
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asTypeName
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
-import tech.skot.tools.generation.*
+import tech.skot.tools.generation.FrameworkClassNames
+import tech.skot.tools.generation.Generator
+import tech.skot.tools.generation.ParamInfos
+import tech.skot.tools.generation.addPrimaryConstructorWithParams
+import tech.skot.tools.generation.fileClassBuilder
+import tech.skot.tools.generation.nullable
+import tech.skot.tools.generation.ownFuncs
+import tech.skot.tools.generation.ownProperties
 import kotlin.reflect.KParameter
 
 @ExperimentalStdlibApi
@@ -82,6 +95,8 @@ fun Generator.generateModel() {
                 className.packageName,
                 className.simpleName,
             )
+                .addKotlinDefaultImports()
+                .indent("    ")
                 .addType(
                     TypeSpec.interfaceBuilder(className.simpleName)
                         .build(),

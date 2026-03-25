@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="windowNoTitle">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="sk_tabbar_bottom_nav_frame_linear">@style/TabbarStyle</item>
+        <item name="sk_tabbar_simpletab_ivicon">@style/sk_tabbar_simpletab_ivicon_default</item>
+
+    </style>
+    <style name="SplashTheme" parent="AppTheme">
+        <item name="sk_tabbar_bottom_nav_frame_linear">@style/TabbarStyle</item>
+
+        <!--Ici ajouter un background qui sera affiché dès le lancement de l'app, avant le calcul du premier écran-->
+        <!--item name="android:windowBackground">@drawable/background_splash</item-->
+
+    </style>
+
+    <style name="sk_tabbar_simpletab_ivicon_default">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="layout_constraintTop_toTopOf">parent</item>
+        <item name="layout_constraintRight_toRightOf">parent</item>
+    </style>
+
+
+
+    <style name="TabbarStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">64dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:gravity">bottom</item>
+    </style>
+
+
+</resources>            

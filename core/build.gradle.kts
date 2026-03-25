@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
     kotlin("multiplatform")
-    id("com.android.library")
+    id("com.android.kotlin.multiplatform.library")
     id("maven-publish")
     signing
 }
@@ -14,14 +14,16 @@ kotlin {
     jvmToolchain(17)
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     compilerOptions {
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)
         optIn.add("kotlin.time.ExperimentalTime")
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
-    jvm()
-    androidTarget {
-        publishLibraryVariants("release")
+    android {
+        namespace = "tech.skot.core"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
     }
+    jvm()
     sourceSets {
         commonMain {
             dependencies {
@@ -49,29 +51,12 @@ kotlin {
                 implementation(libs.jetbrains.kotlin.test.junit)
             }
         }
-        val androidInstrumentedTest by getting {
-            dependencies {
-                implementation(libs.espresso.core)
-                implementation(libs.core.ktx)
-                implementation(libs.junit.ktx)
-                implementation(libs.jetbrains.kotlin.test.junit)
-            }
-        }
     }
-}
-
-android {
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    namespace = "tech.skot.core"
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     compilerOptions {
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)
     }
 }
