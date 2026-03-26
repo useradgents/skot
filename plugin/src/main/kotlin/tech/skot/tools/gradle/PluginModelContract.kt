@@ -1,6 +1,6 @@
 package tech.skot.tools.gradle
 
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.DefaultTask
@@ -50,16 +50,15 @@ abstract class SKCopyBuildFileTask : DefaultTask() {
     }
 }
 
-@Suppress( "UNUSED_PARAMETER")
+@Suppress("UNUSED_PARAMETER")
 class PluginModelContract : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create<SKPluginModelContractExtension>("skot")
-        project.plugins.apply("com.android.library")
+        project.plugins.apply("com.android.kotlin.multiplatform.library")
         project.plugins.apply("maven-publish")
         project.plugins.apply("kotlinx-serialization")
 
-        project.extensions.findByType(LibraryExtension::class)?.conf(project, extension)
-
+        project.extensions.findByType(KotlinMultiplatformAndroidLibraryExtension::class)?.androidBaseConfig(project)
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
 
         project.afterEvaluate {
@@ -84,23 +83,10 @@ class PluginModelContract : Plugin<Project> {
                 this.debug.set(false)
             }
 
-            project.tasks.named("preDebugBuild").configure { dependsOn(copyDebug) }
-            project.tasks.named("preReleaseBuild").configure { dependsOn(copyRelease) }
+            // preDebugBuild/preReleaseBuild don't exist with com.android.kotlin.multiplatform.library (single-variant)
+            project.tasks.matching { it.name == "preDebugBuild" || it.name == "preBuild" }.configureEach { dependsOn(copyDebug) }
+            project.tasks.matching { it.name == "preReleaseBuild" }.configureEach { dependsOn(copyRelease) }
             project.tasks.named("compileKotlinJvm").configure { dependsOn(copyRelease) }
-        }
-    }
-
-    private fun LibraryExtension.conf(
-        project: Project,
-        extension: SKPluginModelContractExtension,
-    ) {
-        androidBaseConfig(project)
-
-        sourceSets {
-            getByName("main").java.srcDirs("generated/androidMain/kotlin")
-            getByName("main").java.srcDirs("src/androidMain/kotlin")
-            getByName("main").manifest.srcFile("src/androidMain/AndroidManifest.xml")
-            getByName("main").res.srcDir("src/androidMain/res")
         }
     }
 
@@ -112,8 +98,6 @@ class PluginModelContract : Plugin<Project> {
             optIn.add("kotlin.time.ExperimentalTime")
         }
         jvm()
-        androidTarget {
-        }
 
         sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
         sourceSets["commonMain"].dependencies {

@@ -2,6 +2,11 @@ plugins {
 	kotlin("multiplatform")
 	id("tech.skot.viewmodel")
 }
-android {
-	namespace = "io.uad.skotsample.viewmodel"
+
+kotlin {
+	android {
+		namespace = "io.uad.skotsample.viewmodel"
+		compileSdk = 36
+		minSdk = 23
+	}
 }

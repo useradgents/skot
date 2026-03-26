@@ -1,16 +1,15 @@
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-
 group = Versions.group
 version = Versions.version
 
 plugins {
-    kotlin("multiplatform")
     id("com.android.library")
     id("maven-publish")
     signing
 }
 
 dependencies {
+    api(project(":core"))
+    api(project(":viewcontract"))
     api(libs.core)
     api(libs.appcompat)
     api(libs.androidx.activity)
@@ -24,39 +23,38 @@ dependencies {
 }
 
 android {
-    lint {
-        baseline = file("lint-baseline.xml")
-    }
+    namespace = "tech.skot.viewlegacy"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    testNamespace = "tech.skot.viewlegacytests"
+
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    namespace = "tech.skot.viewlegacy"
-    testNamespace = "tech.skot.viewlegacytests"
-}
 
-kotlin {
-    jvmToolchain(17)
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
-    compilerOptions {
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
-    }
-    androidTarget("android") {
-        publishLibraryVariants("release", "debug")
-        publishLibraryVariantsGroupedByFlavor = true
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
-    sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
-    sourceSets["commonMain"].dependencies {
-        api(project(":core"))
-        api(project(":viewcontract"))
+    lint {
+        baseline = file("lint-baseline.xml")
+        abortOnError = false
     }
 
-    sourceSets["androidMain"].dependencies {
+    sourceSets {
+        getByName("main") {
+            java.srcDir("src/androidMain/kotlin")
+            java.srcDir("generated/androidMain/kotlin")
+            res.srcDir("src/androidMain/res")
+            manifest.srcFile("src/androidMain/AndroidManifest.xml")
+        }
+        getByName("androidTest") {
+            java.srcDir("generated/androidTest/kotlin")
+        }
     }
 
-    // sourceSets["androidInstrumentedTest"].resources.srcDir("src/androidMain/res_test")
-
-    println("-----@@@@@@@---- ${sourceSets.asMap}")
+    buildFeatures {
+        viewBinding = true
+    }
 }

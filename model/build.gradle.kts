@@ -1,10 +1,9 @@
-
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import java.util.Locale
 
 plugins {
     kotlin("multiplatform")
-    id("com.android.library")
+    id("com.android.kotlin.multiplatform.library")
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.sqldelight)
     id("maven-publish")
@@ -21,15 +20,15 @@ kotlin {
         apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
     }
 
-    jvm()
-
-    androidTarget {
-
-        publishLibraryVariants("release")
+    android {
+        namespace = "tech.skot.model"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
     }
 
-    sourceSets {
+    jvm()
 
+    sourceSets {
         commonMain {
             dependencies {
                 api(project(":core"))
@@ -65,52 +64,10 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
             }
         }
-
-        val androidInstrumentedTest by getting {
-            dependencies {
-                implementation(libs.espresso.core)
-                implementation(libs.core.ktx)
-                implementation(libs.junit.ktx)
-                implementation(libs.jetbrains.kotlin.test.junit)
-            }
-        }
-
-        val androidUnitTest by getting {
-            dependencies {
-                implementation(libs.jetbrains.kotlin.test.junit)
-            }
-        }
     }
-}
-
-android {
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    namespace = "tech.skot.model"
-
-    packaging {
-        if (gradle.startParameter.taskNames.any { task ->
-                task.uppercase(Locale.getDefault()).contains("ANDROIDTEST")
-            }
-        ) {
-            resources.excludes.add("META-INF/*")
-        }
-    }
-}
-
-dependencies {
-    androidTestImplementation(libs.jetbrains.kotlin.test.junit)
-    androidTestImplementation(libs.kotlinx.coroutines.test)
-    androidTestImplementation(libs.espresso.core)
-    androidTestImplementation(libs.core.ktx)
-    androidTestImplementation(libs.junit.ktx)
 }
 
 sqldelight {
-
     this.database("PersistDb") {
         packageName = "tech.skot.model.persist"
     }

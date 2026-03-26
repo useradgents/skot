@@ -1,8 +1,9 @@
 package tech.skot.tools.gradle
 
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.TestedExtension
-import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
+import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.dsl.LibraryExtension
+import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import tech.skot.Versions
 import java.io.FileInputStream
@@ -54,29 +55,44 @@ class SKImportsProperties(private val properties: Properties) {
 
 fun Project.skReadImportsProperties(): SKImportsProperties? = skReadImportsProperties(rootProject.rootDir.toPath())
 
-fun TestedExtension.androidBaseConfig(androidProperties: SKAndroidProperties?) {
+// For pure Android library modules (com.android.library)
+fun LibraryExtension.androidBaseConfig(project: Project) {
+    val androidProperties = project.skReadAndroidProperties()
+    defaultConfig {
+        minSdk = androidProperties?.minSdk ?: Versions.android_minSdk
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    compileSdk = Versions.android_compileSdk
+    lint {
+        abortOnError = false
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+// For Android application modules (com.android.application)
+fun ApplicationExtension.androidBaseConfig(project: Project) {
+    val androidProperties = project.skReadAndroidProperties()
     defaultConfig {
         minSdk = androidProperties?.minSdk ?: Versions.android_minSdk
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         targetSdk = Versions.android_compileSdk
     }
-}
-
-
-fun LibraryExtension.androidBaseConfig(project: Project) {
-    val androidProperties = project.skReadAndroidProperties()
-    androidBaseConfig(androidProperties)
     compileSdk = Versions.android_compileSdk
     lint {
         abortOnError = false
     }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
 }
 
-fun BaseAppModuleExtension.androidBaseConfig(project: Project) {
+// For KMP library modules (com.android.kotlin.multiplatform.library)
+fun KotlinMultiplatformAndroidLibraryExtension.androidBaseConfig(project: Project) {
     val androidProperties = project.skReadAndroidProperties()
-    androidBaseConfig(androidProperties)
+    minSdk = androidProperties?.minSdk ?: Versions.android_minSdk
     compileSdk = Versions.android_compileSdk
-    lint {
-        abortOnError = false
-    }
 }

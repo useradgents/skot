@@ -1,5 +1,4 @@
 plugins {
-    kotlin("android")
 	id("tech.skot.app")
 }
 
@@ -7,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId = "io.uad.skotsample"
-        
+
         versionCode = Build.versionCode
         versionName = Build.versionName
     }

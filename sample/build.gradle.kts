@@ -9,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.github.useradgents.skot:plugin:1.4.4-ua")
+        classpath("com.github.useradgents.skot:plugin:1.4.4b-ua")
     }
 }
 

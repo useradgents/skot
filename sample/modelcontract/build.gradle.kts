@@ -6,6 +6,10 @@ plugins {
 	id("tech.skot.modelcontract")
 }
 
-android {
-	namespace = "io.uad.skotsample.modelcontract"
+kotlin {
+	android {
+		namespace = "io.uad.skotsample.modelcontract"
+		compileSdk = 36
+		minSdk = 23
+	}
 }

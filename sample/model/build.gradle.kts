@@ -3,9 +3,10 @@ plugins {
 	id("tech.skot.model")
 }
 
-android {
-	namespace = "io.uad.skotsample.model"
-	lint {
-		disable += "UnsafeOptInUsageError"
+kotlin {
+	android {
+		namespace = "io.uad.skotsample.model"
+		compileSdk = 36
+		minSdk = 23
 	}
 }

@@ -1,6 +1,6 @@
 package tech.skot.tools.gradle
 
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.findByType
@@ -11,22 +11,11 @@ import tech.skot.Versions
 
 class PluginViewModel : Plugin<Project> {
     override fun apply(project: Project) {
-        project.plugins.apply("com.android.library")
+        project.plugins.apply("com.android.kotlin.multiplatform.library")
         project.plugins.apply("kotlinx-serialization")
 
-        project.extensions.findByType(LibraryExtension::class)?.conf(project)
-
+        project.extensions.findByType(KotlinMultiplatformAndroidLibraryExtension::class)?.androidBaseConfig(project)
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
-    }
-
-    private fun LibraryExtension.conf(project: Project) {
-        androidBaseConfig(project)
-
-        sourceSets {
-            getByName("main").java.srcDirs("src/androidMain/kotlin")
-            getByName("main").manifest.srcFile("src/androidMain/AndroidManifest.xml")
-            getByName("test").java.srcDirs("src/javaTest/kotlin")
-        }
     }
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
@@ -36,9 +25,6 @@ class PluginViewModel : Plugin<Project> {
         compilerOptions {
             apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
             optIn.add("kotlin.time.ExperimentalTime")
-
-        }
-        androidTarget {
         }
         jvm()
 

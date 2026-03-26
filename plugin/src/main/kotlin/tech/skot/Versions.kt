@@ -9,17 +9,17 @@ import kotlin.String
  * This code is generated from build.gradle.kts
  */
 public object Versions {
-  public const val skot: String = "1.4.4-ua"
+  public const val skot: String = "1.4.4b-ua"
 
   public const val group: String = "com.github.useradgents.skot"
 
-  public const val serialization: String = "1.9.0"
+  public const val serialization: String = "1.10.0"
 
   public const val kotlinxDateTime: String = "0.7.1-0.6.x-compat"
 
-  public const val ktor: String = "3.3.1"
+  public const val ktor: String = "3.4.1"
 
-  public const val kotlin: String = "2.2.0"
+  public const val kotlin: String = "2.3.0"
 
   public const val kotlinCoroutines: String = "1.10.2"
 
@@ -39,5 +39,5 @@ public object Versions {
 
   public const val leakcanary: String = "2.14"
 
-  public const val ktlint: String = "1.7.1"
+  public const val ktlint: String = "1.8.0"
 }
