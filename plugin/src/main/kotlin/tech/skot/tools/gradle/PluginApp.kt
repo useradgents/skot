@@ -29,6 +29,7 @@ class PluginApp : Plugin<Project> {
                 skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach<String> {
                     kotlin.srcDir("src/androidMain/kotlin$it")
                     kotlin.srcDir("generated$it/androidMain/kotlin")
+                    res.srcDir("src/androidMain/res$it")
                 }
                 res.srcDir("src/androidMain/res")
                 assets.srcDir("src/androidMain/assets")

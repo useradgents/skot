@@ -4,22 +4,10 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="24dp"
-        android:textStyle="bold"
-        android:text="io.uad.skotsample" />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="24dp"
-        android:text="Hello !" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="Skot starter v1.2.9" />
+
+    <include
+        android:id="@+id/bottomNav"
+        layout="@layout/sk_bottom_nav_frame"/>
 
 </LinearLayout>           

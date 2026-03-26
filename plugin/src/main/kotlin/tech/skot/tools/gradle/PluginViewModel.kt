@@ -45,6 +45,8 @@ class PluginViewModel : Plugin<Project> {
         skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
             sourceSets["commonMain"].kotlin.srcDir("src/commonMain/kotlin$it")
             sourceSets["androidMain"].kotlin.srcDir("src/androidMain/kotlin$it")
+            sourceSets["androidMain"].resources.srcDir("src/androidMain/res$it")
+            sourceSets["androidMain"].resources.srcDir("src/androidMain/res")
         }
 
         sourceSets["commonTest"].kotlin.srcDir("src/commonTest/kotlin")
@@ -62,6 +64,7 @@ class PluginViewModel : Plugin<Project> {
         sourceSets["jvmTest"].dependencies {
             implementation("${Versions.group}:viewmodelTests:${Versions.skot}")
         }
+
 
         SKLibrary.addDependenciesToLibraries(this, (project.parent?.projectDir ?: project.rootDir).toPath(), "commonMain", "viewmodel")
         SKLibrary.addDependenciesToLibraries(this, (project.parent?.projectDir ?: project.rootDir).toPath(), "jvmTest", "viewmodelTests")

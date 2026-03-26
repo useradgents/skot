@@ -26,7 +26,9 @@ class PluginModel : Plugin<Project> {
         }
         jvm()
 
+
         sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
+        sourceSets["commonMain"].resources.srcDir("src/commonMain/res")
 
         val parentProjectPath = project.parent?.path ?: ""
 
@@ -45,7 +47,9 @@ class PluginModel : Plugin<Project> {
 
         skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
             sourceSets["commonMain"].kotlin.srcDir("src/commonMain/kotlin$it")
+            sourceSets["commonMain"].resources.srcDir("src/commonMain/res$it")
             sourceSets["androidMain"].kotlin.srcDir("src/androidMain/kotlin$it")
+            sourceSets["androidMain"].resources.srcDir("src/androidMain/res$it")
         }
 
         sourceSets["jvmTest"].kotlin.srcDir("generated/jvmTest")

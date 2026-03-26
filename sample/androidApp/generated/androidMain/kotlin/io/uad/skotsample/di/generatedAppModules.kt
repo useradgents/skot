@@ -64,4 +64,5 @@ public val generatedAppModules: List<Module<BaseInjector>> = listOf(module {
 ,
 modelFrameworkModule,
 coreViewModule,
+tech.skot.libraries.tabbar.di.skTabbarModule,
 )

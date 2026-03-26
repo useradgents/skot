@@ -1,7 +1,7 @@
 package tech.skot.tools.gradle
 
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
 import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
 import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -9,7 +9,7 @@ import tech.skot.Versions
 import java.io.FileInputStream
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.*
+import java.util.Properties
 
 const val SKOT_ANDROID_PROPERIES_FILE_NAME = "skot_android.properties"
 const val SKOT_IMPORTS_PROPERIES_FILE_NAME = "skot_imports.properties"
@@ -95,4 +95,7 @@ fun KotlinMultiplatformAndroidLibraryExtension.androidBaseConfig(project: Projec
     val androidProperties = project.skReadAndroidProperties()
     minSdk = androidProperties?.minSdk ?: Versions.android_minSdk
     compileSdk = Versions.android_compileSdk
+    androidResources {
+        enable = true
+    }
 }
