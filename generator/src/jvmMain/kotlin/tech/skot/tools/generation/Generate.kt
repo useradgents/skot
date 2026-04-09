@@ -90,6 +90,8 @@ fun buildGenerator(args: Array<String>): Generator {
         baseActivityVar,
         initializationPlans = initPlans,
         referenceIconsByVariant = args[8].toBoolean(),
+        referenceFontsByVariant = args[9].toBoolean(),
+        referenceColorsByVariant = args[10].toBoolean(),
     )
 }
 

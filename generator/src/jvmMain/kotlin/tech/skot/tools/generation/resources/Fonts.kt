@@ -13,17 +13,39 @@ import kotlin.io.path.nameWithoutExtension
 fun Generator.generateFonts() {
     println("fonts .........")
     println("generate Fonts interface .........")
-    val fontsDirectory =
-        rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/font")
+
+
+    val fontsDirectories = (listOf(rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/font")) +
+            if (referenceFontsByVariant) {
+                variantsCombinaison.map {
+                    rootPath.resolve(modules.view)
+                        .resolve("src/androidMain/res${it}_referenced/font")
+                }
+            } else {
+                emptyList()
+            }).apply {
+        forEach {
+            println("font directory : $it")
+        }
+    }.filter { Files.exists(it) }.toSet()
+
+
+    val hasFont = fontsDirectories.isNotEmpty()
 
     val fonts =
-        if (!Files.exists(fontsDirectory)) {
+        if (!hasFont) {
             emptyList()
         } else {
-            Files.list(fontsDirectory).map {
-                it.nameWithoutExtension
-            }.collect(Collectors.toList()).filter { it.isNotBlank() }
+            fontsDirectories.flatMap {
+                Files.list(it).map {
+                    it.nameWithoutExtension
+                }.collect(Collectors.toList()).filter { it.isNotBlank() }
+            }.toSet()
         }
+
+    fonts.forEach {
+        println("font found : $it")
+    }
 
     fun String.toFontsPropertyName() = this
 

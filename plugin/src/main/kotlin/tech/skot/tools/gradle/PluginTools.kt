@@ -38,6 +38,8 @@ data class App(
     val baseActivityVar: String? = null,
     val initializationPlans: List<String> = emptyList(),
     val referenceIconsByVariant: Boolean = false,
+    val referenceFontsByVariant: Boolean = false,
+    val referenceColorsByVariant: Boolean = false,
     val ktlintOnGeneratedFiles: Boolean = true,
 )
 
@@ -73,6 +75,12 @@ abstract class SkGenerateTask : DefaultTask() {
 
     @get:Input
     abstract val referenceIconsByVariant: Property<Boolean>
+
+    @get:Input
+    abstract val referenceFontsByVariant: Property<Boolean>
+
+    @get:Input
+    abstract val referenceColorsByVariant: Property<Boolean>
 
     @get:Input
     abstract val ktlintOnGeneratedFiles: Property<Boolean>
@@ -112,7 +120,8 @@ abstract class SkGenerateTask : DefaultTask() {
                     baseActivityVar.getOrElse("null"),
                     initializationPlans.get(),
                     referenceIconsByVariant.get().toString(),
-                )
+                    referenceFontsByVariant.get().toString(),
+                    referenceColorsByVariant.get().toString(),)
         }
 
         if (ktlintOnGeneratedFiles.get()) {

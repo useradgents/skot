@@ -1,9 +1,42 @@
 # Changelog
+
+## Version `1.5.1-ua`
+
+### feat
+
+- #### Fonts Generation
+    - Add `referenceFontsByVariant` option to generate fonts from variant-specific resource directories
+
+- #### Colors Generation
+    - Add `referenceColorsByVariant` option to generate colors from variant-specific resource directories
+
+### fix
+
+- #### Colors Generation
+    - Fix wrong variable used for variant check (`referenceIconsByVariant` → `referenceColorsByVariant`)
+
+
 ## Version `1.5.0-ua`
 
 ### chore
 - update AGP to 9
 - update kotlin to 2.3.20
+
+## Version `1.4.5-ua`
+
+### feat
+
+- #### Fonts Generation
+    - Add `referenceFontsByVariant` option to generate fonts from variant-specific resource directories
+
+- #### Colors Generation
+    - Add `referenceColorsByVariant` option to generate colors from variant-specific resource directories
+
+### fix
+
+- #### Colors Generation
+    - Fix wrong variable used for variant check (`referenceIconsByVariant` → `referenceColorsByVariant`)
+
 
 ## Version `1.4.4-ua`
 

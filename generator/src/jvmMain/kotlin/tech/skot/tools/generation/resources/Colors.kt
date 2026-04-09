@@ -38,7 +38,7 @@ fun Generator.generateColors() {
         }
 
     val colors = (rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/values").list() +
-    if (referenceIconsByVariant) {
+    if (referenceColorsByVariant) {
         variantsCombinaison.flatMap {
             rootPath.resolve(modules.view)
                 .resolve("src/androidMain/res${it}_referenced/values").list()
