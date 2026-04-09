@@ -29,6 +29,8 @@ data class App(
     val baseActivityVar: String? = null,
     val initializationPlans: List<String> = emptyList(),
     val referenceIconsByVariant: Boolean = false,
+    val referenceFontsByVariant: Boolean = false,
+    val referenceColorsByVariant: Boolean = false,
     val ktlintOnGeneratedFiles: Boolean = true,
 )
 
@@ -100,6 +102,8 @@ class PluginTools : Plugin<Project> {
                                         app.initializationPlans.joinToString("_")
                                     },
                                     app.referenceIconsByVariant.toString(),
+                                    app.referenceFontsByVariant.toString(),
+                                    app.referenceColorsByVariant.toString(),
                                 )
                         }
 

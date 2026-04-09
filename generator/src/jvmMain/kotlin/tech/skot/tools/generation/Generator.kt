@@ -55,6 +55,8 @@ class Generator(
     val baseActivityVar: String?,
     val initializationPlans: List<InitializationPlan>,
     val referenceIconsByVariant: Boolean,
+    val referenceFontsByVariant: Boolean,
+    val referenceColorsByVariant: Boolean,
 ) {
     class ModulesNames(
         val app: String = "androidApp",

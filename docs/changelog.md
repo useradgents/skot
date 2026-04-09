@@ -1,4 +1,19 @@
 # Changelog
+## Version `1.4.5-ua`
+
+### feat
+
+- #### Fonts Generation
+    - Add `referenceFontsByVariant` option to generate fonts from variant-specific resource directories
+
+- #### Colors Generation
+    - Add `referenceColorsByVariant` option to generate colors from variant-specific resource directories
+
+### fix
+
+- #### Colors Generation
+    - Fix wrong variable used for variant check (`referenceIconsByVariant` → `referenceColorsByVariant`)
+
 ## Version `1.4.4-ua`
 
 ### fix
