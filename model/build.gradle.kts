@@ -13,7 +13,7 @@ group = Versions.group
 version = Versions.version
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
     @OptIn(ExperimentalKotlinGradlePluginApi::class)
     compilerOptions {
         apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)

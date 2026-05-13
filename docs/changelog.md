@@ -1,19 +1,24 @@
 # Changelog
 
+## Version `1.5.2-ua`
+
+### chore
+- Upgrade to Java 21
+
 ## Version `1.5.1-ua`
 
 ### feat
 
-- #### Fonts Generation
-    - Add `referenceFontsByVariant` option to generate fonts from variant-specific resource directories
+#### - Fonts Generation
+  - Add `referenceFontsByVariant` option to generate fonts from variant-specific resource directories
 
-- #### Colors Generation
-    - Add `referenceColorsByVariant` option to generate colors from variant-specific resource directories
+#### - Colors Generation
+  - Add `referenceColorsByVariant` option to generate colors from variant-specific resource directories
 
 ### fix
 
-- #### Colors Generation
-    - Fix wrong variable used for variant check (`referenceIconsByVariant` → `referenceColorsByVariant`)
+#### - Colors Generation
+  - Fix wrong variable used for variant check (`referenceIconsByVariant` → `referenceColorsByVariant`)
 
 
 ## Version `1.5.0-ua`

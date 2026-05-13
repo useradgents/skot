@@ -21,7 +21,7 @@ class PluginViewContract : Plugin<Project> {
     }
 
     private fun KotlinMultiplatformExtension.conf(project: Project) {
-        jvmToolchain(17)
+        jvmToolchain(21)
 
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
