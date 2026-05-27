@@ -18,7 +18,7 @@ import tech.skot.tools.generation.fileInterfaceBuilder
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Locale
-import java.util.stream.Collectors
+import kotlin.io.path.listDirectoryEntries
 
 fun Generator.generateIcons() {
     println("icons .........")
@@ -33,10 +33,12 @@ fun Generator.generateIcons() {
 
     fun Path.listRes(): List<String> =
         if (!Files.exists(this)) {
-            emptyList<String>()
+            emptyList()
         } else {
-            Files.list(this).map { it.fileName.toString().substringBeforeLast(".") }
-                .collect(Collectors.toList())
+            listDirectoryEntries()
+                .map { it.fileName.toString() }
+                .filter { !it.startsWith(".") }
+                .map { it.substringBeforeLast(".") }
         }
 
     val icons: List<String> =

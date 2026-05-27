@@ -182,6 +182,8 @@ class PluginTools : Plugin<Project> {
                 it.initializationPlans.joinToString("_")
             })
             referenceIconsByVariant.set(appProvider.map { it.referenceIconsByVariant })
+            referenceFontsByVariant.set(appProvider.map { it.referenceFontsByVariant })
+            referenceColorsByVariant.set(appProvider.map { it.referenceColorsByVariant })
             ktlintOnGeneratedFiles.set(appProvider.map { it.ktlintOnGeneratedFiles })
             runtimeClasspath.from(project.configurations.named("runtimeClasspath"))
             runtimeClasspath.from(

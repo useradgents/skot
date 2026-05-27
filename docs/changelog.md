@@ -1,5 +1,13 @@
 # Changelog
 
+## Version `1.5.3-ua`
+
+### fix
+- set referenceColorsByVariant and referenceFontsByVariant default value on PluginTools
+
+### chore
+- ignore files who start with dot
+
 ## Version `1.5.2-ua`
 
 ### chore
