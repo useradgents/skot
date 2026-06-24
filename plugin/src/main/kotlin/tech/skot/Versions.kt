@@ -6,7 +6,7 @@ package tech.skot
  * This code is generated from build.gradle.kts
  */
 public object Versions {
-  public const val skot: String = "1.5.3-ua"
+  public const val skot: String = "1.5.4-ua"
 
   public const val group: String = "com.github.useradgents.skot"
 
@@ -24,9 +24,9 @@ public object Versions {
 
   public const val android_minSdk: Int = 23
 
-  public const val android_compileSdk: Int = 36
+  public const val android_compileSdk: Int = 37
 
-  public const val android_targetSdk: Int = 36
+  public const val android_targetSdk: Int = 37
 
   public const val android_app_compat: String = "1.7.1"
 

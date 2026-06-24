@@ -1,5 +1,10 @@
 # Changelog
 
+## Version `1.5.4-ua`
+
+### chore
+- Upgrade AGP to 9.2.1 for official Android 17 / API level 37 support (requires Gradle 9.4.1, build-tools 36.0.0, JDK 17+)
+
 ## Version `1.5.3-ua`
 
 ### fix

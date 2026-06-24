@@ -9,7 +9,7 @@ plugins {
 kotlin {
 	android {
 		namespace = "io.uad.skotsample.modelcontract"
-		compileSdk = 36
+		compileSdk = 37
 		minSdk = 23
 	}
 }
