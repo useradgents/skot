@@ -25,3 +25,15 @@ A project contains six module :
   [read more](model.md)
 
 ![](MVVM_skot.jpg "Schema architecture")
+
+## Cross-cutting guides
+
+These topics span several modules:
+
+- [SKComponent in-depth guide](../components/skcomponent.md) — the ViewModel base class
+- [SKData & the Model layer](../skdata.md) — the reactive data primitives
+- [Dependency Injection](../dependency-injection.md) — modules, `get` / `getByName`
+- [Error handling](../error-handling.md)
+- [SKState](../start/addstate.md) — app states
+- [Annotations reference](../annotations.md) — every generation annotation
+- [Framework components](../components/framework_components/readme.md)

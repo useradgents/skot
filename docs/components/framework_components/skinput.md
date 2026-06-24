@@ -92,6 +92,41 @@ Action |
 
 
 
+## Runtime API
+
+Beyond the constructor parameters, `SKInput` exposes members to read/drive the
+input from the ViewModel:
+
+| member | type | description |
+|--|--|--|
+| `value` | `String?` | Get/set the current text. Setting it formats + revalidates. |
+| `isValid` | `Boolean` | Whether the current value passes validation. |
+| `updateValidy()` | function | Force a (re)validation and display the error if any. |
+| `resetWithoutValidate()` | function | Clear text and error without triggering validation. |
+| `setErrorLambda` | `((String?) -> Unit)?` | Override how the error is displayed (defaults to `view.error`). |
+
+### Overridable hooks
+
+Subclass `SKInput` to customize behaviour:
+
+| hook | role |
+|--|--|
+| `format(str)` | Transform the raw text before storing (e.g. trim, mask). |
+| `validate(str)` | Return a `Validity` (`Valid` / `Error(message)`). Default uses `nullable` + `maxSize` + `regex`. |
+| `onFocus()` | Called when the field gains focus. |
+| `onFocusLost()` | Called when the field loses focus (re-displays the error by default). |
+
+```kotlin
+class AmountInput : SKInput(viewType = SKInputVC.Type.Number) {
+    override fun format(str: String?) = str?.filter { it.isDigit() }
+    override fun validate(str: String?) =
+        if ((str?.toIntOrNull() ?: 0) > 0) Validity.Valid else Validity.Error("Amount required")
+}
+```
+
+> `Validity` is a sealed class: `Validity.Valid` or `Validity.Error(errorMessage)`,
+> both exposing `isValid`.
+
 ## Other usage
 
 You can also use an `SKSimpleInput` instead of a `SKInput`. You have to declare an EditText
@@ -99,4 +134,7 @@ in your xml file or a TextInputEditText (without TextInputLayout)
 
 ⚠️ Caution : use SKSimpleInput may cause error for displaying error, because error is manage by a SKData. 
 Since EditText reset error on new text, error label will not be display again 
+
+> `SKInputRegExp` is **deprecated** — use `SKInput` with the `regex` parameter
+> instead.
  

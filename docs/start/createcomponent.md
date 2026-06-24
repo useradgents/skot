@@ -1,3 +1,5 @@
+> :books: This page uses several generation annotations (`@SKUses`, …). For the
+> full list and how each one works, see the [annotations reference](../annotations.md).
 
 - In the `screens` folder of the `viewcontract` module, create an interface called `MySKComponentVC` that inherits from `SKComponentVC`.
 

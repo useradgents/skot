@@ -4,6 +4,9 @@ A SKComponent is a graphical android element boosted by Skot framework. It could
 Each SKComponent is described by a SKComponentVC which will contain all properties and functions.
 The goal is to have reusable views throughout the application in a simple and consistent way.
 
+> :books: For a complete walkthrough of the lifecycle, coroutines, error handling,
+> loaders and `SKData` binding, see the **[SKComponent in-depth guide](skcomponent.md)**.
+
 
 ## Structure
 The SkComponent respects a MVVM architecture and uses interfaces to connect the layers.
@@ -34,6 +37,10 @@ interface MyComponentVC : SKComponentVC {
   var variable : String
 }
 ```
+
+> :label: `@SKUses` is one of several generation annotations. See the full
+> [annotations reference](../annotations.md) for `@SKOpens`, `@SKUIState`,
+> layout and model/state annotations.
 
 ## SKScreen
 This is the component type to use for creating application pages.

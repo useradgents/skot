@@ -72,7 +72,26 @@ override val phoneAreas = SKCombo<PhoneAreaCodeEntity>(
 | initialChoices |  List<D> | Available choices. Default value is an empty list | 
 | enabled | Boolean | Enable or disable component. Default value is true |
 | label | ((data: D) -> String)? |  Text to display in drop down list. If null, default `toString` function will be apply |
-| inputText | ((data: D) -> String)? | Color applied for selected value |
-| textColor |  ((data: D) -> Color)? | Color applied for drop down value |,
+| inputText | ((data: D) -> String)? | Text put in the field once the value is selected (defaults to the `label`) |
+| textColor |  ((data: D) -> Color)? | Color applied to the drop down value |
 | striked | ((data: D) -> Boolean)? | Strike text or not |
 | onSelected |  ((data: D) -> Unit)? | Function called when value is selected |
+| oldSchoolModeHint | Boolean | Legacy hint rendering. Default `false` |
+
+## Runtime API
+
+These members (shared via the common `SKBaseCombo` base) let you drive the combo
+from the ViewModel:
+
+| member | type | description |
+|--|--|--|
+| `choices` | `List<D>` | Get/set the available choices (the dropdown updates on set). |
+| `value` | `D?` | Get/set the selected value (closes the dropdown on set). |
+
+```kotlin
+gender.choices = newChoices
+gender.value = defaultChoice
+```
+
+> [`SKInputWithSuggestions`](skinputwithsuggestions.md) shares this base but adds
+> free-text input + dynamic suggestions.
