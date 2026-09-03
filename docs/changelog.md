@@ -1,5 +1,23 @@
 # Changelog
 
+## Version `1.5.5-ua`
+
+### fix
+
+- #### Code generation
+    - Generate a `PermissionsMock` that implements **every** abstract member of the project's
+      `Permissions` interface. Only properties typed exactly `SKPermission` were emitted:
+      `SKPermission?`, `List<SKPermission>` and members inherited from a parent interface were
+      silently dropped, and the generated mock did not compile
+      (`Class 'PermissionsMock' is not abstract and does not implement abstract members`).
+      A nullable permission now gets a `SKPermissionMock` instance (a test needing `null` can
+      subclass it), a `List<SKPermission>` is initialized with all the single permissions of the
+      interface, and members carrying a default implementation (`get() = ...`) are left alone.
+    - The generation now fails with an explicit message — naming the file, the declaration and the
+      unsupported shape — instead of silently emitting code that doesn't compile, when a member of
+      the `Permissions` interface has an unsupported shape (`Set<…>`, `Map<…>`, a non-`SKPermission`
+      type, an abstract function…).
+
 ## Version `1.5.4-ua`
 
 ### fix
