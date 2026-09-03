@@ -61,7 +61,7 @@ fun Generator.generateViewMock() {
                                 .addPrimaryConstructorWithParams(
                                     it.parameters.mapNotNull { kParam ->
                                         kParam.name?.let {
-                                            ParamInfos(it, kParam.type.asTypeName().stripJsAnnotations())
+                                            ParamInfos(it, kParam.type.asCleanTypeName())
                                         }
                                     },
                                 )
@@ -96,7 +96,7 @@ fun Generator.generateViewMock() {
                             .addParameters(
                                 it.parameters.mapNotNull { kParam ->
                                     kParam.name?.let {
-                                        ParameterSpec.builder(it, kParam.type.asTypeName().stripJsAnnotations()).build()
+                                        ParameterSpec.builder(it, kParam.type.asCleanTypeName()).build()
                                     }
                                 },
                             )

@@ -11,12 +11,15 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.WildcardTypeName
+import com.squareup.kotlinpoet.asTypeName
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
+import kotlin.reflect.KType
 import kotlin.reflect.full.superclasses
 
 class ParamInfos(
@@ -91,22 +94,52 @@ fun TypeSpec.Builder.addPrimaryConstructorWithParams(vals: List<ParamInfos>): Ty
 fun TypeName.nullable() = this.copy(true)
 
 /**
- * Strips JS-specific annotations (e.g. @JsImplicitExport) added by Kotlin 2.x on multiplatform
- * types when calling KType.asTypeName(). These annotations must not appear in generated code
- * targeting non-JS platforms.
+ * Converts a reflected [KType] into a KotlinPoet [TypeName] fit for code generation.
+ *
+ * KotlinPoet's [asTypeName] copies the annotations of the *resolved classifier declaration* onto
+ * the *type usage* it builds (see `ParameterizedTypeName.get(KClass, Boolean, List<KTypeProjection>)`,
+ * which passes `effectiveType.annotations` to the resulting `ParameterizedTypeName`). That is wrong
+ * in general: annotations borne by a class declaration are not applicable to usages of that type,
+ * and nothing guarantees they are even visible or legal at that position.
+ *
+ * A concrete failure: since kotlin-stdlib 2.3.0, `kotlin.Pair` carries a runtime-visible
+ * `@kotlin.js.JsImplicitExport`, an `internal`, `@Target(CLASS)` compiler annotation. Emitting it on
+ * a parameter type made the generated mocks fail to compile with `Unresolved reference 'JsImplicitExport'`.
+ * Rather than blacklisting that one annotation, we drop *every* annotation coming from the classifier.
+ *
+ * No user-written *use-site* annotation can regress here: [asTypeName] never reads
+ * `KType.annotations`, so use-site annotations were never propagated in the first place. What this
+ * does change — deliberately — is that *declaration* annotations of the classifier are now all
+ * dropped, not just the `kotlin.js` ones: `kotlin.Result` carries `@JvmInline` and `java.util.Comparator`
+ * carries `@FunctionalInterface`, both `@Target(CLASS)` and equally illegal at a type-usage position.
  */
-fun TypeName.stripJsAnnotations(): TypeName {
-    val cleanAnnotations = annotations.filter {
-        (it.typeName as? ClassName)?.packageName?.startsWith("kotlin.js") != true
-    }
-    return when (this) {
-        is ParameterizedTypeName -> {
-            val cleanArgs = typeArguments.map { it.stripJsAnnotations() }
-            rawType.parameterizedBy(cleanArgs).copy(nullable = isNullable, annotations = cleanAnnotations)
+fun KType.asCleanTypeName(): TypeName = asTypeName().withoutTypeAnnotations()
+
+/**
+ * Recursively drops the annotations carried by a [TypeName] and by every type nested inside it.
+ *
+ * Only meant for type names freshly derived from reflection (see [asCleanTypeName]); never apply it
+ * to type names the generator itself built and deliberately annotated.
+ */
+fun TypeName.withoutTypeAnnotations(): TypeName =
+    when (this) {
+        is ParameterizedTypeName ->
+            rawType.parameterizedBy(typeArguments.map { it.withoutTypeAnnotations() })
+                .copy(nullable = isNullable, annotations = emptyList())
+        is WildcardTypeName -> {
+            // `producerOf` round-trips STAR (`out Any?`) unchanged, so no special case is needed.
+            val bare =
+                if (inTypes.size == 1) {
+                    WildcardTypeName.consumerOf(inTypes.single().withoutTypeAnnotations())
+                } else {
+                    WildcardTypeName.producerOf(outTypes.single().withoutTypeAnnotations())
+                }
+            bare.copy(nullable = isNullable, annotations = emptyList())
         }
-        else -> copy(nullable = isNullable, annotations = cleanAnnotations)
+        // Les types fonction reviennent de la reflection en `Function1<...>` (ParameterizedTypeName),
+        // jamais en LambdaTypeName : le cas général suffit et préserve la structure telle quelle.
+        else -> copy(nullable = isNullable, annotations = emptyList())
     }
-}
 
 fun TypeName.simpleName(): String? =
     when {

@@ -1,5 +1,17 @@
 # Changelog
 
+## Version `1.5.4-ua`
+
+### fix
+
+- #### Code generation
+    - Do not propagate the annotations of a type's *declaration* onto the *usages* of that type in
+      generated code. Since kotlin-stdlib 2.3.0, `kotlin.Pair` carries the compiler-internal
+      `@kotlin.js.JsImplicitExport`, which KotlinPoet copied onto every parameter typed with a
+      generic class. The generated model mocks no longer compiled
+      (`Unresolved reference 'JsImplicitExport'`), breaking the whole `jvmTest` source set.
+      Also affected the generated view proxies/mocks of `SKListVC` and `SKInputVC`.
+
 ## Version `1.5.3-ua`
 
 ### fix

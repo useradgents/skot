@@ -58,7 +58,7 @@ fun ComponentDef.buildViewImpl(viewModuleAndroidPackage: String) =
                         .addParameters(
                             it.parameters.mapNotNull { kParam ->
                                 kParam.name?.let {
-                                    ParameterSpec.builder(it, kParam.type.asTypeName()).build()
+                                    ParameterSpec.builder(it, kParam.type.asCleanTypeName()).build()
                                 }
                             },
                         )

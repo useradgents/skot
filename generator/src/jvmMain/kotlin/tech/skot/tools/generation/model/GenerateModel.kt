@@ -9,6 +9,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.decapitalizeAsciiOnly
 import tech.skot.tools.generation.FrameworkClassNames
+import tech.skot.tools.generation.asCleanTypeName
 import tech.skot.tools.generation.Generator
 import tech.skot.tools.generation.ParamInfos
 import tech.skot.tools.generation.addPrimaryConstructorWithParams
@@ -53,7 +54,7 @@ fun Generator.generateModel() {
                     it.modelClass?.let { modelClass ->
                         modelClass.ownProperties().forEach {
                             addProperty(
-                                PropertySpec.builder(it.name, it.returnType.asTypeName())
+                                PropertySpec.builder(it.name, it.returnType.asCleanTypeName())
                                     .addModifiers(KModifier.OVERRIDE)
                                     .build(),
                             )
@@ -69,10 +70,10 @@ fun Generator.generateModel() {
                                     }
                                     .addParameters(
                                         it.parameters.filter { it.kind == KParameter.Kind.VALUE }.map {
-                                            ParameterSpec(it.name!!, it.type.asTypeName())
+                                            ParameterSpec(it.name!!, it.type.asCleanTypeName())
                                         },
                                     )
-                                    .returns(it.returnType.asTypeName())
+                                    .returns(it.returnType.asCleanTypeName())
                                     .addModifiers(KModifier.OVERRIDE)
                                     .build(),
                             )

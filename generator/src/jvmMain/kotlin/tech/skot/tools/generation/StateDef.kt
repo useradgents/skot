@@ -80,7 +80,7 @@ class StateDef(
             .map {
                 Property(
                     it.name,
-                    it.returnType.asTypeName(),
+                    it.returnType.asCleanTypeName(),
                     it is KMutableProperty,
                     it.hasAnnotation<SKBySKData>(),
                     it.findAnnotation<SKWithDefault>()?.initilization,

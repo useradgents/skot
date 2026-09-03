@@ -156,7 +156,7 @@ fun ComponentDef.buildProxy(
                             .addPrimaryConstructorWithParams(
                                 it.parameters.mapNotNull { kParam ->
                                     kParam.name?.let { name ->
-                                        ParamInfos(name, kParam.type.asTypeName().stripJsAnnotations())
+                                        ParamInfos(name, kParam.type.asCleanTypeName())
                                     }
                                 },
                             )
@@ -192,7 +192,7 @@ fun ComponentDef.buildProxy(
                         .addParameters(
                             it.parameters.mapNotNull { kParam ->
                                 kParam.name?.let {
-                                    ParameterSpec.builder(it, kParam.type.asTypeName().stripJsAnnotations()).build()
+                                    ParameterSpec.builder(it, kParam.type.asCleanTypeName()).build()
                                 }
                             },
                         )
@@ -401,7 +401,7 @@ fun ComponentDef.buildRAI(viewModuleAndroidPackage: String): TypeSpec =
                         .addParameters(
                             it.parameters.mapNotNull { kParam ->
                                 kParam.name?.let {
-                                    ParameterSpec.builder(it, kParam.type.asTypeName().stripJsAnnotations()).build()
+                                    ParameterSpec.builder(it, kParam.type.asCleanTypeName()).build()
                                 }
                             },
                         )
