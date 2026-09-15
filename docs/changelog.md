@@ -1,5 +1,77 @@
 # Changelog
 
+## Version `1.6.0-ua`
+
+### chore
+
+- #### Toolchain
+    - Upgrade to **Kotlin 2.4.20**, **Android Gradle Plugin 9.4.0**, **Gradle 9.7.1** and
+      **compileSdk / targetSdk 37**. AGP 9.4.0 requires Gradle 9.6.0 or later, hence the wrapper
+      bump.
+    - `apiVersion` moved from `KOTLIN_2_3` to `KOTLIN_2_4`, following the compiler — both in the
+      framework's own modules and in the `tech.skot.*` plugins, which set it on the modules of the
+      applications they configure.
+- #### Dependencies
+    - Kotlinx Coroutines 1.10.2 → 1.11.0, Kotlinx Serialization 1.10.0 → 1.11.0,
+      Ktor 3.4.2 → 3.5.2, Kotlinx DateTime 0.7.1 → 0.8.0 (`-0.6.x-compat` variant kept),
+      KotlinPoet 2.3.0 → 2.4.0.
+    - AndroidX Core 1.18.0 → 1.19.0, AppCompat 1.7.1 → 1.8.0, Material 1.13.0 → 1.14.0,
+      ConstraintLayout 2.2.1 → 2.2.2, Lifecycle 2.10.0 → 2.11.0.
+    - Build plugins: SonarQube 7.5.0.8588, ben-manes versions 0.63.0,
+      version-catalog-update 1.1.1.
+    - Held back on purpose, excluded by the project's own `rejectVersionIf` filter: SQLDelight
+      2.4.0-rc, LeakCanary 3.0-alpha, Kotlinx Serialization 1.12.0-RC.
+
+- #### Deprecations
+    - `plugin`: `AndroidSourceDirectorySet.srcDir()` / `srcDirs()` replaced by the `directories`
+      mutable set (30 call sites in `PluginApp`, `PluginFeature`, `PluginLibraryViewLegacy` and
+      `PluginViewLegacy`).
+    - `PluginFeature`: drop the deprecated legacy `com.android.build.gradle.AppExtension` DSL. Its
+      `compileSdk` / `minSdk` configuration moved into the `com.android.build.api.dsl.DynamicFeatureExtension`
+      block the plugin already configures. **`targetSdk` is no longer set on feature modules**: the
+      new DSL does not expose it on `DynamicFeatureBaseFlavor`, since a dynamic feature inherits it
+      from the base application module.
+    - `generator`, `viewmodelTests`: `val jvmMain by getting { }` replaced by the `jvmMain { }`
+      accessor — the delegate syntax is scheduled for removal in Gradle 10.
+    - Drop `kotlin.mpp.androidSourceSetLayoutVersion` from `gradle.properties`: layout V2 is the
+      default and the property is no longer supported.
+    - Apply the ben-manes versions plugin under its new `io.github.ben-manes.versions` id.
+
+    The build no longer reports any deprecation coming from this repository. The remaining
+    `-Xuse-fir-lt` warning is emitted by Gradle's own `kotlin-dsl` plugin on `:plugin:compileKotlin`.
+
+### fix
+
+- #### Code generation
+    - `IconsMock` generation now emits `IconMock` through KotlinPoet's `%T` placeholder instead of a
+      raw string, so the `tech.skot.core.view.IconMock` import is actually added. The generated file
+      did not compile (`Unresolved reference 'IconMock'`) in any project declaring no icon at all —
+      with at least one icon the import came in through the property types and hid the bug.
+- #### Gradle plugin
+    - `tech.skot.model` and `tech.skot.viewmodel` now set `failOnNoDiscoveredTests` to `false`. Both
+      plugins register `generated/jvmTest` as a test source set and generate mocks and abstract base
+      classes into it, so a module whose application has not written a test yet has test sources but
+      no `@Test`. Gradle 9 treats that as a misconfiguration and fails `./gradlew build`.
+    - Annotate `SkGenerateTask` and `SKCopyBuildFileTask` with `@DisableCachingByDefault`.
+      `./gradlew build` was already failing on `:plugin:validatePlugins` before this release — a
+      task type must declare either `@CacheableTask` or `@DisableCachingByDefault`. It went
+      unnoticed because `scripts/check.sh` never builds the `plugin` module.
+
+### ⚠️ Breaking changes for applications
+
+`plugin/` exposes AGP and the Kotlin Gradle plugin as `api` dependencies, so every application
+applying a `tech.skot.*` plugin inherits this toolchain:
+
+1. **Gradle 9.6.0 or later is now mandatory** — an older wrapper fails with
+   `Minimum supported Gradle version is 9.6.0`.
+2. **Kotlin 2.4 is now the minimum**, as a consequence of the `apiVersion` bump.
+3. **Coroutines 1.11 removed `runBlockingTest`** and the other deprecated `kotlinx-coroutines-test`
+   APIs of that era — application test suites still using them no longer compile. Migrate to
+   `runTest`.
+4. **The first `skGenerate` after upgrading rewrites every generated file**: indentation goes from
+   2 to 4 spaces, and KotlinPoet 2.4.0 stops emitting redundant `kotlin.*` / `java.lang.*` imports.
+   Expect a large diff carrying almost no semantic change.
+
 ## Version `1.5.5-ua`
 
 ### fix

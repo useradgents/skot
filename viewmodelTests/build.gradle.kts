@@ -12,7 +12,7 @@ kotlin {
     }
 
     sourceSets {
-        val jvmMain by getting {
+        jvmMain {
 
             kotlin.srcDir("src/main/kotlin")
 

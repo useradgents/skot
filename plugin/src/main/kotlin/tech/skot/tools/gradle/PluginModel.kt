@@ -17,6 +17,7 @@ class PluginModel : Plugin<Project> {
 
         project.extensions.findByType(KotlinMultiplatformAndroidLibraryExtension::class)?.androidBaseConfig(project)
         project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
+        project.skDontFailOnGeneratedTestSourcesOnly()
         project.extensions.findByType(KotlinMultiplatformAndroidComponentsExtension::class)?.onVariants { variant ->
             skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
                 variant.sources.res?.addStaticSourceDirectory("src/androidMain/res$it")
@@ -27,7 +28,7 @@ class PluginModel : Plugin<Project> {
     private fun KotlinMultiplatformExtension.conf(project: Project) {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
             optIn.add("kotlin.time.ExperimentalTime")
         }
         jvm()

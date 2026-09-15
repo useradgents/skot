@@ -1,7 +1,6 @@
 package tech.skot.tools.gradle
 
 import com.android.build.api.dsl.DynamicFeatureExtension
-import com.android.build.gradle.AppExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.DependencyHandlerScope
@@ -16,7 +15,6 @@ class PluginFeature : Plugin<Project> {
         println("############## project.extensions ${project.extensions}")
         println("############## applying skot-feature !!!")
         project.extensions.findByType(DynamicFeatureExtension::class)?.android(project)
-        project.extensions.findByType(AppExtension::class)?.android()
 
         project.dependencies {
             dependencies(project)
@@ -26,22 +24,27 @@ class PluginFeature : Plugin<Project> {
 
     private fun DynamicFeatureExtension.android(project: Project) {
         println("############## applying skot-feature LibraryExtension !!!")
+        compileSdk = Versions.android_compileSdk
+        defaultConfig {
+            minSdk = Versions.android_minSdk
+        }
+
         sourceSets {
             getByName("main") {
-                kotlin.srcDir("src/androidMain/kotlin")
-                kotlin.srcDir("generated/androidMain/kotlin")
+                kotlin.directories.add("src/androidMain/kotlin")
+                kotlin.directories.add("generated/androidMain/kotlin")
                 skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach<String> {
-                    kotlin.srcDir("src/androidMain/kotlin$it")
-                    kotlin.srcDir("generated$it/androidMain/kotlin")
-                    res.srcDir("src/androidMain/res$it")
+                    kotlin.directories.add("src/androidMain/kotlin$it")
+                    kotlin.directories.add("generated$it/androidMain/kotlin")
+                    res.directories.add("src/androidMain/res$it")
                 }
-                res.srcDir("src/androidMain/res")
-                res.srcDir("src/androidMain/res_referenced")
+                res.directories.add("src/androidMain/res")
+                res.directories.add("src/androidMain/res_referenced")
 
                 manifest.srcFile("src/androidMain/AndroidManifest.xml")
             }
             getByName("androidTest") {
-                kotlin.srcDir("src/androidTest/kotlin")
+                kotlin.directories.add("src/androidTest/kotlin")
             }
         }
 
@@ -52,15 +55,6 @@ class PluginFeature : Plugin<Project> {
 
         buildFeatures {
             viewBinding = true
-        }
-    }
-
-    private fun AppExtension.android() {
-        compileSdkVersion(Versions.android_compileSdk)
-
-        defaultConfig {
-            minSdk = Versions.android_minSdk
-            targetSdk = Versions.android_targetSdk
         }
     }
 

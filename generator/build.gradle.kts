@@ -23,7 +23,7 @@ kotlin {
     jvm("jvm")
 
     sourceSets {
-        val jvmMain by getting {
+        jvmMain {
             dependencies {
                 implementation(libs.jetbrains.kotlin.stdlib)
                 api(project(":viewcontract"))
@@ -33,7 +33,7 @@ kotlin {
                 implementation(libs.jetbrains.kotlin.compiler.embeddable)
             }
         }
-        val jvmTest by getting {
+        jvmTest {
             dependencies {
                 implementation(libs.jetbrains.kotlin.test.junit)
             }

@@ -25,7 +25,7 @@ class PluginViewContract : Plugin<Project> {
 
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
             optIn.add("kotlin.time.ExperimentalTime")
         }
         jvm()

@@ -21,6 +21,7 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.project
 import org.gradle.kotlin.dsl.register
 import org.gradle.process.ExecOperations
+import org.gradle.work.DisableCachingByDefault
 import tech.skot.Versions
 import javax.inject.Inject
 
@@ -45,6 +46,7 @@ data class App(
 
 data class FeatureModule(val packageName: String, val startScreen: String)
 
+@DisableCachingByDefault(because = "Génération de sources dépendante de l'arborescence complète du projet, non traçable par Gradle")
 abstract class SkGenerateTask : DefaultTask() {
     @get:Input
     abstract val packageName: Property<String>

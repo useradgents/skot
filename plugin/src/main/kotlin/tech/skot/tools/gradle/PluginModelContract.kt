@@ -15,6 +15,7 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.register
+import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
@@ -23,6 +24,7 @@ open class SKPluginModelContractExtension {
     var buildFiles: List<Any>? = null
 }
 
+@DisableCachingByDefault(because = "Simple recopie de fichiers, le cache n'apporte rien")
 abstract class SKCopyBuildFileTask : DefaultTask() {
     @get:Internal
     abstract val buildFiles: ListProperty<Any>
@@ -107,7 +109,7 @@ class PluginModelContract : Plugin<Project> {
         jvmToolchain(21)
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
             optIn.add("kotlin.time.ExperimentalTime")
         }
         jvm()

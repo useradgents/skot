@@ -36,7 +36,7 @@ class PluginViewLegacy : Plugin<Project> {
     private fun KotlinMultiplatformExtension.conf(project: Project) {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3)
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
             optIn.add("kotlin.time.ExperimentalTime")
         }
         jvm()
@@ -44,24 +44,24 @@ class PluginViewLegacy : Plugin<Project> {
 
     private fun LibraryExtension.android(project: Project) {
         sourceSets.getByName("main") {
-            kotlin.srcDir("src/androidMain/kotlin")
-            kotlin.srcDir("generated/androidMain/kotlin")
-            assets.srcDirs("src/androidMain/assets")
-            res.srcDir("src/androidMain/res_referenced")
+            kotlin.directories.add("src/androidMain/kotlin")
+            kotlin.directories.add("generated/androidMain/kotlin")
+            assets.directories.add("src/androidMain/assets")
+            res.directories.add("src/androidMain/res_referenced")
             manifest.srcFile("src/androidMain/AndroidManifest.xml")
 
             skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
-                res.srcDir("src/androidMain/res$it")
-                res.srcDir("src/androidMain/res${it}_referenced")
-                kotlin.srcDir("src/androidMain/kotlin$it")
+                res.directories.add("src/androidMain/res$it")
+                res.directories.add("src/androidMain/res${it}_referenced")
+                kotlin.directories.add("src/androidMain/kotlin$it")
             }
-            res.srcDir("src/androidMain/res")
+            res.directories.add("src/androidMain/res")
         }
 
         sourceSets.getByName("androidTest") {
-            kotlin.srcDir("generated/androidTest/kotlin")
+            kotlin.directories.add("generated/androidTest/kotlin")
             skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
-                kotlin.srcDir("generated$it/androidTest/kotlin")
+                kotlin.directories.add("generated$it/androidTest/kotlin")
             }
         }
 

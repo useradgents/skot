@@ -24,19 +24,19 @@ class PluginApp : Plugin<Project> {
     private fun ApplicationExtension.conf(project: Project) {
         sourceSets {
             getByName("main") {
-                kotlin.srcDir("src/androidMain/kotlin")
-                kotlin.srcDir("generated/androidMain/kotlin")
+                kotlin.directories.add("src/androidMain/kotlin")
+                kotlin.directories.add("generated/androidMain/kotlin")
                 skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach<String> {
-                    kotlin.srcDir("src/androidMain/kotlin$it")
-                    kotlin.srcDir("generated$it/androidMain/kotlin")
-                    res.srcDir("src/androidMain/res$it")
+                    kotlin.directories.add("src/androidMain/kotlin$it")
+                    kotlin.directories.add("generated$it/androidMain/kotlin")
+                    res.directories.add("src/androidMain/res$it")
                 }
-                res.srcDir("src/androidMain/res")
-                assets.srcDir("src/androidMain/assets")
+                res.directories.add("src/androidMain/res")
+                assets.directories.add("src/androidMain/assets")
                 manifest.srcFile("src/androidMain/AndroidManifest.xml")
             }
             getByName("androidTest") {
-                kotlin.srcDir("src/androidTest/kotlin")
+                kotlin.directories.add("src/androidTest/kotlin")
             }
         }
 
