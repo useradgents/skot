@@ -5,5 +5,5 @@ package io.uad.skotsample.screens
 import tech.skot.core.test.SKViewModelTester
 
 public class SplashTester(
-  component: Splash,
+    component: Splash,
 ) : SKViewModelTester<SplashViewMock, Unit>(component)

@@ -3,9 +3,10 @@
 package io.uad.skotsample
 
 import tech.skot.core.view.Icon
+import tech.skot.core.view.IconMock
 
 public class IconsMock : Icons {
-  public var getReturnsNull: Boolean = false
+    public var getReturnsNull: Boolean = false
 
-  override fun `get`(key: String): Icon? = if (getReturnsNull) null else IconMock(key)
+    override fun `get`(key: String): Icon? = if (getReturnsNull) null else IconMock(key)
 }

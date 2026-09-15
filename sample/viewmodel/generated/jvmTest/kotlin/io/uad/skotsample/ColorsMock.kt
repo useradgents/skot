@@ -5,7 +5,7 @@ package io.uad.skotsample
 import tech.skot.core.view.ColorRef
 
 public class ColorsMock : Colors {
-  public var getReturnsNull: Boolean = false
+    public var getReturnsNull: Boolean = false
 
-  override fun `get`(key: String): ColorRef? = if (getReturnsNull) null else ColorRef(key.hashCode())
+    override fun `get`(key: String): ColorRef? = if (getReturnsNull) null else ColorRef(key.hashCode())
 }

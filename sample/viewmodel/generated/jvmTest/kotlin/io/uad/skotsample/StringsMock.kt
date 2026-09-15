@@ -3,7 +3,7 @@
 package io.uad.skotsample
 
 public class StringsMock : Strings {
-  public var getReturnsNull: Boolean = false
+    public var getReturnsNull: Boolean = false
 
-  override fun `get`(key: String): String? = if (getReturnsNull) null else key
+    override fun `get`(key: String): String? = if (getReturnsNull) null else key
 }

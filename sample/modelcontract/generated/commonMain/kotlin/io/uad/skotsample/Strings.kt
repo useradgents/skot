@@ -3,5 +3,5 @@
 package io.uad.skotsample
 
 public interface Strings {
-  public fun `get`(key: String): String?
+    public fun `get`(key: String): String?
 }

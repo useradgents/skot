@@ -8,10 +8,10 @@ import tech.skot.core.components.SKComponentVC
 import tech.skot.core.components.SKScreen
 
 public abstract class SplashGen : SKScreen<SplashVC>() {
-  protected abstract val bottomNav: SKComponent<out SKComponentVC>
+    protected abstract val bottomNav: SKComponent<out SKComponentVC>
 
-  override fun onRemove() {
-    bottomNav.onRemove()
-    super.onRemove()
-  }
+    override fun onRemove() {
+        bottomNav.onRemove()
+        super.onRemove()
+    }
 }

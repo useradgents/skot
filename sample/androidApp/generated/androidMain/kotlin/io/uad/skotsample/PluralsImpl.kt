@@ -6,16 +6,16 @@ import android.content.Context
 import io.uad.skotsample.view.R
 
 public class PluralsImpl(
-  private val applicationContext: Context,
+    private val applicationContext: Context,
 ) : Plurals {
-  private fun compute(
-    pluralId: Int,
-    quantity: Int,
-    vararg formatArgs: Any,
-  ): String = if (formatArgs.isEmpty()) {
-    applicationContext.resources.getQuantityString(pluralId, quantity)
-  }
-  else {
-    applicationContext.resources.getQuantityString(pluralId, quantity, *formatArgs)
-  }
+    private fun compute(
+        pluralId: Int,
+        quantity: Int,
+        vararg formatArgs: Any,
+    ): String = if (formatArgs.isEmpty()) {
+        applicationContext.resources.getQuantityString(pluralId, quantity)
+    }
+    else {
+        applicationContext.resources.getQuantityString(pluralId, quantity, *formatArgs)
+    }
 }

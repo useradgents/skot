@@ -7,18 +7,18 @@ import android.content.Context
 import io.uad.skotsample.view.R
 
 public class StringsImpl(
-  private val applicationContext: Context,
+    private val applicationContext: Context,
 ) {
-  private fun `get`(strId: Int): String = applicationContext.getString(strId)
+    private fun `get`(strId: Int): String = applicationContext.getString(strId)
 
-  @SuppressLint(value = ["DiscouragedApi"])
-  public fun `get`(key: String): String? {
-    val id = applicationContext.resources.getIdentifier(key,"string",applicationContext.packageName)
-    return if(id > 0) {
-      get(id)
+    @SuppressLint(value = ["DiscouragedApi"])
+    public fun `get`(key: String): String? {
+        val id = applicationContext.resources.getIdentifier(key,"string",applicationContext.packageName)
+        return if(id > 0) {
+            get(id)
+        }
+        else {
+            null
+        }
     }
-    else {
-      null
-    }
-  }
 }

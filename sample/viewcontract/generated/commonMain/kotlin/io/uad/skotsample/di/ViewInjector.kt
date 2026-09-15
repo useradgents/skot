@@ -6,7 +6,7 @@ import tech.skot.core.components.SKVisiblityListener
 import tech.skot.libraries.tabbar.SKBottomNavFrameVC
 
 public interface ViewInjector {
-  public fun splash(visibilityListener: SKVisiblityListener, bottomNav: SKBottomNavFrameVC): SplashVC
+    public fun splash(visibilityListener: SKVisiblityListener, bottomNav: SKBottomNavFrameVC): SplashVC
 
-  public fun tabScreen(visibilityListener: SKVisiblityListener): TabScreenVC
+    public fun tabScreen(visibilityListener: SKVisiblityListener): TabScreenVC
 }

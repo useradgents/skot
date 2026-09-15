@@ -5,5 +5,5 @@ package io.uad.skotsample.screens
 import tech.skot.core.test.SKViewModelTester
 
 public class TabScreenTester(
-  component: TabScreen,
+    component: TabScreen,
 ) : SKViewModelTester<TabScreenViewMock, Unit>(component)

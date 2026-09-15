@@ -27,18 +27,18 @@ import tech.skot.core.di.module
 import tech.skot.core.view.Style
 
 public val moduleMock: Module<InjectorMock> = module {
-  single<CoreViewInjector> { CoreViewInjectorMock() }
-  single<Strings> { StringsMock()}
-  single<Plurals> { PluralsMock()}
-  single<Icons> { IconsMock()}
-  single<Colors> { ColorsMock()}
-  single<Fonts> { FontsMock()}
-  single<Styles> { StylesMock()}
-  single<Dimens> { DimensMock()}
-  single<ViewInjector> { ViewInjectorMock()}
-  single<ModelInjector> { ModelInjectorMock()}
-  single<Transitions> { TransitionsMock()}
-  single<Permissions> { PermissionsMock()}
-  byName["skFullScreenDialogStyle"] = Style("sk_fullScreen_dialog".hashCode())
+    single<CoreViewInjector> { CoreViewInjectorMock() }
+    single<Strings> { StringsMock()}
+    single<Plurals> { PluralsMock()}
+    single<Icons> { IconsMock()}
+    single<Colors> { ColorsMock()}
+    single<Fonts> { FontsMock()}
+    single<Styles> { StylesMock()}
+    single<Dimens> { DimensMock()}
+    single<ViewInjector> { ViewInjectorMock()}
+    single<ModelInjector> { ModelInjectorMock()}
+    single<Transitions> { TransitionsMock()}
+    single<Permissions> { PermissionsMock()}
+    byName["skFullScreenDialogStyle"] = Style("sk_fullScreen_dialog".hashCode())
 
 }

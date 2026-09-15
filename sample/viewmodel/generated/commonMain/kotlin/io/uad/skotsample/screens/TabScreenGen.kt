@@ -6,7 +6,7 @@ import io.uad.skotsample.di.modelInjector
 import tech.skot.core.components.SKScreen
 
 public abstract class TabScreenGen : SKScreen<TabScreenVC>() {
-  override fun onRemove() {
-    super.onRemove()
-  }
+    override fun onRemove() {
+        super.onRemove()
+    }
 }
