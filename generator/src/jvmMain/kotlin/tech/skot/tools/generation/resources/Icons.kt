@@ -183,7 +183,7 @@ fun Generator.generateIcons() {
                     FrameworkClassNames.iconMock,
                     KModifier.OVERRIDE,
                 )
-                    .initializer("IconMock(\"${it.toIconsPropertyName()}\")")
+                    .initializer("%T(%S)", FrameworkClassNames.iconMock, it.toIconsPropertyName())
                     .build()
             },
         )
@@ -198,7 +198,7 @@ fun Generator.generateIcons() {
             FunSpec.builder("get")
                 .addParameter("key", String::class)
                 .returns(Icon::class.asTypeName().copy(nullable = true))
-                .addStatement("return if (getReturnsNull) null else IconMock(key)")
+                .addStatement("return if (getReturnsNull) null else %T(key)", FrameworkClassNames.iconMock)
                 .addModifiers(KModifier.OVERRIDE)
                 .build(),
         )
