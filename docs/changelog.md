@@ -42,6 +42,40 @@
 
 ### fix
 
+- #### Gradle plugin
+    - `tech.skot.modelcontract` is configuration cache compatible again, and stops generating a
+      non-deterministic build file. `skCopyBuildFileDebug` and `skCopyBuildFileRelease` are replaced
+      by a single `skCopyBuildFile` task.
+
+      Both tasks wrote the *same* file — `generated/commonMain/kotlin`, shared by every variant —
+      and an `onlyIf` block inspecting the task graph was meant to let only one of them run. That
+      block captured `Project`, which the configuration cache cannot serialize, and it did not even
+      work: on `./gradlew build` both `preDebugBuild` and `preReleaseBuild` are in the graph, so
+      both tasks ran and the last one won. Debug code could be compiled against
+      `SKBuild.debug = false`, depending on execution order.
+
+      A compile-time constant living in a variant-shared source set cannot carry a per-variant
+      value at all, whatever the task does: one Gradle invocation, one file, one value — and
+      `./gradlew build` asks for both variants at once. **`SKBuild.debug` is therefore no longer a
+      `const val`**, it is read at runtime:
+
+          public val debug: Boolean
+              get() = SKEnv.debug
+
+      `SKEnv.debug` is set by `SKEnvInitProvider`, a `ContentProvider` declared in `core`'s
+      manifest and merged into every application. Android creates content providers *before*
+      `Application.onCreate()`, so the value is already correct for the whole of an application's
+      initialization — including the code that runs before the injector is built. It is read from
+      `ApplicationInfo.FLAG_DEBUGGABLE` rather than `BuildConfig.DEBUG`, `buildConfig` being off by
+      default since AGP 8. On the JVM nothing sets it and it stays `false`, which is what the
+      previous task-name heuristic already yielded for `jvmTest`.
+
+      `skCopyBuildFile` no longer depends on the requested tasks, so the file it writes is
+      identical in every invocation — deterministic, up-to-date-checkable, and free of the
+      per-variant recompilation the previous scheme caused.
+
+      Applications referencing `skCopyBuildFileDebug` or `skCopyBuildFileRelease` by name must use
+      `skCopyBuildFile` instead.
 - #### Code generation
     - `IconsMock` generation now emits `IconMock` through KotlinPoet's `%T` placeholder instead of a
       raw string, so the `tech.skot.core.view.IconMock` import is actually added. The generated file
@@ -71,6 +105,16 @@ applying a `tech.skot.*` plugin inherits this toolchain:
 4. **The first `skGenerate` after upgrading rewrites every generated file**: indentation goes from
    2 to 4 spaces, and KotlinPoet 2.4.0 stops emitting redundant `kotlin.*` / `java.lang.*` imports.
    Expect a large diff carrying almost no semantic change.
+5. **`SKBuild.debug` is no longer a compile-time constant.** Every ordinary read — `if
+   (SKBuild.debug)`, `!SKBuild.debug`, passing it as an argument — keeps working unchanged. Only a
+   use requiring a constant breaks: an annotation argument, a `when` branch on a constant, or
+   another `const val` deriving from it. None was found in the applications checked.
+
+   Its value is now correct in every build, which is a behaviour change in itself: an application
+   whose CI runs `./gradlew build` or `assembleDebug assembleRelease` used to get
+   `SKBuild.debug = false` in its debug artifact. Code gated on it — verbose network logging,
+   internal-account checks, forced-update prompts — was silently taking the release branch there
+   and now takes the debug one.
 
 ## Version `1.5.5-ua`
 

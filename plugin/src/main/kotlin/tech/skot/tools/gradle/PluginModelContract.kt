@@ -38,9 +38,6 @@ abstract class SKCopyBuildFileTask : DefaultTask() {
     @get:Input
     abstract val addingVersionCodeAndDebug: Property<Boolean>
 
-    @get:Input
-    abstract val debug: Property<Boolean>
-
     @TaskAction
     fun copy() {
         buildFiles.get().forEach {
@@ -49,7 +46,6 @@ abstract class SKCopyBuildFileTask : DefaultTask() {
                 outputDir = outputDir.get().asFile,
                 versionCode = versionCode.get(),
                 addingVersionCodeAndDebug = addingVersionCodeAndDebug.get(),
-                debug = debug.get()
             )
         }
     }
@@ -68,26 +64,11 @@ class PluginModelContract : Plugin<Project> {
         val appProvider = project.provider { extension.buildFiles ?: emptyList<Any>() }
         val versionCodeProvider = project.providers.provider { project.skVersionCode() }
 
-        val copyDebug = project.tasks.register<SKCopyBuildFileTask>("skCopyBuildFileDebug") {
+        val copyBuildFile = project.tasks.register<SKCopyBuildFileTask>("skCopyBuildFile") {
             buildFiles.set(appProvider)
             this.outputDir.set(outputDirValue)
             this.versionCode.set(versionCodeProvider)
             this.addingVersionCodeAndDebug.set(true)
-            this.debug.set(true)
-            onlyIf {
-                project.gradle.taskGraph.allTasks.any { it.name == "preDebugBuild" }
-            }
-        }
-
-        val copyRelease = project.tasks.register<SKCopyBuildFileTask>("skCopyBuildFileRelease") {
-            buildFiles.set(appProvider)
-            this.outputDir.set(outputDirValue)
-            this.versionCode.set(versionCodeProvider)
-            this.addingVersionCodeAndDebug.set(true)
-            this.debug.set(false)
-            onlyIf {
-                project.gradle.taskGraph.allTasks.any { it.name == "preReleaseBuild" }
-            }
         }
 
         project.extensions.findByType(KotlinMultiplatformAndroidLibraryExtension::class)?.androidBaseConfig(project)
@@ -99,7 +80,7 @@ class PluginModelContract : Plugin<Project> {
                 ?.flatMap { it.compilations }
                 ?.forEach { compilation ->
                     compilation.compileTaskProvider.configure {
-                        dependsOn(copyDebug, copyRelease)
+                        dependsOn(copyBuildFile)
                     }
                 }
         }

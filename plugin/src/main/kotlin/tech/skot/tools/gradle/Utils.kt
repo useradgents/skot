@@ -27,3 +27,4 @@ internal fun Project.skDontFailOnGeneratedTestSourcesOnly() {
         failOnNoDiscoveredTests.set(false)
     }
 }
+

@@ -1,3 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Pose SKEnv.debug avant Application.onCreate(). -->
+        <provider
+            android:name="tech.skot.core.SKEnvInitProvider"
+            android:authorities="${applicationId}.skotenvinit"
+            android:exported="false"
+            android:initOrder="1000" />
+    </application>
 </manifest>

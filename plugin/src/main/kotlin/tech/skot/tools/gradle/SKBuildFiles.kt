@@ -4,16 +4,15 @@ import com.squareup.kotlinpoet.asTypeName
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.memberProperties
 
-// var skDebugMode:Boolean = false
+private val skEnv = com.squareup.kotlinpoet.ClassName("tech.skot.core", "SKEnv")
 
 fun copyBuildFileToImplementation(
     build: Any,
     outputDir: java.io.File,
     versionCode: Int,
     addingVersionCodeAndDebug: Boolean,
-    debug: Boolean,
 ) {
-    println("Copy of build object :${build::class.simpleName} addingVersionCodeAndDebug: $addingVersionCodeAndDebug  with debug: $debug")
+    println("Copy of build object :${build::class.simpleName} addingVersionCodeAndDebug: $addingVersionCodeAndDebug")
     val stringType = String::class.createType()
     val intType = Int::class.createType()
 
@@ -29,7 +28,6 @@ fun copyBuildFileToImplementation(
         com.squareup.kotlinpoet.TypeSpec.objectBuilder(buildObjectType.simpleName)
             .apply {
                 if (addingVersionCodeAndDebug) {
-                    println("----with debug $debug")
                     addProperty(
                         com.squareup.kotlinpoet.PropertySpec.builder(
                             "versionCode",
@@ -40,13 +38,19 @@ fun copyBuildFileToImplementation(
                             .build(),
                     )
 
+                    // Valeur d'exécution, posée par SKEnvInitProvider : une constante de
+                    // compilation ne peut pas être juste ici, le fichier étant partagé par
+                    // toutes les variantes.
                     addProperty(
                         com.squareup.kotlinpoet.PropertySpec.builder(
                             "debug",
                             Boolean::class,
-                            com.squareup.kotlinpoet.KModifier.CONST,
                         )
-                            .initializer(debug.toString())
+                            .getter(
+                                com.squareup.kotlinpoet.FunSpec.getterBuilder()
+                                    .addStatement("return %T.debug", skEnv)
+                                    .build(),
+                            )
                             .build(),
                     )
                 }
