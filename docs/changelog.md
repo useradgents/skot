@@ -91,6 +91,32 @@
       task type must declare either `@CacheableTask` or `@DisableCachingByDefault`. It went
       unnoticed because `scripts/check.sh` never builds the `plugin` module.
 
+- #### `SKListView`
+    - Do not crash anymore when `onBindViewHolder` receives a `ViewHolder` whose `itemView` was
+      inflated from a different layout than the item to bind. The generated `ViewBinding.bind()`
+      then threw `NullPointerException: Missing required view with ID: …` — the reported id being
+      merely the first one in alphabetical order, since none of the expected ids was present in the
+      received root. `SKListView` now compares `holder.itemViewType` with the item's `layoutId`: on
+      a mismatch it reports a non-fatal naming **both layouts** and the position, releases the
+      previous `SKComponentView` and leaves the cell inert instead of crashing. The exact
+      desynchronisation mechanism is not identified yet — the non-fatal is the instrument meant to
+      pin it down in production, and also reports the position, the item count, the binding and old
+      adapter positions, the scroll state, `isComputingLayout` and whether the bind happens on the
+      main thread.
+    - Report a non-fatal when `computeItemId()` is not unique within a list. `DiffCallBack`
+      identifies an item by its (layout, itemId) couple, and DiffUtil assumes that couple is unique:
+      when it is not, two items are paired arbitrarily and the emitted operations no longer describe
+      the actual transformation of the list. The default `computeItemId()` returns the component
+      itself and is unique by construction, so only lists overriding it are concerned — typically
+      with a singleton or a class without `equals`/`hashCode` as an id, which silently gives one
+      single identity to every item carrying it. Reported once per list.
+
+### doc
+
+- #### `SKComponent`
+    - Document on `computeItemId()` that the (layout, itemId) couple must be unique within the
+      `SKList`, and what happens when it is not.
+
 ### Migrating an application to `1.6.0-ua`
 
 Ordered steps. Each one is a hard prerequisite of the next: skipping one makes the following step

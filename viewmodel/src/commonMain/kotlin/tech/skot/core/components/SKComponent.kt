@@ -308,6 +308,19 @@ abstract class SKComponent<out V : SKComponentVC> : CoroutineScope {
         }
     }
 
+    /**
+     * Identity of this component when it is used as an item of a [SKList].
+     *
+     * It is combined with the item's layout to tell DiffUtil whether two items of two successive
+     * lists represent the same thing. **The resulting couple must be unique within the list**: the
+     * default implementation returns the component itself, which guarantees it. As soon as it is
+     * overridden with a business identifier, it becomes the caller's responsibility — two items
+     * sharing the same layout and the same id make DiffUtil pair them arbitrarily, and the
+     * operations it emits then no longer describe the actual transformation of the list.
+     *
+     * Beware of values whose identity is not what it looks like: a singleton (`object`) or a class
+     * without `equals`/`hashCode` used as an id makes every item carrying it share one single id.
+     */
     open fun computeItemId(): Any {
         return this
     }

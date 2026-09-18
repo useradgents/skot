@@ -2,6 +2,7 @@ package tech.skot.core.components
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Looper
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -62,6 +63,33 @@ class SKListView(
         ) {
             val truePosition = getPosition(position)
             items[truePosition].let { proxy ->
+                val expectedLayoutId = proxy.first.layoutId
+                if (expectedLayoutId != null && holder.itemViewType != expectedLayoutId) {
+                    // Garde-fou : on reçoit parfois en production une itemView gonflée depuis un
+                    // autre layout que celui de l'item à lier — binder dessus lève un
+                    // NullPointerException dans le ViewBinding.bind() généré. Le mécanisme exact de
+                    // désynchronisation n'est pas identifié : le non-fatal embarque donc, en plus
+                    // des deux layouts, de quoi trancher les hypothèses restantes (thread, scroll
+                    // en cours, décalage de position).
+                    val res = holder.itemView.resources
+                    SKLog.e(
+                        IllegalStateException(
+                            "SKListView: holder=${res.getResourceEntryName(holder.itemViewType)}" +
+                                " item=${res.getResourceEntryName(expectedLayoutId)}" +
+                                " itemId=${proxy.second}" +
+                                " pos=$truePosition/${items.size}" +
+                                " bindingPos=${holder.bindingAdapterPosition}" +
+                                " oldPos=${holder.oldPosition}" +
+                                " scrollState=${recyclerView.scrollState}" +
+                                " computingLayout=${recyclerView.isComputingLayout}" +
+                                " mainThread=${Looper.myLooper() == Looper.getMainLooper()}",
+                        ),
+                        "viewType désynchronisé, item non lié",
+                    )
+                    holder.componentView?.onRecycle()
+                    holder.componentView = null
+                    return
+                }
                 val componentViewImpl =
                     proxy.first.bindToItemView(activity, fragment, holder.itemView)
                 holder.componentView = componentViewImpl
@@ -94,6 +122,33 @@ class SKListView(
     private val mapProxyIndexComponentViewImpl =
         mutableMapOf<SKComponentViewProxy<*>, SKComponentView<*>>()
 
+    private var duplicateItemIdsReported = false
+
+    /**
+     * [DiffCallBack.areItemsTheSame] identifie un item par son couple (layoutId, itemId), l'itemId
+     * venant de `SKComponent.computeItemId()`. DiffUtil suppose ce couple unique dans la liste :
+     * s'il ne l'est pas, l'appariement de deux items devient arbitraire et les opérations émises ne
+     * décrivent plus la transformation réelle. On ne peut pas corriger ça ici — seule l'application
+     * connaît la bonne identité — donc on le signale, une fois par liste.
+     */
+    private fun List<Triple<SKComponentViewProxy<*>, Any, (() -> Unit)?>>.checkItemIdsAreUnique() {
+        if (duplicateItemIdsReported) return
+        val seen = mutableSetOf<Pair<Int?, Any>>()
+        val duplicate = firstOrNull { !seen.add(it.first.layoutId to it.second) } ?: return
+        duplicateItemIdsReported = true
+        val layoutName =
+            duplicate.first.layoutId
+                ?.let { recyclerView.resources.getResourceEntryName(it) }
+                ?: duplicate.first::class.simpleName
+        SKLog.e(
+            IllegalStateException(
+                "SKListView: computeItemId() non unique — layout=$layoutName" +
+                    " itemId=${duplicate.second} size=$size",
+            ),
+            "itemId dupliqué, l'appariement DiffUtil devient arbitraire",
+        )
+    }
+
     private val adapter = Adapter()
 
     override fun onRecycle() {
@@ -112,6 +167,7 @@ class SKListView(
                 }
             }
             if (!infiniteScroll) {
+                newVal.checkItemIdsAreUnique()
                 val diffCallBack = DiffCallBack(field, newVal)
                 field = newVal
                 DiffUtil.calculateDiff(diffCallBack, true).dispatchUpdatesTo(adapter)
