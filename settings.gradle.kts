@@ -14,4 +14,8 @@ include(":generator")
 include(":viewmodelTests")
 include(":viewlegacyTests")
 
+// Le sample resout le plugin skot par coordonnees Maven : son buildscript classpath n'est pas
+// substitue par le projet :plugin local. L'inclure obligerait tout build de la racine a disposer
+// de la version publiee -- inexistante sur JitPack, sur un clone neuf et en CI -- alors qu'il
+// n'apporte qu'un confort d'IDE. Le sample se construit depuis son propre dossier.
 //includeBuild("sample")

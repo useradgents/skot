@@ -4,3 +4,6 @@
 /.idea/*
 .DS_Store
 **/build
+# Fichier genere par skCopyBuildFile. Les taches de compilation en dependent, il est
+# donc toujours present au moment ou il est compile, y compris sur un clone neuf.
+/modelcontract/generated/commonMain/kotlin/SKBuild.kt
