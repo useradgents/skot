@@ -10,4 +10,6 @@ public interface SplashVC : SKScreenVC {
 }
 
 
-public interface TabScreenVC : SKScreenVC
+public interface TabScreenVC : SKScreenVC {
+    val emptyState : String
+}

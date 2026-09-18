@@ -6,25 +6,31 @@ import tech.skot.libraries.tabbar.SKBottomNavFrame
 import tech.skot.libraries.tabbar.SKSimpleTab
 
 public class Splash : SplashGen() {
-    override val bottomNav = SKBottomNavFrame(SKBottomNavFrame.TabConf(SKSimpleTab(
-        "tab1", selectedIcon = null, unSelectedIcon = null,
-        selectedColor = null,
-        unSelectedColor = ColorHex("#FF0000"),
-        translateY = true,
-        onTapped = null
-    ),
-        TabScreen()),
-        SKBottomNavFrame.TabConf(SKSimpleTab(
-            "tab2", selectedIcon = null, unSelectedIcon = null,
-            selectedColor = null,
-            unSelectedColor = ColorHex("#FF0000"),
-            translateY = true,
-            onTapped = null
+    override val bottomNav = SKBottomNavFrame(
+        SKBottomNavFrame.TabConf(
+            SKSimpleTab(
+                "tab1", selectedIcon = null, unSelectedIcon = null,
+                selectedColor = ColorHex("#00FF00"),
+                unSelectedColor = ColorHex("#FF0000"),
+                translateY = true,
+                onTapped = null
+            ),
+            TabScreen(1)
         ),
-            TabScreen()))
+        SKBottomNavFrame.TabConf(
+            SKSimpleTab(
+                "tab2", selectedIcon = null, unSelectedIcon = null,
+                selectedColor = ColorHex("#00FF00"),
+                unSelectedColor = ColorHex("#FF0000"),
+                translateY = true,
+                onTapped = null
+            ),
+            TabScreen(2)
+        )
+    )
 
-  final override val view: SplashVC = viewInjector.splash(
-      visibilityListener = this,
-      bottomNav = bottomNav.view
-      )
+    final override val view: SplashVC = viewInjector.splash(
+        visibilityListener = this,
+        bottomNav = bottomNav.view
+    )
 }

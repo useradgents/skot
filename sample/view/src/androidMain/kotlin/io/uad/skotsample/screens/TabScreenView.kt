@@ -11,4 +11,8 @@ public class TabScreenView(
   fragment: Fragment?,
   binding: TabScreenBinding,
 ) : SKScreenView<TabScreenBinding>(proxy, activity, fragment, binding),
-    TabScreenRAI
+    TabScreenRAI {
+    override fun onEmptyState(emptyState: String) {
+        binding.emptyState.text = emptyState
+    }
+}

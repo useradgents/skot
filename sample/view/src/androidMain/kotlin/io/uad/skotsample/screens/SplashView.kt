@@ -11,4 +11,4 @@ public class SplashView(
   fragment: Fragment?,
   binding: SplashBinding,
 ) : SKScreenView<SplashBinding>(proxy, activity, fragment, binding),
-    SplashRAI
+    SplashRAI{}

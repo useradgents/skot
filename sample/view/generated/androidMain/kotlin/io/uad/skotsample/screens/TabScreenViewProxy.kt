@@ -12,6 +12,7 @@ import tech.skot.core.components.SKVisiblityListener
 
 public class TabScreenViewProxy(
     override val visibilityListener: SKVisiblityListener,
+    override val emptyState: String,
 ) : SKScreenViewProxy<TabScreenBinding>(),
     TabScreenVC {
     override val layoutId: Int = R.layout.tab_screen
@@ -36,7 +37,10 @@ public class TabScreenViewProxy(
         fragment: Fragment?,
         binding: TabScreenBinding,
     ): TabScreenView = TabScreenView(this, activity, fragment, binding).apply {
+        onEmptyState(emptyState)
     }
 }
 
-public interface TabScreenRAI
+public interface TabScreenRAI {
+    public fun onEmptyState(emptyState: String)
+}

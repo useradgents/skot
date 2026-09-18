@@ -11,5 +11,5 @@ import tech.skot.libraries.tabbar.SKBottomNavFrameViewMock
 public class ViewInjectorMock : ViewInjector {
     override fun splash(visibilityListener: SKVisiblityListener, bottomNav: SKBottomNavFrameVC): SplashVC = SplashViewMock(bottomNav as SKBottomNavFrameViewMock)
 
-    override fun tabScreen(visibilityListener: SKVisiblityListener): TabScreenVC = TabScreenViewMock()
+    override fun tabScreen(visibilityListener: SKVisiblityListener, emptyState: String): TabScreenVC = TabScreenViewMock(emptyState)
 }
