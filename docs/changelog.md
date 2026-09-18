@@ -91,6 +91,76 @@
       task type must declare either `@CacheableTask` or `@DisableCachingByDefault`. It went
       unnoticed because `scripts/check.sh` never builds the `plugin` module.
 
+### Migrating an application to `1.6.0-ua`
+
+Ordered steps. Each one is a hard prerequisite of the next: skipping one makes the following step
+fail with an error that does not point back at it.
+
+1. **Gradle wrapper to 9.6.0 at least** (9.7.1 recommended). AGP 9.4.0 simply refuses to apply on
+   anything older:
+
+       Minimum supported Gradle version is 9.6.0. Current version is 9.4.1.
+
+   Note the chicken-and-egg: once the version catalog is bumped, `./gradlew wrapper` can no longer
+   configure the build. Bump the wrapper *first*, or edit
+   `gradle/wrapper/gradle-wrapper.properties` by hand (`distributionUrl` **and**
+   `distributionSha256Sum`).
+
+2. **Align AGP in the application's own version catalog** with the one carried by the plugin —
+   `9.4.0`. `plugin/` exposes AGP as an `api` dependency, and Gradle refuses two AGP versions in
+   one build:
+
+       Using multiple versions of the Android Gradle Plugin [9.4.0, 9.1.0] across Gradle builds
+       is not allowed.
+
+3. **Bump Kotlin to `2.4.20`** and skot to `1.6.0-ua` in the same catalog.
+
+   Check the third-party KMP tooling first, it is the step most likely to block. Validated on a
+   production application: SKIE stops the build dead at configuration time, and takes the Android
+   build down with it even though it only serves the Swift interop:
+
+       Error: SKIE 0.10.11 does not support Kotlin 2.4.20.
+
+   No published SKIE release supports 2.4.20 at the time of writing — 0.10.11 stops at Kotlin
+   2.3.20, 0.10.14 (the latest) at 2.4.10. Until Touchlab ships support, the only way through is
+   `skie { isEnabled = false }`, which disables the Swift interop of the shared module and
+   therefore affects the iOS application. Compiler plugins tied to a Kotlin version — KSP, Compose,
+   SKIE, Parcelize — all deserve the same check before bumping.
+
+4. **Remove `kotlin.mpp.androidSourceSetLayoutVersion`** from `gradle.properties`. Layout V2 is the
+   default and the property is no longer supported.
+
+5. **Migrate the test sources off `runBlockingTest`** and the other deprecated
+   `kotlinx-coroutines-test` APIs, removed in coroutines 1.11. `runTest` replaces them.
+
+6. **Rename any reference to `skCopyBuildFileDebug` / `skCopyBuildFileRelease`** into
+   `skCopyBuildFile`. Only relevant if a build script or a CI script names those tasks explicitly.
+
+7. **Run `skGenerate`** and commit the result in its own commit. The diff is large but almost
+   entirely cosmetic: indentation goes from 2 to 4 spaces and KotlinPoet 2.4.0 stops emitting
+   redundant `kotlin.*` / `java.lang.*` imports. Keeping it separate leaves the real changes
+   readable.
+
+8. **Move every hand-pinned `compileSdk` to 37**, including the ones in git submodules. Modules
+   configured by the `tech.skot.*` plugins follow on their own, reading the value from the
+   generated `tech.skot.Versions` — but any module setting it itself stays behind, and the build
+   then fails on an error naming the *library*, not the module that has to change:
+
+       Dependency ':view' requires libraries and applications that depend on it to compile
+       against version 37 or later of the Android APIs.
+       :androidApp is currently compiled against android-36.
+
+9. Java 21 is required, as it already was in `1.5.2-ua`.
+
+10. Optionally, `org.gradle.configuration-cache=true`: the incompatibility in
+    `tech.skot.modelcontract` is fixed in this release, so SKot no longer stands in the way. The
+    application's own build scripts may still do, though — a script starting an external process at
+    configuration time (`Runtime.getRuntime().exec`, a `git` call to install hooks) is reported the
+    same way and has to be moved to execution time.
+
+These steps were validated end to end on a production application: `assembleDebug` and
+`assembleRelease` both succeed, and no configuration cache problem is reported by SKot itself.
+
 ### ⚠️ Breaking changes for applications
 
 `plugin/` exposes AGP and the Kotlin Gradle plugin as `api` dependencies, so every application
