@@ -65,30 +65,26 @@ class SKListView(
             items[truePosition].let { proxy ->
                 val expectedLayoutId = proxy.first.layoutId
                 if (expectedLayoutId != null && holder.itemViewType != expectedLayoutId) {
-                    // Garde-fou : on reçoit parfois en production une itemView gonflée depuis un
-                    // autre layout que celui de l'item à lier — binder dessus lève un
-                    // NullPointerException dans le ViewBinding.bind() généré. Le mécanisme exact de
-                    // désynchronisation n'est pas identifié : le non-fatal embarque donc, en plus
-                    // des deux layouts, de quoi trancher les hypothèses restantes (thread, scroll
-                    // en cours, décalage de position).
+                    // On reçoit parfois en production une itemView gonflée depuis un autre layout
+                    // que celui de l'item à lier — binder dessus lève un NullPointerException dans
+                    // le ViewBinding.bind() généré, qui cite un id arbitraire. Le mécanisme exact
+                    // de désynchronisation n'est pas identifié : on plante toujours (laisser la
+                    // cellule afficher et réagir comme un autre item serait pire), mais avec un
+                    // message qui nomme les deux layouts et de quoi trancher les hypothèses
+                    // restantes (thread, scroll en cours, décalage de position).
                     val res = holder.itemView.resources
-                    SKLog.e(
-                        IllegalStateException(
-                            "SKListView: holder=${res.getResourceEntryName(holder.itemViewType)}" +
-                                " item=${res.getResourceEntryName(expectedLayoutId)}" +
-                                " itemId=${proxy.second}" +
-                                " pos=$truePosition/${items.size}" +
-                                " bindingPos=${holder.bindingAdapterPosition}" +
-                                " oldPos=${holder.oldPosition}" +
-                                " scrollState=${recyclerView.scrollState}" +
-                                " computingLayout=${recyclerView.isComputingLayout}" +
-                                " mainThread=${Looper.myLooper() == Looper.getMainLooper()}",
-                        ),
-                        "viewType désynchronisé, item non lié",
+                    throw IllegalStateException(
+                        "SKListView: viewType désynchronisé —" +
+                            " holder=${res.getResourceEntryName(holder.itemViewType)}" +
+                            " item=${res.getResourceEntryName(expectedLayoutId)}" +
+                            " itemId=${proxy.second}" +
+                            " pos=$truePosition/${items.size}" +
+                            " bindingPos=${holder.bindingAdapterPosition}" +
+                            " oldPos=${holder.oldPosition}" +
+                            " scrollState=${recyclerView.scrollState}" +
+                            " computingLayout=${recyclerView.isComputingLayout}" +
+                            " mainThread=${Looper.myLooper() == Looper.getMainLooper()}",
                     )
-                    holder.componentView?.onRecycle()
-                    holder.componentView = null
-                    return
                 }
                 val componentViewImpl =
                     proxy.first.bindToItemView(activity, fragment, holder.itemView)

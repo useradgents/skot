@@ -104,17 +104,17 @@
       unnoticed because `scripts/check.sh` never builds the `plugin` module.
 
 - #### `SKListView`
-    - Do not crash anymore when `onBindViewHolder` receives a `ViewHolder` whose `itemView` was
-      inflated from a different layout than the item to bind. The generated `ViewBinding.bind()`
-      then threw `NullPointerException: Missing required view with ID: …` — the reported id being
-      merely the first one in alphabetical order, since none of the expected ids was present in the
-      received root. `SKListView` now compares `holder.itemViewType` with the item's `layoutId`: on
-      a mismatch it reports a non-fatal naming **both layouts** and the position, releases the
-      previous `SKComponentView` and leaves the cell inert instead of crashing. The exact
-      desynchronisation mechanism is not identified yet — the non-fatal is the instrument meant to
-      pin it down in production, and also reports the position, the item count, the binding and old
-      adapter positions, the scroll state, `isComputingLayout` and whether the bind happens on the
-      main thread.
+    - Make the crash actionable when `onBindViewHolder` receives a `ViewHolder` whose `itemView`
+      was inflated from a different layout than the item to bind. The generated
+      `ViewBinding.bind()` threw `NullPointerException: Missing required view with ID: …` — the
+      reported id being merely the first one in alphabetical order, since none of the expected ids
+      was present in the received root. `SKListView` now compares `holder.itemViewType` with the
+      item's `layoutId` and, on a mismatch, throws an `IllegalStateException` naming **both
+      layouts**, the item id, the position and item count, the binding and old adapter positions,
+      the scroll state, `isComputingLayout` and whether the bind happens on the main thread. The
+      exact desynchronisation mechanism is not identified yet: this message is the instrument meant
+      to pin it down in production. It still crashes on purpose — leaving the cell showing, and
+      reacting to taps as, another item would be worse than a crash.
     - Report a non-fatal when `computeItemId()` is not unique within a list. `DiffCallBack`
       identifies an item by its (layout, itemId) couple, and DiffUtil assumes that couple is unique:
       when it is not, two items are paired arbitrarily and the emitted operations no longer describe
