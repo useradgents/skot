@@ -1,8 +1,5 @@
 package tech.skot.model
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.KSerializer
@@ -19,30 +16,23 @@ abstract class SKNullableDistantDataWithCache<D : Any>(
     private val serializer: KSerializer<Nullable<D>> = Nullable.serializer(dataSerializer)
 
     override suspend fun newDatedData(): DatedData<D?> {
+        // clé capturée avant le fetch : une clé live qui change pendant la requête ne doit pas
+        // ranger la donnée sous la nouvelle clé
+        val keyOfFetch = completeKey
         val fetchedData = DatedData(fetchData(), currentTimeMillis())
-        saveInCache(fetchedData)
+        saveInCache(fetchedData, keyOfFetch)
         return fetchedData
     }
 
     protected open val completeKey: String? = key
 
-    private fun saveInCache(newData: DatedData<D?>) {
-        CoroutineScope(Dispatchers.Default).launch {
-            try {
-                cache.putData(
-                    serializer,
-                    name,
-                    Nullable(newData.data),
-                    completeKey,
-                    newData.timestamp,
-                )
-            } catch (ex: Exception) {
-                SKLog.e(
-                    ex,
-                    "SKDistantDataWithCache Problème à la mise en cache de la donnée $name $key",
-                )
-            }
-        }
+    private val cacheWriter = SKCacheWriter(cache, name, "SKDistantDataWithCache")
+
+    private fun saveInCache(
+        newData: DatedData<D?>,
+        cacheKey: String? = completeKey,
+    ) {
+        cacheWriter.write(serializer, Nullable(newData.data), cacheKey, newData.timestamp)
     }
 
     private val initMutex = Mutex()

@@ -36,7 +36,10 @@ abstract class SKDistantDataWithCacheAndLiveKey<D : Any>(
     }
 
     override suspend fun newDatedData(): DatedData<D> {
-        return super.newDatedData().also { liveKeyOfCurrentValue = liveKey() }
+        // clé capturée avant le fetch : si elle change pendant la requête, la donnée reste
+        // attribuée à la clé pour laquelle elle a été demandée
+        val liveKeyOfFetch = liveKey()
+        return super.newDatedData().also { liveKeyOfCurrentValue = liveKeyOfFetch }
     }
 
     override suspend fun fallBackValue(): D? {

@@ -128,6 +128,20 @@
       to `1.5.5-ua`. An application's instrumented tests using `testComponent()`, `testScreen()`
       or `SKTestView` did not compile against it, although the `tech.skot.*` plugins keep adding
       it as an `androidTestImplementation` dependency.
+- #### Model cache
+    - Cache writes of `SKManualDataWithCache`, `SKNullableManualDataWithCache`,
+      `SKDistantDataWithCache` and `SKNullableDistantDataWithCache` no longer overwrite a newer
+      value with an older one. Each write ran in its own coroutine on `Dispatchers.Default`, in no
+      guaranteed order: after `setValue(1)` then `setValue(2)` the cache held `1` about one run in
+      four on device, so the value read back after a restart could be the previous one — the
+      in-memory value was right. Writes now go through an internal `SKCacheWriter` which, for
+      each cache key, only persists a write if no newer one has been persisted already. No API
+      change.
+    - `SKDistantDataWithCacheAndLiveKey`: data fetched while the live key changes stays attributed
+      to the key it was fetched for. The key was read after the fetch, both to store the data in
+      the cache and to tag the in-memory value — a change of account during the request stored the
+      previous account's data under the new key, and served it as valid for the new key. It is now
+      captured before the fetch.
 
 ### doc
 

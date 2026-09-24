@@ -1,9 +1,6 @@
 package tech.skot.model
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.KSerializer
@@ -57,20 +54,11 @@ abstract class SKManualDataWithCache<D : Any>(
         return super.get(validity)
     }
 
+    private val cacheWriter = SKCacheWriter(cache, name, "SKManualDataWithCache")
+
     fun setValue(newValue: D) {
         flow.value = DatedData(newValue)
-        CoroutineScope(Dispatchers.Default).launch {
-            try {
-                cache.putData(
-                    serializer = serializer,
-                    name = name,
-                    data = newValue,
-                    key = key,
-                )
-            } catch (ex: Exception) {
-                SKLog.e(ex, "SKManualDataWithCache Problème à la mise en cache de la donnée $name $key")
-            }
-        }
+        cacheWriter.write(serializer, newValue, key)
     }
 
     override suspend fun update(): D {
