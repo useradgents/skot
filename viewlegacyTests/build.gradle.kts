@@ -23,6 +23,22 @@ android {
     publishing {
         singleVariant("release")
     }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
+    sourceSets {
+        getByName("main") {
+            kotlin {
+                directories.add("src/androidMain/kotlin")
+            }
+            res {
+                directories.add("src/androidMain/res")
+            }
+            manifest.srcFile("src/androidMain/AndroidManifest.xml")
+        }
+    }
 }
 
 dependencies {

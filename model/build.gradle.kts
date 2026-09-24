@@ -23,6 +23,11 @@ kotlin {
         namespace = "tech.skot.model"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
+
+        withDeviceTestBuilder {
+        }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
     }
 
     jvm()
@@ -54,6 +59,16 @@ kotlin {
                 api(libs.ktor.ktor.client.mock.jvm)
                 api(libs.jetbrains.kotlin.test.junit)
                 api(libs.kotlinx.coroutines.test)
+            }
+        }
+
+        getByName("androidDeviceTest") {
+            dependencies {
+                implementation(libs.espresso.core)
+                implementation(libs.core.ktx)
+                implementation(libs.junit.ktx)
+                implementation(libs.jetbrains.kotlin.test.junit)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
 

@@ -55,8 +55,13 @@ android {
         }
         getByName("androidTest") {
             kotlin {
+                directories.add("src/androidInstrumentedTest/kotlin")
                 directories.add("generated/androidTest/kotlin")
             }
+            res {
+                directories.add("src/androidInstrumentedTest/res")
+            }
+            manifest.srcFile("src/androidInstrumentedTest/AndroidManifest.xml")
         }
     }
 

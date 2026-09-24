@@ -40,6 +40,18 @@
     The build no longer reports any deprecation coming from this repository. The remaining
     `-Xuse-fir-lt` warning is emitted by Gradle's own `kotlin-dsl` plugin on `:plugin:compileKotlin`.
 
+- #### Framework tests
+    - The framework's instrumented tests compile and run again. None of them had been compiled
+      since the move to AGP 9: `viewlegacy` no longer declared `src/androidInstrumentedTest`, and
+      the `com.android.kotlin.multiplatform.library` plugin only builds device tests once
+      `withDeviceTestBuilder` is called — the former `androidInstrumentedTest` block had been
+      dropped. `core` and `model` now call it, and their test sources moved to
+      `src/androidDeviceTest`, the KMP convention.
+    - Running them again surfaced two tests reading a value left on disk by a previous run
+      (`TestSKNullableManualDataWithCache`, `TestSKDistantDataWithCache`): they now clear their
+      persistor first. `core` 2/2 and `model` pass on device; the `viewlegacy` ones are manual
+      sandboxes without assertions and are meant to be run by hand.
+
 ### fix
 
 - #### Gradle plugin
@@ -110,6 +122,12 @@
       itself and is unique by construction, so only lists overriding it are concerned — typically
       with a singleton or a class without `equals`/`hashCode` as an id, which silently gives one
       single identity to every item carrying it. Reported once per list.
+- #### Test harness (`viewlegacyTests`)
+    - `viewlegacyTests` is published with its classes again. Since the move to AGP 9 the module no
+      longer declared `src/androidMain`, and the published AAR was empty — checked on `1.5.1-ua`
+      to `1.5.5-ua`. An application's instrumented tests using `testComponent()`, `testScreen()`
+      or `SKTestView` did not compile against it, although the `tech.skot.*` plugins keep adding
+      it as an `androidTestImplementation` dependency.
 
 ### doc
 
@@ -183,6 +201,11 @@ fail with an error that does not point back at it.
     application's own build scripts may still do, though — a script starting an external process at
     configuration time (`Runtime.getRuntime().exec`, a `git` call to install hooks) is reported the
     same way and has to be moved to execution time.
+
+11. **Drop any workaround for the empty `viewlegacyTests` artifact.** An application pulling
+    `viewlegacyTests-android:1.4.5-ua` to get `testComponent()` / `SKTestView` back ran its tests
+    on a harness compiled against the `1.4.5-ua` API; the `viewlegacyTests` dependency added by
+    the plugins provides it again.
 
 These steps were validated end to end on a production application: `assembleDebug` and
 `assembleRelease` both succeed, and no configuration cache problem is reported by SKot itself.

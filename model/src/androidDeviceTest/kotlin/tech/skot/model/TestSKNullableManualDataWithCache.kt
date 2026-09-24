@@ -11,6 +11,8 @@ class TestSKNullableManualDataWithCache {
     fun testNullableSerialization() {
         val name = "NAME"
         val persistor = AndroidSKPersistor(InstrumentationRegistry.getInstrumentation().context, "testpersistor", false)
+        // Le persistor est sur disque et partagé entre les tests (et les runs) : on part d'un cache vide
+        persistor.clearSync()
 
         runBlocking {
             val manual1 =
@@ -53,6 +55,8 @@ class TestSKNullableManualDataWithCache {
     fun testSKNullableManualDataWithCache() {
         val name = "NAME"
         val persistor = AndroidSKPersistor(InstrumentationRegistry.getInstrumentation().context, "testpersistor", false)
+        // Le persistor est sur disque et partagé entre les tests (et les runs) : on part d'un cache vide
+        persistor.clearSync()
 
         runBlocking {
             val manual1 =

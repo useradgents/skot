@@ -13,6 +13,8 @@ class TestSKDistantDataWithCache {
         val key = "key"
 
         val persistor = testPersistor()
+        // Le persistor est sur disque et partagé entre les runs : on part d'un cache vide
+        persistor.clearSync()
 
         var compteur = 0
         val skData =
