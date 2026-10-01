@@ -2,6 +2,7 @@ package tech.skot.tools.gradle
 
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSetContainer
+import java.io.File
 import java.io.FileInputStream
 import java.nio.file.Files
 import java.nio.file.Path
@@ -81,16 +82,19 @@ fun Project.skSwitchTask(
     environment: String,
     vararg variant: String,
 ) {
+    // Resolved at configuration time: the action must not capture Project (configuration cache)
+    val rootDir: File = rootProject.rootDir
+    val variants = variant.toList()
     tasks.register(name) {
         doFirst {
-            println("Switch to Variant environment=$environment  variants=${variant.joinToString(" ")} ")
-            val rootPath = rootProject.rootDir.toPath()
+            println("Switch to Variant environment=$environment  variants=${variants.joinToString(" ")} ")
+            val rootPath = rootDir.toPath()
             val builSrcRep = rootPath.resolve("buildSrc/build")
             val propertiesPath = rootPath.resolve(SKOT_VARIANT_PROPERIES_FILE_NAME)
             Files.write(
                 propertiesPath,
                 listOf(
-                    "variants=${variant.joinToString(",")}",
+                    "variants=${variants.joinToString(",")}",
                     "environment=$environment",
                 ),
             )

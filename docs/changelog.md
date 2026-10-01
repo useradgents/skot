@@ -1,5 +1,17 @@
 # Changelog
 
+## Version `1.6.1-ua`
+
+### fix
+
+- #### Gradle plugin
+    - Make the variant switch tasks registered by `skSwitchTask` (e.g. `:skot:PldtStaging`)
+      compatible with the configuration cache. Their action read `rootProject.rootDir` at execution
+      time, capturing the `Project`, and Gradle 9 failed to store the configuration cache
+      (`cannot serialize object of type 'org.gradle.api.internal.project.DefaultProject'`). The
+      root directory and the variants are now resolved at configuration time. The task's behavior
+      is unchanged: it rewrites `skot_variants.properties` and deletes `buildSrc/build`.
+
 ## Version `1.6.0-ua`
 
 ### chore
