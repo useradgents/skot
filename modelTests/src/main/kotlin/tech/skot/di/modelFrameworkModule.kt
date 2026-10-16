@@ -15,7 +15,8 @@ val mockDevice =
         override var osVersion: String = "30"
     }
 
-actual val modelFrameworkModule =
+/** Module framework du model pour les tests unitaires : persistance SQLite JVM et Device simulé. */
+val modelFrameworkModule =
     module<BaseInjector> {
         factory<PersistorFactory> {
             object : PersistorFactory {

@@ -10,7 +10,7 @@ import javax.crypto.spec.SecretKeySpec
 
 private const val HEX_CHARS = "0123456789ABCDEF"
 
-actual fun decodeBase64(
+fun decodeBase64(
     str: String,
     urlSafe: Boolean,
 ): String {
@@ -26,9 +26,9 @@ actual fun decodeBase64(
     )
 }
 
-actual fun encodeBase64(str: String) : String = Base64.encodeToString(str.toByteArray(), Base64.NO_WRAP or Base64.URL_SAFE)
+fun encodeBase64(str: String) : String = Base64.encodeToString(str.toByteArray(), Base64.NO_WRAP or Base64.URL_SAFE)
 
-actual fun hashSHA256(str: String) : String = hashString("SHA-256", str)
+fun hashSHA256(str: String) : String = hashString("SHA-256", str)
 
 private fun hashString(
     type: String,
@@ -50,7 +50,7 @@ private fun hashString(
     return result.toString()
 }
 
-actual fun aes128encrypt(
+fun aes128encrypt(
     textToEncrypt: String,
     secret: String,
     initializationVector: String,
