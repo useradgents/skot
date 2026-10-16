@@ -7,7 +7,7 @@ import android.database.Cursor
 import android.net.Uri
 
 /**
- * Pose [SKEnv.debug] au plus tôt.
+ * Pose [SKEnv.debug] au plus tôt. Installe aussi le printer Timber de SKLog.
  *
  * Android crée les ContentProviders avant `Application.onCreate()`, la valeur est donc déjà
  * disponible pour tout le code d'initialisation de l'application — y compris celui qui s'exécute
@@ -18,6 +18,7 @@ import android.net.Uri
  */
 class SKEnvInitProvider : ContentProvider() {
     override fun onCreate(): Boolean {
+        SKLogPrinter.printer = TimberLogPrinter
         SKEnv.debug = context?.applicationInfo?.let { it.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0 } == true
         return true
     }

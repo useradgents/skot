@@ -19,7 +19,7 @@ fun Uri.toSKUri(url: String? = null): SKUri? =
         null
     }
 
-actual fun String.toSKUri(): SKUri? =
+fun String.toSKUri(): SKUri? =
     try {
         Uri.parse(this).toSKUri(this)
     } catch (ex: Exception) {

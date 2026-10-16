@@ -4,6 +4,7 @@ plugins {
 rootProject.name = "SKotFramework"
 rootProject.buildFileName = "build.gradle.kts"
 include(":core")
+include(":coreAndroid")
 include(":viewcontract")
 include(":model")
 include(":modelcontract")
