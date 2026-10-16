@@ -14,8 +14,10 @@ import tech.skot.Versions
 
 class PluginLibraryViewLegacy : Plugin<Project> {
     override fun apply(project: Project) {
+        project.skFailOnKotlinMultiplatform()
         project.plugins.apply("com.android.library")
         project.plugins.apply("maven-publish")
+        project.skSubstituteLegacyKmpArtifacts()
 
         project.extensions.findByType(LibraryExtension::class)?.android(project)
 
@@ -51,7 +53,7 @@ class PluginLibraryViewLegacy : Plugin<Project> {
         }
 
         publishing {
-            singleVariant("release")
+            singleVariant("release") { withSourcesJar() }
         }
     }
 
