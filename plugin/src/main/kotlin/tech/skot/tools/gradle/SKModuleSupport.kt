@@ -64,3 +64,33 @@ internal fun Project.skKotlinCompilerOptions() {
         }
     }
 }
+
+/**
+ * Branche un module Android sur l'arborescence historique des modules SKot (commonMain, androidMain,
+ * jvmTest, generated…), variantes skot_variants comprises. Les dossiers des projets ne bougent pas
+ * avant le passage aux flavors.
+ */
+internal fun com.android.build.api.dsl.LibraryExtension.skLegacySourceSets(
+    project: Project,
+    withResources: Boolean,
+) {
+    val combinations = project.skVariantsCombinaison()
+    sourceSets.getByName("main") {
+        listOf("src/commonMain/kotlin", "src/androidMain/kotlin", "generated/commonMain/kotlin", "generated/androidMain/kotlin")
+            .forEach { kotlin.directories.add(it) }
+        combinations.forEach {
+            kotlin.directories.add("src/commonMain/kotlin$it")
+            kotlin.directories.add("src/androidMain/kotlin$it")
+            kotlin.directories.add("generated$it/commonMain/kotlin")
+            kotlin.directories.add("generated$it/androidMain/kotlin")
+            if (withResources) res.directories.add("src/androidMain/res$it")
+        }
+        if (withResources) res.directories.add("src/androidMain/res")
+        manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    }
+    sourceSets.getByName("test") {
+        listOf("src/jvmTest/kotlin", "src/commonTest/kotlin", "generated/jvmTest/kotlin")
+            .forEach { kotlin.directories.add(it) }
+        combinations.forEach { kotlin.directories.add("generated$it/jvmTest/kotlin") }
+    }
+}

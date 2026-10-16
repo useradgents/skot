@@ -1,7 +1,6 @@
 package tech.skot.tools.gradle
 
 import com.android.build.api.dsl.ApplicationExtension
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
 import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -87,15 +86,5 @@ fun ApplicationExtension.androidBaseConfig(project: Project) {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
-    }
-}
-
-// For KMP library modules (com.android.kotlin.multiplatform.library)
-fun KotlinMultiplatformAndroidLibraryExtension.androidBaseConfig(project: Project) {
-    val androidProperties = project.skReadAndroidProperties()
-    minSdk = androidProperties?.minSdk ?: Versions.android_minSdk
-    compileSdk = Versions.android_compileSdk
-    androidResources {
-        enable = true
     }
 }

@@ -1,38 +1,25 @@
 package tech.skot.tools.gradle
 
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
+import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.get
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.gradle.kotlin.dsl.getByType
 import tech.skot.Versions
 
 class PluginLibrary : Plugin<Project> {
     override fun apply(project: Project) {
-        project.plugins.apply("com.android.kotlin.multiplatform.library")
+        project.skFailOnKotlinMultiplatform()
+        project.plugins.apply("com.android.library")
         project.plugins.apply("maven-publish")
         project.plugins.apply("kotlinx-serialization")
+        project.skSubstituteLegacyKmpArtifacts()
+        project.skKotlinCompilerOptions()
 
-        project.extensions.findByType(KotlinMultiplatformAndroidLibraryExtension::class)?.androidBaseConfig(project)
-        project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf()
-    }
-
-    private fun KotlinMultiplatformExtension.conf() {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
+        project.extensions.getByType<LibraryExtension>().apply {
+            androidBaseConfig(project)
+            skLegacySourceSets(project, withResources = false)
         }
-
-        jvm()
-
-        sourceSets["commonMain"].dependencies {
-            api(project(":viewcontract"))
-        }
-
-        sourceSets["commonMain"].dependencies {
-            implementation("${Versions.group}:viewmodel:${Versions.skot}")
-        }
+        project.dependencies.add("api", project.project(":viewcontract"))
+        project.dependencies.add("implementation", "${Versions.group}:viewmodel:${Versions.skot}")
     }
 }

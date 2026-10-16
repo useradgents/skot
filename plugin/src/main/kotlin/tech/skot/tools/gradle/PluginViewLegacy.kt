@@ -1,6 +1,5 @@
 package tech.skot.tools.gradle
 
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
 import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -8,38 +7,22 @@ import org.gradle.kotlin.dsl.DependencyHandlerScope
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.project
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import tech.skot.Versions
 import tech.skot.tools.gradle.SKLibrary.Companion.addDependenciesToViewLegacy
 
 @Suppress("UNUSED_PARAMETER")
 class PluginViewLegacy : Plugin<Project> {
     override fun apply(project: Project) {
-        if (project.plugins.hasPlugin("org.jetbrains.kotlin.multiplatform")) {
-            project.plugins.apply("com.android.kotlin.multiplatform.library")
-            project.extensions.findByType(KotlinMultiplatformAndroidLibraryExtension::class)?.androidBaseConfig(project)
-        } else {
-            project.plugins.apply("com.android.library")
-            // kotlin.android removed: AGP 9.0 has built-in Kotlin support
-            project.extensions.findByType(LibraryExtension::class)?.android(project)
-        }
-
-        project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
+        project.skFailOnKotlinMultiplatform()
+        project.plugins.apply("com.android.library")
+        // kotlin.android removed: AGP 9.0 has built-in Kotlin support
+        project.skSubstituteLegacyKmpArtifacts()
+        project.extensions.findByType(LibraryExtension::class)?.android(project)
 
         project.dependencies {
             dependencies(project)
             addDependenciesToViewLegacy(this, project.rootDir.toPath())
         }
-    }
-
-    private fun KotlinMultiplatformExtension.conf(project: Project) {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
-            optIn.add("kotlin.time.ExperimentalTime")
-        }
-        jvm()
     }
 
     private fun LibraryExtension.android(project: Project) {

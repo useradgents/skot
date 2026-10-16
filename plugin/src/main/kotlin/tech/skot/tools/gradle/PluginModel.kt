@@ -1,63 +1,37 @@
 package tech.skot.tools.gradle
 
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
-import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
+import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.get
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.gradle.kotlin.dsl.getByType
 import tech.skot.Versions
 
 class PluginModel : Plugin<Project> {
     override fun apply(project: Project) {
-        project.plugins.apply("com.android.kotlin.multiplatform.library")
+        project.skFailOnKotlinMultiplatform()
+        project.plugins.apply("com.android.library")
         project.plugins.apply("kotlinx-serialization")
-
-        project.extensions.findByType(KotlinMultiplatformAndroidLibraryExtension::class)?.androidBaseConfig(project)
-        project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
+        project.skSubstituteLegacyKmpArtifacts()
+        project.skKotlinCompilerOptions()
         project.skDontFailOnGeneratedTestSourcesOnly()
-        project.extensions.findByType(KotlinMultiplatformAndroidComponentsExtension::class)?.onVariants { variant ->
-            skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
-                variant.sources.res?.addStaticSourceDirectory("src/androidMain/res$it")
-            }
+
+        project.extensions.getByType<LibraryExtension>().apply {
+            androidBaseConfig(project)
+            skLegacySourceSets(project, withResources = true)
         }
-    }
 
-    private fun KotlinMultiplatformExtension.conf(project: Project) {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
-            optIn.add("kotlin.time.ExperimentalTime")
-        }
-        jvm()
-
-
-        sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
         val parentProjectPath = project.parent?.path ?: ""
-
-        sourceSets["commonMain"].dependencies {
-            api(project("$parentProjectPath:modelcontract"))
-            api("${Versions.group}:model:${Versions.skot}")
-            api("org.jetbrains.kotlinx:kotlinx-serialization-core:${Versions.serialization}")
-
+        project.dependencies.apply {
+            add("api", project.project("$parentProjectPath:modelcontract"))
+            add("api", "${Versions.group}:model:${Versions.skot}")
+            add("api", "org.jetbrains.kotlinx:kotlinx-serialization-core:${Versions.serialization}")
             if (project.skReadImportsProperties()?.ktor2 != false) {
-                api("io.ktor:ktor-client-content-negotiation:${Versions.ktor}")
-                api("io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor}")
+                add("api", "io.ktor:ktor-client-content-negotiation:${Versions.ktor}")
+                add("api", "io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor}")
             } else {
-                api("io.ktor:ktor-client-serialization:${Versions.ktor}")
+                add("api", "io.ktor:ktor-client-serialization:${Versions.ktor}")
             }
+            add("testImplementation", "${Versions.group}:modelTests:${Versions.skot}")
         }
-
-        skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
-            sourceSets["commonMain"].kotlin.srcDir("src/commonMain/kotlin$it")
-            sourceSets["androidMain"].kotlin.srcDir("src/androidMain/kotlin$it")
-            sourceSets["androidMain"].resources.srcDir("src/androidMain/res$it")
-        }
-
-        sourceSets["jvmTest"].kotlin.srcDir("generated/jvmTest")
-
-        sourceSets["androidMain"].kotlin.srcDir("generated/androidMain/kotlin")
     }
 }

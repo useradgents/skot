@@ -11,6 +11,7 @@ import tech.skot.Versions
 
 class PluginApp : Plugin<Project> {
     override fun apply(project: Project) {
+        project.skSubstituteLegacyKmpArtifacts()
         project.plugins.apply("com.android.application")
         // kotlin.android removed: AGP 9.0 has built-in Kotlin support
 
