@@ -12,7 +12,7 @@ private const val HEX_CHARS = "0123456789ABCDEF"
 
 fun decodeBase64(
     str: String,
-    urlSafe: Boolean,
+    urlSafe: Boolean = true,
 ): String {
     return String(
         Base64.decode(
