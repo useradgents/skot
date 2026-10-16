@@ -323,6 +323,220 @@ peuvent être supprimées. La section 5 de `detect.sh` les liste et indique qui 
 exercée par le pilote. `sk-phonenumber`
 appelle `androidApplication` comme un membre : il doit être recompilé sur 2.0.0-ua avant usage.
 
+## Migrer une bibliothèque SKot
+
+### Quand est-ce nécessaire
+
+Une bibliothèque déjà publiée (`sk-tabbar`, `sk-video`, `sk-scanner`, `sk-phonenumber`, `sk-map`)
+continue de fonctionner avec SKot 2.0.0-ua : la compatibilité binaire et la substitution des anciennes
+coordonnées (`core-jvm`, `viewmodel-android`…) vers les artefacts 2.0.0-ua suffisent. Il n'y a donc
+rien à faire tant qu'on ne la reconstruit pas. En revanche, **une bibliothèque doit être migrée avant
+d'être recompilée** : ses scripts KMP sont refusés par les plugins 2.0.0-ua. `sk-phonenumber` doit être
+recompilée dès maintenant, car elle appelle `androidApplication` comme un membre (étape 5).
+
+Une bibliothèque se migre seule, indépendamment des applications qui l'utilisent : ces dernières ne
+changent que sa version.
+
+### Version
+
+Montez la version **majeure** de la bibliothèque et suffixez avec la version du framework, par exemple
+`sk-map` `2.0.1_1.5.5-ua` → `3.0.0_2.0.0-ua`. Dans `buildSrc/src/main/kotlin/Versions.kt` :
+
+```kotlin
+const val library = "3.0.0"      // était 2.0.1
+const val framework = "2.0.0-ua" // était 1.5.5-ua
+```
+
+### Gradle 9.6 minimum
+
+AGP 9.4.0 exige Gradle 9.6.0 ou plus. Si le wrapper de la bibliothèque est plus ancien, **éditez
+d'abord `gradle/wrapper/gradle-wrapper.properties` à la main** (`distributionUrl` et
+`distributionSha256Sum` : la validation du checksum refuse sinon la nouvelle distribution), puis
+régénérez le wrapper :
+
+```bash
+./gradlew wrapper --gradle-version 9.7.1 --gradle-distribution-sha256-sum acd53f1edaf02f1a8ff99879f8a34b302661a057d9b063ae9e35b552f804d20a
+```
+
+### Scripts des modules
+
+Les modules de bibliothèque utilisent leurs propres plugins : `kotlin("multiplatform")` et les blocs
+`kotlin { … }` KMP disparaissent. `compileSdk` et `minSdk` sont fournis par le plugin.
+
+`viewcontract` : `tech.skot.library-contract`
+
+```kotlin
+// Avant
+plugins {
+    kotlin("multiplatform")
+    id("tech.skot.library-contract")
+    signing
+}
+
+// Après
+plugins {
+    id("tech.skot.library-contract")
+    signing
+}
+```
+
+`viewmodel` : `tech.skot.library`, avec `namespace` dans `android { }`
+
+```kotlin
+// Avant
+plugins {
+    kotlin("multiplatform")
+    id("tech.skot.library")
+    signing
+}
+kotlin {
+    android {
+        compileSdk = 36
+        namespace = "tech.skot.libraries.skmap"
+    }
+}
+
+// Après
+plugins {
+    id("tech.skot.library")
+    signing
+}
+android {
+    namespace = "tech.skot.libraries.skmap"
+}
+```
+
+`viewmodelTests` : `tech.skot.library-viewmodeltests`, qui remplace entièrement l'ancien module KMP
+`jvm()` (source set, dépendances et publication). Il reste à déclarer le namespace :
+
+```kotlin
+// Avant
+plugins {
+    kotlin("multiplatform")
+    signing
+}
+kotlin {
+    jvm("jvm")
+    sourceSets {
+        val jvmMain by getting {
+            kotlin.srcDir("src/jvmMain/kotlin")
+            dependencies {
+                implementation(project(":viewmodel"))
+                implementation("${Versions.frameworkGroup}:viewmodelTests:${Versions.framework}")
+                implementation("${Versions.frameworkGroup}:core-jvm:${Versions.framework}")
+            }
+        }
+    }
+}
+
+// Après
+plugins {
+    id("tech.skot.library-viewmodeltests")
+    signing
+}
+android {
+    namespace = "tech.skot.libraries.skmap.viewmodeltests"
+}
+```
+
+Les sources restent dans `src/jvmMain/kotlin`, le plugin les ajoute au source set `main`. Le module est
+publié en AAR : il n'est consommable que par les tests unitaires Android des applications.
+
+`viewlegacy` (et ses variantes, ex. `viewlegacy_mapbox`) : `tech.skot.library-viewlegacy`
+
+```kotlin
+// Avant
+plugins {
+    kotlin("multiplatform")
+    id("tech.skot.library-viewlegacy")
+    signing
+}
+android {
+    namespace = "tech.skot.libraries.skmap.viewlegacy"
+}
+kotlin {
+    jvmToolchain(17)
+    androidTarget("android") { }
+}
+
+// Après
+plugins {
+    id("tech.skot.library-viewlegacy")
+    signing
+}
+android {
+    namespace = "tech.skot.libraries.skmap.viewlegacy"
+}
+```
+
+Pour chaque module, ne gardez que ce que les plugins ne font pas : `dokka`, `javadocJar`, `signing` et
+les dépendances propres à la bibliothèque (ex. `api("com.mapbox.maps:android:11.0.0")`).
+
+### Pièges rencontrés avec le pilote sk-map
+
+- **`compileSdk` inférieur à 37.** Supprimez tout `compileSdk { version = release(36) }` ou
+  `compileSdk = 36` : les AAR 2.0.0-ua exigent 37, et le plugin le fournit.
+- **Propriétés `kotlin.mpp.*`.** Retirez `kotlin.mpp.androidSourceSetLayoutVersion=2` (et ses
+  semblables) de `gradle.properties`.
+- **Entrées `skot-framework` périmées.** Supprimez du `gradle/libs.versions.toml` les versions
+  `skot-framework` restées d'avant (sk-map en avait une en `1.4.2-ua`, inutilisée) : elles ne sont plus
+  lues et induisent en erreur.
+- **`core-jvm` devient `core`.** Toute dépendance écrite à la main sur `core-jvm`, `viewmodel-android`
+  ou autre variante KMP doit viser les coordonnées racines (`core`, `viewmodel`, `viewlegacy`…). Seules
+  les coordonnées racines existent en 2.0.0-ua : la substitution ne sert qu'aux bibliothèques
+  publiées non encore migrées.
+- **Sources jars et publications.** Les plugins déclarent déjà le sources jar
+  (`singleVariant("release") { withSourcesJar() }`) et la publication (`release`, ou `maven` pour le
+  contrat). Supprimez les `publishing { singleVariant … }` et les `afterEvaluate { publishing { … } }`
+  écrits à la main : ils feraient doublon. Un module qui n'utilise pas le plugin SKot (ex. un
+  `viewmodelTests` recopié à la main) doit, lui, tout déclarer : `sourceSets { getByName("main") {
+  kotlin { directories.add("src/jvmMain/kotlin") } } }` (la forme abrégée lève un
+  `ClassCastException`), `tech.skot.Versions.android_compileSdk` et `android_minSdk` en nom
+  pleinement qualifié, Java 21, et `core` et non `core-jvm`. Préférez le plugin.
+- **Un seul paramétrage de Java.** Retirez les `jvmToolchain(17)` et `kotlin { … }` hérités : le plugin
+  fixe Java 21.
+
+### Vérifier
+
+1. Construisez la bibliothèque, puis publiez-la en local :
+
+   ```bash
+   ./gradlew clean build -x lint
+   ./gradlew publishToMavenLocal
+   ```
+
+2. Contrôlez `~/.m2/repository/<groupe>/<module>/<version>/` (ex. `3.0.0_2.0.0-ua`) : le contrat
+   `viewcontract` donne un `.jar`, `viewmodel`, `viewmodelTests` et `viewlegacy` un `.aar`, chacun avec
+   son `-sources.jar`, son `.module` et son `.pom`. Il ne doit y avoir ni `-jvm` ni `-android`, et
+   aucun `core-jvm` dans les dépendances du `.module`.
+3. Dans une application cliente migrée (étapes 1 à 7), montez la bibliothèque dans
+   `skot_librairies.properties` (ex. `sk-map` → `3.0.0_2.0.0-ua`), puis lancez :
+
+   ```bash
+   ./gradlew skot:skGenerate
+   ./gradlew viewmodel:testDebugUnitTest model:testDebugUnitTest
+   ./gradlew androidApp:assembleDebug
+   ```
+
+   Les tests doivent être aussi nombreux et verts que dans l'état de référence. Contrôlez que la
+   version ancienne de la bibliothèque et `core-jvm` ont disparu du classpath
+   (`./gradlew androidApp:dependencies --configuration debugRuntimeClasspath`).
+4. `skGenerate` réécrit l'horodatage de l'export de `strings.xml` : annulez ce changement
+   (`git checkout -- <strings.xml>`) avant de committer.
+
+### Checklist
+
+- [ ] Wrapper Gradle 9.6 ou plus (propriétés éditées à la main, puis `./gradlew wrapper …`)
+- [ ] Version `X+1.0.0_2.0.0-ua` dans `Versions.kt`
+- [ ] `kotlin("multiplatform")` et blocs `kotlin { … }` retirés des modules, namespaces déplacés dans `android { }`
+- [ ] Plugins `tech.skot.library-contract`, `library`, `library-viewmodeltests`, `library-viewlegacy`
+- [ ] `compileSdk` < 37, `kotlin.mpp.*`, entrées `skot-framework` retirés
+- [ ] `core-jvm` et variantes KMP remplacés par les coordonnées racines
+- [ ] Publications et sources jars manuels retirés
+- [ ] `androidApplication` importé depuis `tech.skot.core.di` si utilisé (`sk-phonenumber`)
+- [ ] `build -x lint`, `publishToMavenLocal`, artefacts de `~/.m2` contrôlés
+- [ ] Application cliente : tests et `assembleDebug` verts, horodatage `strings.xml` annulé
+
 ## Erreurs fréquentes
 
 - `SKot 2.0.0-ua : le module :xxx applique encore kotlin("multiplatform"). Retirez-le ainsi que le bloc

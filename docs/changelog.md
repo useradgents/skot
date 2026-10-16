@@ -13,6 +13,8 @@
       `BaseInjector(application, modules)`, `androidApplication`) and `modelTests` (the model's test
       fixtures, including `modelFrameworkModule`).
     - The `tech.skot.starter` plugin is removed.
+    - New `tech.skot.library-contract`, `library`, `library-viewmodeltests` and `library-viewlegacy`
+      plugins to build the SKot libraries (sk-map, sk-tabbar…) without Kotlin Multiplatform.
     - The projects' `jvmTest` tests run as local unit tests: `testDebugUnitTest`. There is no
       `jvmTest` alias task.
 
