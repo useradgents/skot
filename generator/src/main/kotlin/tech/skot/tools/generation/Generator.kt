@@ -6,6 +6,7 @@ import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
@@ -481,10 +482,10 @@ class Generator(
                     .initializer(
                         CodeBlock.builder()
                             .beginControlFlow("listOf(module")
-                            .addStatement("single<${stringsInterface.simpleName}> { ${stringsImpl.simpleName}(androidApplication)}")
-                            .addStatement("single<${pluralsInterface.simpleName}> { ${pluralsImpl.simpleName}(androidApplication)}")
-                            .addStatement("single<${iconsInterface.simpleName}> { ${iconsImpl.simpleName}(androidApplication)}")
-                            .addStatement("single<${colorsInterface.simpleName}> { ${colorsImpl.simpleName}(androidApplication)}")
+                            .addStatement("single<${stringsInterface.simpleName}> { ${stringsImpl.simpleName}(%M)}", AppModulesNames.androidApplication)
+                            .addStatement("single<${pluralsInterface.simpleName}> { ${pluralsImpl.simpleName}(%M)}", AppModulesNames.androidApplication)
+                            .addStatement("single<${iconsInterface.simpleName}> { ${iconsImpl.simpleName}(%M)}", AppModulesNames.androidApplication)
+                            .addStatement("single<${colorsInterface.simpleName}> { ${colorsImpl.simpleName}(%M)}", AppModulesNames.androidApplication)
                             .addStatement("single<${fontsInterface.simpleName}> { ${fontsImpl.simpleName}()}")
                             .addStatement("single<${stylesInterface.simpleName}> { ${stylesImpl.simpleName}()}")
                             .addStatement("single<${dimensInterface.simpleName}> { ${dimensImpl.simpleName}()}")
@@ -503,7 +504,7 @@ class Generator(
                                     endControlFlow()
                                 }
                             }
-                            .addStatement("initializeView(androidApplication)")
+                            .addStatement("initializeView(%M)", AppModulesNames.androidApplication)
                             .endControlFlow()
                             .addStatement(",")
                             .beginControlFlow("onDeepLink = { uri, fromWebView ->")
@@ -521,7 +522,7 @@ class Generator(
                             .endControlFlow()
                             .endControlFlow()
                             .addStatement(",")
-                            .addStatement("modelFrameworkModule,")
+                            .addStatement("%M,", AppModulesNames.androidModelFrameworkModule)
                             .addStatement("coreViewModule,")
                             .apply {
                                 getUsedSKLibrariesModules()
@@ -557,7 +558,6 @@ class Generator(
             .addImportClassName(transitionsImpl)
             .addImportClassName(permissionsInterface)
             .addImportClassName(permissionsImpl)
-            .addImport("tech.skot.di", "modelFrameworkModule")
             .addImport("tech.skot.core.di", "coreViewModule")
             .addImport(appPackage, "start")
             .addImport(appPackage, "onDeeplink")
@@ -621,4 +621,10 @@ fun Document.getElementsWithTagName(tagName: String): List<Element> {
         (list.item(it) as? Element)?.let { res.add(it) }
     }
     return res
+}
+
+/** Membres référencés par le module d'application généré (generatedAppModules.kt). */
+object AppModulesNames {
+    val androidApplication = MemberName(Generator.SKOT_DI_PACKAGE_NAME, "androidApplication")
+    val androidModelFrameworkModule = MemberName("tech.skot.di", "androidModelFrameworkModule")
 }

@@ -1,5 +1,6 @@
 plugins {
-    kotlin("multiplatform")
+    kotlin("jvm")
+    `java-library`
     id("maven-publish")
     signing
 }
@@ -7,36 +8,29 @@ plugins {
 group = Versions.group
 version = Versions.version
 
-// configurations {
-//    all {
-//        attributes {
-//            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 8)
-//        }
-//    }
-//
-//    sourceSets {
-//        getByName("main").java.srcDirs("src/jvmMain/kotlin")
-//    }
-// }
-
 kotlin {
-    jvm("jvm")
+    jvmToolchain(21)
+}
 
-    sourceSets {
-        jvmMain {
-            dependencies {
-                implementation(libs.jetbrains.kotlin.stdlib)
-                api(project(":viewcontract"))
-                implementation(project(":modelcontract"))
-                api(libs.kotlinpoet)
-                api(kotlin("reflect"))
-                implementation(libs.jetbrains.kotlin.compiler.embeddable)
-            }
-        }
-        jvmTest {
-            dependencies {
-                implementation(libs.jetbrains.kotlin.test.junit)
-            }
+java {
+    withSourcesJar()
+}
+
+dependencies {
+    implementation(libs.jetbrains.kotlin.stdlib)
+    api(project(":viewcontract"))
+    implementation(project(":modelcontract"))
+    api(libs.kotlinpoet)
+    api(kotlin("reflect"))
+    implementation(libs.jetbrains.kotlin.compiler.embeddable)
+
+    testImplementation(libs.jetbrains.kotlin.test.junit)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
         }
     }
 }
