@@ -24,9 +24,10 @@ import io.uad.skotsample.view.TransitionsImpl
 import tech.skot.core.components.SKRootStack
 import tech.skot.core.di.BaseInjector
 import tech.skot.core.di.Module
+import tech.skot.core.di.androidApplication
 import tech.skot.core.di.coreViewModule
 import tech.skot.core.di.module
-import tech.skot.di.modelFrameworkModule
+import tech.skot.di.androidModelFrameworkModule
 
 public val generatedAppModules: List<Module<BaseInjector>> = listOf(module {
     single<Strings> { StringsImpl(androidApplication)}
@@ -61,7 +62,7 @@ public val generatedAppModules: List<Module<BaseInjector>> = listOf(module {
     }
 }
 ,
-modelFrameworkModule,
+androidModelFrameworkModule,
 coreViewModule,
 tech.skot.libraries.tabbar.di.skTabbarModule,
 )
