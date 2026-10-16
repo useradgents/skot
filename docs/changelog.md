@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.0.0-ua
+
+**Breaking — SKot n'utilise plus Kotlin Multiplatform.** Guide : [migration 2.0.0-ua](migration/migration-2.0.0-ua.md).
+
+- `core`, `viewcontract`, `modelcontract`, `generator` sont des modules Kotlin/JVM ; `viewmodel`, `model`, `viewmodelTests` des bibliothèques Android.
+- Nouveaux artefacts : `coreAndroid` (printer Timber, `SKEnvInitProvider`, `toSKUri`, `BaseInjector(application, modules)`, `androidApplication`) et `modelTests` (fixtures de tests du model, dont `modelFrameworkModule`).
+- Le module framework Android du model s'appelle `androidModelFrameworkModule`.
+- `androidApplication` devient une extension de `BaseInjector` : importer `tech.skot.core.di.androidApplication`.
+- Les tests `jvmTest` des projets tournent en tests unitaires locaux : `testDebugUnitTest`.
+- `decodeBase64`/`encodeBase64`/`aes128encrypt` sont en Kotlin pur (sortie identique) et utilisables en test.
+- Suppression du plugin `tech.skot.starter`.
+
 ## Version `1.6.2-ua`
 
 ### fix

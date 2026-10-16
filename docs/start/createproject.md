@@ -1,29 +1,5 @@
-# Create project (cli)
-## 1. Setting up
-1. Create a folder  with the name of your project and go inside
-2. Create a file ***build.gradle.kts*** with content: 
-```
-buildscript {
-    repositories {
-        google()
-    }
-}
-plugins {
-	id("tech.skot.starter") version "1.+"
-}
-skot {
-	appPackage = "your.package.name"
-	appName = "Your app name"
-}
-```
-These file will be overrided after initialization.
+# Créer un projet
 
-## 2. Initialization
-In a terminal : 
-1. Move to the folder of your project
-2. Enter the command `gradle wrapper`
-3. Enter the command `./gradlew start`
-4. Enter the command `./gradlew skGenerate`
-5. Launch Android Studio
+Le plugin `tech.skot.starter` a été supprimé en 2.0.0-ua : un nouveau projet SKot n'est plus créé à partir d'un modèle.
 
-You can start coding!
+Les projets existants se migrent avec le guide [migration 2.0.0-ua](../migration/migration-2.0.0-ua.md).
