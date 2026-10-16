@@ -151,6 +151,7 @@ class PluginTools : Plugin<Project> {
         val extension = project.extensions.create<SKPluginToolsExtension>("skot")
         project.plugins.apply("java-library")
         project.plugins.apply("kotlin")
+        project.skSubstituteLegacyKmpArtifacts()
 
         project.dependencies {
             dependencies(project)
