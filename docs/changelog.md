@@ -1,16 +1,45 @@
 # Changelog
 
-## 2.0.0-ua
+## Version `2.0.0-ua`
 
-**Breaking — SKot n'utilise plus Kotlin Multiplatform.** Guide : [migration 2.0.0-ua](migration/migration-2.0.0-ua.md).
+**Breaking — SKot no longer uses Kotlin Multiplatform.** Guide: [migration 2.0.0-ua](migration/migration-2.0.0-ua.md).
 
-- `core`, `viewcontract`, `modelcontract`, `generator` sont des modules Kotlin/JVM ; `viewmodel`, `model`, `viewmodelTests` des bibliothèques Android.
-- Nouveaux artefacts : `coreAndroid` (printer Timber, `SKEnvInitProvider`, `toSKUri`, `BaseInjector(application, modules)`, `androidApplication`) et `modelTests` (fixtures de tests du model, dont `modelFrameworkModule`).
-- Le module framework Android du model s'appelle `androidModelFrameworkModule`.
-- `androidApplication` devient une extension de `BaseInjector` : importer `tech.skot.core.di.androidApplication`.
-- Les tests `jvmTest` des projets tournent en tests unitaires locaux : `testDebugUnitTest`.
-- `decodeBase64`/`encodeBase64`/`aes128encrypt` sont en Kotlin pur (sortie identique) et utilisables en test.
-- Suppression du plugin `tech.skot.starter`.
+### chore
+
+- #### Modules
+    - `core`, `viewcontract`, `modelcontract` and `generator` are Kotlin/JVM modules; `viewmodel`,
+      `model`, `viewmodelTests`, `viewlegacy` and `viewlegacyTests` are Android libraries.
+    - New artifacts: `coreAndroid` (Timber printer, `SKEnvInitProvider`, `toSKUri`,
+      `BaseInjector(application, modules)`, `androidApplication`) and `modelTests` (the model's test
+      fixtures, including `modelFrameworkModule`).
+    - The `tech.skot.starter` plugin is removed.
+    - The projects' `jvmTest` tests run as local unit tests: `testDebugUnitTest`. There is no
+      `jvmTest` alias task.
+
+### feat
+
+- #### Logging
+    - New `SKLogPrinter.printer` API (`SKLogPrinter.Printer`, default `StdoutPrinter`). Timber is
+      installed as the printer by `SKEnvInitProvider`. `d`/`i`/`v`/`w`/`e` keep their signatures.
+
+### fix
+
+- #### Model
+    - `hashSHA256`, a "TODO" on the JVM, is now real in unit tests. `decodeBase64`, `encodeBase64` and
+      `aes128encrypt` are pure Kotlin with the same output as before, and usable in unit tests;
+      `decodeBase64` skips the characters outside the alphabet like `android.util.Base64.decode`.
+    - `formatPhoneNumber` (`PhoneNumberUtils`) and `toSKUri` (`android.net.Uri`) reach the Android API
+      and are not usable in local unit tests: bind a fake or avoid them in tests.
+- #### Publication
+    - The Android artifacts (`viewmodel`, `model`, `coreAndroid`, `modelTests`, `viewmodelTests`,
+      `viewlegacy`, `viewlegacyTests`) publish their sources jar.
+
+### ⚠️ Breaking changes for applications
+
+- The Android framework module of the model is named `androidModelFrameworkModule`; tests keep
+  `modelFrameworkModule`.
+- `androidApplication` becomes an extension of `BaseInjector`: import
+  `tech.skot.core.di.androidApplication`.
 
 ## Version `1.6.2-ua`
 

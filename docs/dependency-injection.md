@@ -47,7 +47,8 @@ val appModule = module {
 
 Inside a binding lambda you can call `get()` to resolve other dependencies, and —
 on Android — access `androidApplication` (the lambda receiver is the injector,
-whose context is the `BaseInjector`).
+whose context is the `BaseInjector`). `androidApplication` is an extension from `coreAndroid`, so
+add `import tech.skot.core.di.androidApplication`.
 
 Named bindings are set directly on the module's `byName` map:
 
@@ -80,7 +81,8 @@ class MyApplication : Application() {
 ```
 
 - `BaseInjector(application, modules)` — the Android implementation; its `context`
-  is the injector itself, so bindings reach `androidApplication`.
+  is the injector itself, so bindings reach `androidApplication` (with
+  `import tech.skot.core.di.androidApplication`).
 - `generatedAppModules` — generated for you; it binds the `ViewInjector` /
   `ModelInjector` implementations and the resource accessors. **Append your own
   modules** to the `listOf(...)`.
