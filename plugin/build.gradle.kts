@@ -127,6 +127,13 @@ gradlePlugin {
                 description = "Plugin skot pour un module viewlegacy de library"
                 implementationClass = "tech.skot.tools.gradle.PluginLibraryViewLegacy"
             }
+
+            create("SkotLibraryViewModelTests") {
+                id = "tech.skot.library-viewmodeltests"
+                displayName = "SKot library-viewmodeltests"
+                description = "Plugin skot pour le module viewmodelTests d'une library"
+                implementationClass = "tech.skot.tools.gradle.PluginLibraryViewModelTests"
+            }
         }
     }
 }
