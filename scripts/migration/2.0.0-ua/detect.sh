@@ -11,14 +11,14 @@ modules=(viewcontract modelcontract viewmodel model)
 echo "== 1. Déclarations expect et leurs actual"
 for m in "${modules[@]}"; do
   [ -d "$m/src" ] || continue
-  find "$m/src" "${prune[@]}" -name '*.kt' -print | while read -r f; do
-    grep -nE '^[[:space:]]*expect ' "$f" | sed "s|^|$f:|" || true
+  find "$m/src" "${prune[@]}" -name '*.kt' -print | while IFS= read -r f; do
+    grep -nE '^[[:space:]]*([a-z]+[[:space:]]+)*expect[[:space:]]' "$f" | sed "s|^|$f:|" || true
   done
 done
 echo "-- actual :"
 for m in "${modules[@]}"; do
   [ -d "$m/src" ] || continue
-  grep -rlE '^[[:space:]]*actual ' "$m/src" "${excluded[@]}" --include='*.kt' 2>/dev/null || true
+  grep -rlE '^[[:space:]]*([a-z]+[[:space:]]+)*actual[[:space:]]' "$m/src" "${excluded[@]}" --include='*.kt' 2>/dev/null || true
 done
 
 echo "== 2. Code et ressources Android dans les contrats (à déplacer dans model)"
@@ -42,3 +42,6 @@ for m in "${modules[@]}"; do
   [ -f "$m/build.gradle.kts" ] || continue
   grep -nE 'projects\.|project\("' "$m/build.gradle.kts" | sed "s|^|$m/build.gradle.kts:|" || true
 done
+
+echo "== 6. Fichiers écrits à la main utilisant modelFrameworkModule (hors generated/ et jvmTest/)"
+grep -rlw modelFrameworkModule . "${excluded[@]}" --exclude-dir=generated --exclude-dir=jvmTest --include='*.kt' 2>/dev/null || true

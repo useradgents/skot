@@ -210,6 +210,8 @@ git mv modelcontract/src/androidMain/res/values/strings.xml model/src/androidMai
   `git rm` l'ancien fichier.
 - Les références `<namespace>.modelcontract.R` deviennent `<namespace>.model.R`.
 - Supprimez les `AndroidManifest.xml` des contrats : `git rm viewcontract/src/androidMain/AndroidManifest.xml modelcontract/src/androidMain/AndroidManifest.xml`.
+- Exemple pldt : `modelcontract/src/androidMain/kotlin/FirebaseRemoteConfigImpl.kt` va dans
+  `model/src/androidMain/kotlin/FirebaseRemoteConfigImpl.kt`.
 
 ## Étape 4 - expect/actual
 
@@ -281,6 +283,12 @@ les modules DI où vous liez les implémentations de l'étape 4 :
 import tech.skot.core.di.androidApplication
 ```
 
+Le module de DI du framework côté Android s'appelle désormais `androidModelFrameworkModule`
+(`tech.skot.di`). Le code écrit à la main qui importait `tech.skot.di.modelFrameworkModule`
+(`androidMain`, dossiers de variantes, injecteurs de features, `Application` personnalisée) doit passer à
+`androidModelFrameworkModule` ; la section 6 de `detect.sh` les liste. Les tests gardent
+`modelFrameworkModule` (fourni par `modelTests`).
+
 ## Étape 6 - Générer et vérifier
 
 ```bash
@@ -310,8 +318,9 @@ peuvent être supprimées. La section 5 de `detect.sh` les liste et indique qui 
 
 ## Bibliothèques SKot
 
-`sk-tabbar`, `sk-map` et `sk-video` continuent de fonctionner : leurs anciennes coordonnées
-(`core-jvm`, `viewmodel-android`…) sont substituées par les artefacts 2.0.0-ua. `sk-phonenumber`
+`sk-tabbar` et `sk-map` continuent de fonctionner (validé par le pilote) : leurs anciennes coordonnées
+(`core-jvm`, `viewmodel-android`…) sont substituées par les artefacts 2.0.0-ua. `sk-video` n'a pas été
+exercée par le pilote. `sk-phonenumber`
 appelle `androidApplication` comme un membre : il doit être recompilé sur 2.0.0-ua avant usage.
 
 ## Erreurs fréquentes
@@ -322,3 +331,6 @@ appelle `androidApplication` comme un membre : il doit être recompilé sur 2.0.
   la liste des fichiers : ce sont ceux de la section 2 de `detect.sh`, reprenez l'étape 3.
 - `Method … not mocked` dans un test : une API Android est atteinte depuis un test unitaire. Ne
   l'autorisez pas avec `isReturnDefaultValues` ; liez un faux dans l'injecteur de test (étape 4).
+- `Method … not mocked` pour `formatPhoneNumber` (`PhoneNumberUtils`) ou `toSKUri` (`android.net.Uri`) :
+  ces fonctions atteignent l'API Android et ne sont pas utilisables dans un test unitaire local. Liez un
+  faux ou évitez de les appeler depuis les tests.
