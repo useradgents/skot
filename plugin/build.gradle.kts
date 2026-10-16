@@ -43,13 +43,6 @@ val gradlePortal = false
 gradlePlugin {
     plugins {
 
-        create("SkotStarter") {
-            id = "tech.skot.starter"
-            displayName = "SKot starter"
-            description = "Starting a Skot Project"
-            implementationClass = "tech.skot.tools.gradle.PluginStarter"
-        }
-
         if (!gradlePortal) {
             create("SkotModelContract") {
                 id = "tech.skot.modelcontract"
