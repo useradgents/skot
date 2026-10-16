@@ -1,4 +1,4 @@
-@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING", "UNCHECKED_CAST")
+@file:Suppress("UNCHECKED_CAST")
 
 package tech.skot.core.di
 
@@ -65,8 +65,12 @@ abstract class Injector<C : Any>(modules: List<Module<in C>>) {
     }
 }
 
-expect class BaseInjector : Injector<BaseInjector> {
-    override val context: BaseInjector
+/**
+ * Injecteur de base. Côté Android, `BaseInjector(application, modules)` (coreAndroid) enregistre
+ * en plus l'`Application`, accessible par `androidApplication`.
+ */
+class BaseInjector(modules: List<Module<in BaseInjector>>) : Injector<BaseInjector>(modules) {
+    override val context = this
 }
 
 var injector: Injector<*>? = null

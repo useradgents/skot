@@ -26,5 +26,3 @@ data class SKUri(
         pathSegments.joinToString("/", prefix = "/")
     }
 }
-
-expect fun String.toSKUri(): SKUri?

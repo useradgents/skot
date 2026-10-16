@@ -6,10 +6,10 @@ import java.util.*
 
 private val mapFormatter = mutableMapOf<String, NumberFormat>()
 
-actual fun Double.asPrice(
+fun Double.asPrice(
     isoCurrency: String,
-    maximumFractionDigits: Int,
-    minimumFractionDigits: Int,
+    maximumFractionDigits: Int = 2,
+    minimumFractionDigits: Int = 0,
 ) : String = getFormatter(
     isoCurrency,
     Locale.getDefault(),

@@ -1,8 +1,6 @@
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-
 plugins {
-    kotlin("multiplatform")
-    id("com.android.kotlin.multiplatform.library")
+    kotlin("jvm")
+    `java-library`
     id("maven-publish")
     signing
 }
@@ -12,65 +10,28 @@ version = Versions.version
 
 kotlin {
     jvmToolchain(21)
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
     compilerOptions {
         apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
         optIn.add("kotlin.time.ExperimentalTime")
-        freeCompilerArgs.add("-Xexpect-actual-classes")
-    }
-    android {
-        namespace = "tech.skot.core"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
-
-        withDeviceTestBuilder {
-        }.configure {
-            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        }
-    }
-    jvm()
-    sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinx.coroutines.core)
-                api(kotlin("reflect"))
-                api(libs.kotlinx.datetime)
-            }
-        }
-
-        jvmMain {
-            dependencies {
-                api(libs.bundles.kotlinx.coroutines)
-            }
-        }
-
-        androidMain {
-            dependencies {
-                api(libs.timber)
-                api(libs.bundles.kotlinx.coroutines)
-            }
-        }
-
-        getByName("androidDeviceTest") {
-            dependencies {
-                implementation(libs.espresso.core)
-                implementation(libs.core.ktx)
-                implementation(libs.junit.ktx)
-                implementation(libs.jetbrains.kotlin.test.junit)
-            }
-        }
-
-        jvmTest {
-            dependencies {
-                implementation(libs.jetbrains.kotlin.test.junit)
-            }
-        }
     }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
-    compilerOptions {
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
+java {
+    withSourcesJar()
+}
+
+dependencies {
+    api(libs.kotlinx.coroutines.core)
+    api(kotlin("reflect"))
+    api(libs.kotlinx.datetime)
+
+    testImplementation(libs.jetbrains.kotlin.test.junit)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+        }
     }
 }
