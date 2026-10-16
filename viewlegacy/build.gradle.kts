@@ -9,6 +9,7 @@ plugins {
 
 dependencies {
     api(project(":core"))
+    api(project(":coreAndroid"))
     api(project(":viewcontract"))
     api(libs.core)
     api(libs.appcompat)
