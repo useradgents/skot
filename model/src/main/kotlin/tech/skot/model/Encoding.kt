@@ -13,17 +13,33 @@ private const val HEX_CHARS = "0123456789ABCDEF"
 private val urlSafeDecoder = Base64.UrlSafe.withPadding(Base64.PaddingOption.PRESENT_OPTIONAL)
 private val defaultDecoder = Base64.Default.withPadding(Base64.PaddingOption.PRESENT_OPTIONAL)
 
+private const val ALPHABET_COMMON = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+private const val ALPHABET_URL_SAFE = ALPHABET_COMMON + "-_"
+private const val ALPHABET_DEFAULT = ALPHABET_COMMON + "+/"
+
 /**
- * Comme `android.util.Base64.decode` : les blancs sont ignorés et le padding est facultatif.
+ * Comme `android.util.Base64.decode` : les caractères hors de l'alphabet choisi (blancs, retours à la ligne,
+ * caractères de l'autre alphabet, `*`...) sont ignorés au lieu de lever une exception, le padding est facultatif
+ * et les bits de poids faible non significatifs du dernier caractère sont ignorés (le décodeur Kotlin les refuse).
  */
 fun decodeBase64(
     str: String,
     urlSafe: Boolean = true,
-): String =
-    String(
-        (if (urlSafe) urlSafeDecoder else defaultDecoder)
-            .decode(str.filterNot { it.isWhitespace() }),
-    )
+): String {
+    val alphabet = if (urlSafe) ALPHABET_URL_SAFE else ALPHABET_DEFAULT
+    val filtered = str.filter { it in alphabet || it == '=' }
+    val body = filtered.trimEnd('=')
+    val padding = filtered.substring(body.length)
+    val clearedBits =
+        when (body.length % 4) {
+            2 -> 0x30
+            3 -> 0x3C
+            else -> 0x3F
+        }
+    val last = body.lastOrNull()?.let { alphabet[alphabet.indexOf(it) and clearedBits] }
+    val normalized = if (last == null) filtered else body.dropLast(1) + last + padding
+    return String((if (urlSafe) urlSafeDecoder else defaultDecoder).decode(normalized))
+}
 
 /** Base64 url-safe avec padding, sans retour à la ligne (`NO_WRAP or URL_SAFE` d'Android). */
 fun encodeBase64(str: String): String = Base64.UrlSafe.encode(str.toByteArray())

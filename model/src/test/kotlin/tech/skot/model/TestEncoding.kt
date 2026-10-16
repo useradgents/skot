@@ -24,6 +24,15 @@ class TestEncoding {
     }
 
     @Test
+    fun `decodeBase64 ignore les caractères hors de l'alphabet comme Android`() {
+        assertEquals("hello", decodeBase64("aGVs*bG8="))
+        assertEquals("hello", decodeBase64("aGVs bG8"))
+        assertEquals("hello", decodeBase64("aG+Vs/bG8="))
+        assertEquals("hello", decodeBase64("aG-Vs_bG8=", urlSafe = false))
+        assertEquals("hello", decodeBase64("aGVsbG9="))
+    }
+
+    @Test
     fun `hashSHA256 renvoie l'empreinte hexadécimale en majuscules`() {
         assertEquals("BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD", hashSHA256("abc"))
     }
