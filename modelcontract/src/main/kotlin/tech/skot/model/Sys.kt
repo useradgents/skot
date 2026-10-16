@@ -1,3 +1,3 @@
 package tech.skot.model
 
-actual fun currentTimeMillis() = System.currentTimeMillis()
+fun currentTimeMillis() = System.currentTimeMillis()

@@ -1,6 +1,6 @@
-
 plugins {
-    kotlin("multiplatform")
+    kotlin("jvm")
+    `java-library`
     id("maven-publish")
     signing
 }
@@ -9,28 +9,30 @@ group = Versions.group
 version = Versions.version
 
 kotlin {
-    jvm()
-
+    jvmToolchain(21)
     compilerOptions {
         optIn.add("kotlin.time.ExperimentalTime")
-        freeCompilerArgs.add("-Xexpect-actual-classes")
     }
+}
 
-    sourceSets {
-        commonMain {
-            dependencies {
-                api(project(":core"))
-                api(libs.jetbrains.kotlin.stdlib)
-                api(libs.kotlinx.coroutines.core)
-                api(libs.kotlinx.serialization.core)
-                api(libs.kotlinx.datetime)
-            }
-        }
+java {
+    withSourcesJar()
+}
 
-        jvmTest {
-            dependencies {
-                implementation(libs.jetbrains.kotlin.test.junit)
-            }
+dependencies {
+    api(project(":core"))
+    api(libs.jetbrains.kotlin.stdlib)
+    api(libs.kotlinx.coroutines.core)
+    api(libs.kotlinx.serialization.core)
+    api(libs.kotlinx.datetime)
+
+    testImplementation(libs.jetbrains.kotlin.test.junit)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
         }
     }
 }
