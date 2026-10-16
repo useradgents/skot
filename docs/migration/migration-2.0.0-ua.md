@@ -183,6 +183,14 @@ Règles pour les dépendances propres au projet :
   sont supprimées : un module JVM ne peut pas les utiliser, et `commonMain` ne les voyait déjà pas.
 - Les dépendances `testImplementation` de `viewmodelTests` / `modelTests` sont ajoutées par le plugin.
 
+Autres réglages du bloc `kotlin { }` :
+
+- `jvmToolchain(21)` : les plugins des contrats le posent eux-mêmes. Dans `viewmodel` et `model`, un
+  `jvmToolchain(21)` déclaré dans l'ancien bloc `kotlin { }` se garde tel quel dans un bloc
+  `kotlin { jvmToolchain(21) }` de premier niveau.
+- `androidResources { enable = true }` (bloc `android { }` de KMP) disparaît : les ressources
+  Android sont activées par défaut dans un module `com.android.library`.
+
 Un `package="…"` resté dans le `AndroidManifest.xml` de `model` ou `viewmodel` est ignoré par AGP
 (avertissement) : retirez-le, le namespace vit dans `android { namespace }`.
 
@@ -246,10 +254,28 @@ typealias KFile = java.io.File
 
 Supprimez `src/jvmMain` une fois vide.
 
+Points d'attention :
+
+- `commonMain` et `androidMain` sont maintenant compilés ensemble : deux fichiers de même nom dans le
+  même package qui ont tous deux des déclarations de premier niveau (fonction, propriété, `const`)
+  produisent deux classes `<Nom>Kt` et la compilation échoue (`Duplicate JVM class name`). Le délégué
+  reste dans le fichier commun ; dans le fichier Android, gardez seulement la classe
+  d'implémentation et rangez ses constantes privées dans un `private companion object`.
+- Un ancien `actual` `jvmMain` vide (« rien à faire en test ») ne l'est plus : sans faux lié,
+  `get<Interface>()` échoue dans tous les tests qui atteignent le délégué. Liez les faux dans **chaque**
+  injecteur de test, y compris ceux qu'une classe de base recrée dans un `@Before`
+  (`injector = BaseInjector(listOf(modelFrameworkModule, …))`). Un module de faux unique, ajouté aux
+  modules de `SKTestModel(…)` et à ces listes, suffit.
+- Les implémentations Android qui ont besoin d'un `Context` le reçoivent au constructeur, lié avec
+  `single<Interface> { AndroidImpl(androidApplication) }` : ce fichier a lui aussi besoin de l'import
+  de l'étape 5.
+
 ## Étape 5 - androidApplication
 
 `androidApplication` n'est plus un membre mais une propriété d'extension de `tech.skot.core.di`.
-Ajoutez dans chaque fichier listé par la section 3 de `detect.sh` :
+Ajoutez dans chaque fichier listé par la section 3 de `detect.sh` (y compris ceux des dossiers de
+variantes inactives, comme `kotlinMock`, que la compilation courante ne vérifie pas), ainsi que dans
+les modules DI où vous liez les implémentations de l'étape 4 :
 
 ```kotlin
 import tech.skot.core.di.androidApplication
