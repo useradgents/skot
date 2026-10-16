@@ -1,58 +1,46 @@
 package tech.skot.tools.gradle
 
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.get
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.gradle.kotlin.dsl.getByType
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import tech.skot.Versions
 import tech.skot.tools.gradle.SKLibrary.Companion.addDependenciesToLibraries
 
 class PluginViewContract : Plugin<Project> {
     override fun apply(project: Project) {
-        project.plugins.apply("com.android.kotlin.multiplatform.library")
+        project.skFailOnKotlinMultiplatform()
+        project.plugins.apply("org.jetbrains.kotlin.jvm")
+        project.plugins.apply("java-library")
         project.plugins.apply("maven-publish")
         project.plugins.apply("kotlinx-serialization")
+        project.skFailOnAndroidSources()
+        project.skSubstituteLegacyKmpArtifacts()
+        project.skKotlinCompilerOptions()
 
-        project.extensions.findByType(KotlinMultiplatformAndroidLibraryExtension::class)?.androidBaseConfig(project)
-        project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
-    }
+        project.extensions.getByType<KotlinJvmProjectExtension>().conf(project)
 
-    private fun KotlinMultiplatformExtension.conf(project: Project) {
-        jvmToolchain(21)
-
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
-            optIn.add("kotlin.time.ExperimentalTime")
-        }
-        jvm()
-
-        sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
-        sourceSets["commonMain"].dependencies {
-            api("${Versions.group}:viewcontract:${Versions.skot}")
-
-            // utilisé souvent par les projets et inclu à core de toutes façons
-            implementation("org.jetbrains.kotlinx:kotlinx-datetime:${Versions.kotlinxDateTime}")
-        }
-
-        println("Adding dependencies to libraries ")
+        project.dependencies.add("api", "${Versions.group}:viewcontract:${Versions.skot}")
+        // utilisé souvent par les projets et inclu à core de toutes façons
+        project.dependencies.add("implementation", "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.kotlinxDateTime}")
         addDependenciesToLibraries(
-            this,
+            project.dependencies,
             (project.parent?.projectDir ?: project.rootDir).toPath(),
-            "commonMain",
+            "api",
             "viewcontract",
         )
+    }
 
-        sourceSets["androidMain"].kotlin.srcDir("src/androidMain/kotlin")
-
-        skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
-            sourceSets["commonMain"].kotlin.srcDir("src/commonMain/kotlin$it")
-            sourceSets["androidMain"].kotlin.srcDir("src/androidMain/kotlin$it")
-            sourceSets["commonMain"].kotlin.srcDir("generated$it/commonMain/kotlin")
-            sourceSets["androidMain"].kotlin.srcDir("generated$it/androidMain/kotlin")
+    private fun KotlinJvmProjectExtension.conf(project: Project) {
+        jvmToolchain(21)
+        sourceSets.getByName("main").kotlin.apply {
+            srcDir("src/commonMain/kotlin")
+            srcDir("generated/commonMain/kotlin")
+            project.skVariantsCombinaison().forEach {
+                srcDir("src/commonMain/kotlin$it")
+                srcDir("generated$it/commonMain/kotlin")
+            }
         }
+        sourceSets.getByName("test").kotlin.srcDir("src/jvmTest/kotlin")
     }
 }

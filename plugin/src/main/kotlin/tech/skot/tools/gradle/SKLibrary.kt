@@ -1,9 +1,7 @@
 package tech.skot.tools.gradle
 
+import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.kotlin.dsl.DependencyHandlerScope
-import org.gradle.kotlin.dsl.get
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -30,37 +28,15 @@ data class SKLibrary(val group: String, val version: String, val viewModule: Str
         }
 
         fun addDependenciesToLibraries(
-            kotlinExtension: KotlinMultiplatformExtension,
+            dependencies: DependencyHandler,
             path: Path,
-            sourcesSet: String = "commonMain",
+            configuration: String,
             module: String,
-            useApi: Boolean = true,
         ) {
-            kotlinExtension.addDependenciesToLibraries(
-                getDeclaredLibraries(path),
-                sourcesSet,
-                module,
-                useApi,
-            )
-        }
-
-        fun KotlinMultiplatformExtension.addDependenciesToLibraries(
-            libraries: List<SKLibrary>,
-            sourcesSet: String,
-            module: String,
-            useApi: Boolean = true,
-        ) {
-            sourceSets[sourcesSet].dependencies {
-                libraries.forEach { skDependency(it, module, useApi) }
+            getDeclaredLibraries(path).forEach {
+                dependencies.add(configuration, "${it.group}:$module:${it.version}")
             }
         }
-
-        fun KotlinDependencyHandler.skDependency(
-            library: SKLibrary,
-            module: String,
-            useApi: Boolean = true,
-        ) = if (useApi) api("${library.group}:$module:${library.version}")
-            else implementation("${library.group}:$module:${library.version}")
 
         fun addDependenciesToViewLegacy(
             dependenciesHandler: DependencyHandlerScope,

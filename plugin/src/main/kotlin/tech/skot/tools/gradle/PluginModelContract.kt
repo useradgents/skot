@@ -1,6 +1,5 @@
 package tech.skot.tools.gradle
 
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -12,12 +11,10 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.register
 import org.gradle.work.DisableCachingByDefault
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import tech.skot.Versions
 
 open class SKPluginModelContractExtension {
@@ -54,11 +51,15 @@ abstract class SKCopyBuildFileTask : DefaultTask() {
 @Suppress("UNUSED_PARAMETER")
 class PluginModelContract : Plugin<Project> {
     override fun apply(project: Project) {
-        println("==== PluginModelContract.apply() DEBUT pour ${project.name} ====")
         val extension = project.extensions.create<SKPluginModelContractExtension>("skot")
-        project.plugins.apply("com.android.kotlin.multiplatform.library")
+        project.skFailOnKotlinMultiplatform()
+        project.plugins.apply("org.jetbrains.kotlin.jvm")
+        project.plugins.apply("java-library")
         project.plugins.apply("maven-publish")
         project.plugins.apply("kotlinx-serialization")
+        project.skFailOnAndroidSources()
+        project.skSubstituteLegacyKmpArtifacts()
+        project.skKotlinCompilerOptions()
 
         val outputDirValue = project.layout.projectDirectory.dir("generated/commonMain/kotlin")
         val appProvider = project.provider { extension.buildFiles ?: emptyList<Any>() }
@@ -71,38 +72,21 @@ class PluginModelContract : Plugin<Project> {
             this.addingVersionCodeAndDebug.set(true)
         }
 
-        project.extensions.findByType(KotlinMultiplatformAndroidLibraryExtension::class)?.androidBaseConfig(project)
-        project.extensions.findByType(KotlinMultiplatformExtension::class)?.conf(project)
+        project.extensions.getByType<KotlinJvmProjectExtension>().conf(project)
+        project.tasks.named("compileKotlin").configure { dependsOn(copyBuildFile) }
 
-        project.afterEvaluate {
-            project.extensions.findByType(KotlinMultiplatformExtension::class)
-                ?.targets
-                ?.flatMap { it.compilations }
-                ?.forEach { compilation ->
-                    compilation.compileTaskProvider.configure {
-                        dependsOn(copyBuildFile)
-                    }
-                }
-        }
+        project.dependencies.add("api", "${Versions.group}:modelcontract:${Versions.skot}")
     }
 
-    private fun KotlinMultiplatformExtension.conf(project: Project) {
+    private fun KotlinJvmProjectExtension.conf(project: Project) {
         jvmToolchain(21)
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_4)
-            optIn.add("kotlin.time.ExperimentalTime")
+        sourceSets.getByName("main").kotlin.apply {
+            srcDir("src/commonMain/kotlin")
+            srcDir("generated/commonMain/kotlin")
+            project.skVariantsCombinaison().forEach {
+                srcDir("src/commonMain/kotlin$it")
+            }
         }
-        jvm()
-
-        sourceSets["commonMain"].kotlin.srcDir("generated/commonMain/kotlin")
-        sourceSets["commonMain"].dependencies {
-            api("${Versions.group}:modelcontract:${Versions.skot}")
-        }
-
-        skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
-            sourceSets["commonMain"].kotlin.srcDir("src/commonMain/kotlin$it")
-            sourceSets["androidMain"].kotlin.srcDir("src/androidMain/kotlin$it")
-        }
+        sourceSets.getByName("test").kotlin.srcDir("src/jvmTest/kotlin")
     }
 }
