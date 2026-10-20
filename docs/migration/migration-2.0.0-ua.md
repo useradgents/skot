@@ -337,6 +337,22 @@ recompilée dès maintenant, car elle appelle `androidApplication` comme un memb
 Une bibliothèque se migre seule, indépendamment des applications qui l'utilisent : ces dernières ne
 changent que sa version.
 
+Les cinq bibliothèques ont été migrées : la procédure ci-dessous en rassemble les enseignements. Pour
+recopier un fichier (wrapper, `gradle-daemon-jvm.properties`…), prenez une bibliothèque déjà migrée
+comme référence (ex. `sk-map`).
+
+### Prérequis et environnement
+
+- **Java 21 pour le démon Gradle.** Si `gradle/gradle-daemon-jvm.properties` fixe Java 17, la commande
+  `./gradlew wrapper` échoue avec « Dependency requires at least JVM runtime version 21 » : fixez
+  d'abord 21 (copiez le fichier d'une bibliothèque migrée, ou `./gradlew updateDaemonJvm --jvm-version=21`).
+- **Mémoire de Gradle.** Dans `gradle.properties`, prévoyez par exemple
+  `org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1g` : les défauts (512 Mio de tas, 384 Mio de
+  metaspace) ne suffisent plus avec Gradle 9.7.1.
+- **`mavenLocal()`.** Tant que `skot:plugin:2.0.0-ua` n'est pas sur JitPack, `mavenLocal()` doit être
+  actif dans les dépôts de `buildscript` **et** de `allprojects` (sinon : « Could not find …
+  plugin:2.0.0-ua »). Publiez d'abord le framework en local.
+
 ### Version
 
 Montez la version **majeure** de la bibliothèque et suffixez avec la version du framework, par exemple
@@ -347,16 +363,28 @@ const val library = "3.0.0"      // était 2.0.1
 const val framework = "2.0.0-ua" // était 1.5.5-ua
 ```
 
-### Gradle 9.6 minimum
+### Wrapper Gradle 9.7.1
 
-AGP 9.4.0 exige Gradle 9.6.0 ou plus. Si le wrapper de la bibliothèque est plus ancien, **éditez
-d'abord `gradle/wrapper/gradle-wrapper.properties` à la main** (`distributionUrl` et
-`distributionSha256Sum` : la validation du checksum refuse sinon la nouvelle distribution), puis
-régénérez le wrapper :
+AGP 9.4.0 exige Gradle 9.6.0 ou plus. **Ne lancez pas `./gradlew wrapper` sous l'ancien Gradle** tant
+que les scripts sont ceux de KMP : avec le plugin AGP 9 sur le classpath et les anciens scripts, il
+échoue (`NoClassDefFoundError … ProjectTypeBinding`), et même quand il passe, il ne fait que changer la
+version en gardant l'ancien jar et les anciens scripts du wrapper. Ordre recommandé :
 
-```bash
-./gradlew wrapper --gradle-version 9.7.1 --gradle-distribution-sha256-sum acd53f1edaf02f1a8ff99879f8a34b302661a057d9b063ae9e35b552f804d20a
-```
+1. Fixez `gradle/gradle-daemon-jvm.properties` à Java 21 (voir plus haut).
+2. Copiez `gradle/wrapper/gradle-wrapper.properties` d'une bibliothèque migrée (`distributionUrl` en
+   9.7.1 et `distributionSha256Sum` : la validation du checksum refuse sinon la nouvelle distribution),
+   ou éditez-le à la main. Évitez `sed -i` : sur macOS il exige `sed -i ''`.
+3. Migrez les scripts des modules (section suivante).
+4. Régénérez le wrapper, une seule fois, sous 9.7.1 :
+
+   ```bash
+   ./gradlew wrapper --gradle-version 9.7.1 --gradle-distribution-sha256-sum acd53f1edaf02f1a8ff99879f8a34b302661a057d9b063ae9e35b552f804d20a
+   ```
+
+   Cette exécution régénère `gradle-wrapper.jar`, `gradlew` et `gradlew.bat` (et ajoute les reprises
+   `retries` / `retryBackOffMs`).
+5. Comparez le jar avec celui d'une bibliothèque migrée :
+   `cmp gradle/wrapper/gradle-wrapper.jar <bibliotheque-migree>/gradle/wrapper/gradle-wrapper.jar`.
 
 ### Scripts des modules
 
@@ -472,6 +500,87 @@ android {
 Pour chaque module, ne gardez que ce que les plugins ne font pas : `dokka`, `javadocJar`, `signing` et
 les dépendances propres à la bibliothèque (ex. `api("com.mapbox.maps:android:11.0.0")`).
 
+### Cas particuliers
+
+**Bibliothèque sans module `:viewcontract`.** Un module qui ne peut pas utiliser `tech.skot.library`
+(pas de contrat à dépendre) se déclare à la main : `com.android.library`, `androidBaseConfig(project)`,
+les deux dossiers de sources, le manifeste, le sources jar et la publication `release`
+(sk-phonenumber) :
+
+```kotlin
+plugins {
+    id("com.android.library")
+    signing
+}
+androidBaseConfig(project)
+android {
+    sourceSets {
+        getByName("main") {
+            kotlin {
+                directories.add("src/commonMain/kotlin")
+                directories.add("src/androidMain/kotlin")
+            }
+            manifest.srcFile("src/androidMain/AndroidManifest.xml")
+        }
+    }
+    publishing {
+        singleVariant("release") { withSourcesJar() }
+    }
+}
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                // groupId, artifactId, version et pom : comme avant
+            }
+        }
+    }
+}
+```
+
+**Dépendances de `viewmodelTests`.** Le plugin câble `project(":viewmodel")`, `viewmodelTests` du
+framework et `core`. En revanche, les tests qui utilisent des types du `viewmodel` ou du `viewcontract`
+de SKot (`SKTestViewModel`, `CoreViewInjector`, `SKCombo`…) doivent déclarer eux-mêmes
+`testImplementation("${tech.skot.Versions.group}:viewmodel:${tech.skot.Versions.skot}")` (l'ancien
+`jvmTest` les voyait via `commonMain`).
+
+**Tests instrumentés de la bibliothèque** (`androidTest` du `viewlegacy`) :
+
+- Un test laissé dans le dossier KMP `src/androidInstrumentedTest` est **ignoré sans erreur** après la
+  migration : `compileDebugAndroidTestKotlin` passe en `NO-SOURCE` et `assembleDebugAndroidTest` reste
+  vert. Déplacez-le (`git mv … src/androidTest`) et vérifiez que la tâche de compilation n'est plus
+  `NO-SOURCE`.
+- Compilez-les avec `viewlegacy:assembleDebugAndroidTest`. Ils étaient parfois cassés avant la
+  migration (sk-tabbar : `Color(res)`, supprimé depuis que `Color` est une interface → `ColorRef(res)` ;
+  sk-video : `Track(url = …)` → `Track(uri = { … })`) : corrigez-les dans la migration.
+- Un test qui utilise l'injecteur : `import tech.skot.core.di.*` fournit déjà `BaseInjector(app, modules)`
+  et `androidApplication`, sans cast sur `ApplicationProvider.getApplicationContext()`.
+
+### Constructions propres à Gradle 8
+
+Elles cassent sous 9.7.1 :
+
+- `buildDir` (ex. `"$buildDir/dokka"`) : utilisez `layout.buildDirectory.dir("dokkaHtml")`.
+- **dokka 1.x** (classpath 1.5.30, `tasks.dokkaHtmlPartial`, `dokkaGfmPartial`) : passez à dokka 2.2.0
+  (comme sk-map) :
+
+  ```kotlin
+  dokka {
+      moduleName.set("…")
+      dokkaPublications.html {
+          outputDirectory.set(layout.buildDirectory.dir("dokkaHtml"))
+      }
+      // équivalent de suppressInheritedMembers en dokka 1
+      dokkaSourceSets.configureEach { suppressInheritedMembers.set(true) }
+  }
+  ```
+
+  Les blocs `*Partial` de dokka 1 n'ont jamais agi sur la javadoc publiée.
+- Décision prise pour `sk-video` : elle garde dokka 1.5.30, qui compile sous Gradle 9.7.1 et dont le
+  `javadocJar` n'est pas publié. Ne l'alignez pas sur dokka 2 ; le coût est une configuration dokka
+  différente d'une bibliothèque à l'autre.
+
 ### Pièges rencontrés avec le pilote sk-map
 
 - **`compileSdk` inférieur à 37.** Supprimez tout `compileSdk { version = release(36) }` ou
@@ -496,13 +605,24 @@ les dépendances propres à la bibliothèque (ex. `api("com.mapbox.maps:android:
 - **Un seul paramétrage de Java.** Retirez les `jvmToolchain(17)` et `kotlin { … }` hérités : le plugin
   fixe Java 21.
 
+### Finitions
+
+- `jitpack.yml` : `openjdk17` → `openjdk21`.
+- `.gitignore` : ajoutez `/buildSrc/.kotlin`. Si le fichier ne se termine pas par un retour à la ligne,
+  ajoutez-le d'abord, sinon la ligne s'accole à la précédente (`/reports/buildSrc/.kotlin`).
+- `src/androidMain/AndroidManifest.xml` : vous pouvez retirer l'attribut `package=` (AGP avertit qu'il
+  est ignoré). Facultatif.
+- `id("maven-publish")` dans les scripts des modules : inutile, vous pouvez le retirer (la publication
+  est appliquée par le script racine ou par les plugins SKot).
+
 ### Vérifier
 
-1. Construisez la bibliothèque, puis publiez-la en local :
+1. Construisez la bibliothèque, puis publiez-la en local. La publication se lance sans les tests ni les
+   vérifications, ce qui est volontaire (ils sont déjà passés au `build`) :
 
    ```bash
    ./gradlew clean build -x lint
-   ./gradlew publishToMavenLocal
+   ./gradlew publishToMavenLocal -x test -x check
    ```
 
 2. Contrôlez `~/.m2/repository/<groupe>/<module>/<version>/` (ex. `3.0.0_2.0.0-ua`) : le contrat
@@ -514,28 +634,47 @@ les dépendances propres à la bibliothèque (ex. `api("com.mapbox.maps:android:
 
    ```bash
    ./gradlew skot:skGenerate
-   ./gradlew viewmodel:testDebugUnitTest model:testDebugUnitTest
+   ./gradlew viewmodel:testDebugUnitTest model:testDebugUnitTest --rerun-tasks
    ./gradlew androidApp:assembleDebug
    ```
 
+   `--rerun-tasks` donne les vrais nombres de tests (sans lui, les tâches à jour n'en comptent aucun).
    Les tests doivent être aussi nombreux et verts que dans l'état de référence. Contrôlez que la
    version ancienne de la bibliothèque et `core-jvm` ont disparu du classpath
    (`./gradlew androidApp:dependencies --configuration debugRuntimeClasspath`).
 4. `skGenerate` réécrit l'horodatage de l'export de `strings.xml` : annulez ce changement
    (`git checkout -- <strings.xml>`) avant de committer.
+5. **Tests déjà cassés avant la migration** (ex. sk-phonenumber : `isValid` a gagné un paramètre
+   `phoneType`) : corrigez-les temporairement pour obtenir un compte de référence, et gardez la
+   correction dans la migration.
+6. Pour lancer l'application cliente Argos, démarrez `RootActivity` explicitement
+   (`am start -n <package>/org.protection_civile.argos.android.RootActivity`, avec le suffixe de package
+   preprod) : LeakCanary ajoute un lanceur et la commande `monkey`/l'icône ouvrirait le mauvais.
+
+### Publication sur Maven Central
+
+Les `viewmodelTests` de `sk-phonenumber` et `sk-map` sont publiés sans personnalisation du pom ni de la
+signature. Les bibliothèques sont distribuées par JitPack, où cela suffit ; c'est une limite pour
+Maven Central seulement : une future publication Central de ces artefacts serait refusée tant que le pom
+et la signature ne sont pas complétés.
 
 ### Checklist
 
-- [ ] Wrapper Gradle 9.6 ou plus (propriétés éditées à la main, puis `./gradlew wrapper …`)
+- [ ] Java 21 dans `gradle-daemon-jvm.properties`, `org.gradle.jvmargs` augmenté, `mavenLocal()` actif
 - [ ] Version `X+1.0.0_2.0.0-ua` dans `Versions.kt`
+- [ ] Wrapper 9.7.1 : propriétés copiées, scripts migrés, `./gradlew wrapper …` sous 9.7.1, `cmp` du jar
 - [ ] `kotlin("multiplatform")` et blocs `kotlin { … }` retirés des modules, namespaces déplacés dans `android { }`
 - [ ] Plugins `tech.skot.library-contract`, `library`, `library-viewmodeltests`, `library-viewlegacy`
 - [ ] `compileSdk` < 37, `kotlin.mpp.*`, entrées `skot-framework` retirés
 - [ ] `core-jvm` et variantes KMP remplacés par les coordonnées racines
 - [ ] Publications et sources jars manuels retirés
+- [ ] `testImplementation` du `viewmodel` SKot dans `viewmodelTests` si ses tests en utilisent les types
+- [ ] Tests instrumentaux déplacés vers `src/androidTest`, compilation pas en `NO-SOURCE`
+- [ ] `buildDir` et dokka 1 remplacés (ou dokka 1.5.30 conservé en connaissance de cause)
+- [ ] `jitpack.yml` en `openjdk21`, `.gitignore` complété (retour à la ligne final)
 - [ ] `androidApplication` importé depuis `tech.skot.core.di` si utilisé (`sk-phonenumber`)
-- [ ] `build -x lint`, `publishToMavenLocal`, artefacts de `~/.m2` contrôlés
-- [ ] Application cliente : tests et `assembleDebug` verts, horodatage `strings.xml` annulé
+- [ ] `build -x lint`, `publishToMavenLocal -x test -x check`, artefacts de `~/.m2` contrôlés
+- [ ] Application cliente : tests (`--rerun-tasks`) et `assembleDebug` verts, horodatage `strings.xml` annulé
 
 ## Erreurs fréquentes
 
