@@ -10,6 +10,8 @@
       it, so `SKBottomSheetView` reset the state to `null`: the sheet disappeared with what the user
       had typed. The dismissal is now ignored while the Activity is changing configuration, and
       `SKBottomSheetView` takes over the sheet the system restored instead of opening a second one.
+    - Same fix for `SKDialog`: `SKDialogFragment` ignores the dismissal caused by an Activity
+      recreation, and `SKDialogView` takes over the dialog the system restored.
 
 ## Version `1.6.1-ua`
 

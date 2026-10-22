@@ -57,6 +57,10 @@ class SKDialogFragment : DialogFragment() {
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        onDismiss?.invoke()
+        // DialogFragment.onDestroyView appelle aussi onDismiss quand l'Activity est recréée
+        // (rotation, pliage) : le dialogue n'est pas fermé, le système va le restaurer.
+        if (activity?.isChangingConfigurations != true) {
+            onDismiss?.invoke()
+        }
     }
 }
