@@ -13,7 +13,9 @@ class SKFrameView(
 ) : SKComponentView<FrameLayout>(proxy, activity, fragment, binding) {
     init {
         fragmentManager.apply {
-            val fragmentsToRemove = fragments.filterIsInstance<SKFragment>()
+            // Le FragmentManager peut être partagé avec d'autres conteneurs (une SKStack voisine) :
+            // la frame ne touche qu'aux fragments de son propre conteneur.
+            val fragmentsToRemove = fragments.filterIsInstance<SKFragment>().filter { it.id == binding.id }
             if (fragmentsToRemove.isNotEmpty()) {
                 beginTransaction().let { trans ->
                     fragmentsToRemove.forEach {
@@ -36,7 +38,7 @@ class SKFrameView(
                 val tag = screen.key.toString()
                 val alreadyAddedFragment = findFragmentByTag(tag)
 
-                fragments.forEach {
+                fragments.filter { it.id == binding.id }.forEach {
                     if (it.tag != tag && !it.isHidden) {
                         trans.hide(it)
                         trans.setMaxLifecycle(it, Lifecycle.State.STARTED)
@@ -52,7 +54,7 @@ class SKFrameView(
                     }
                 }
             } else {
-                fragments.forEach {
+                fragments.filter { it.id == binding.id }.forEach {
                     trans.hide(it)
                 }
             }

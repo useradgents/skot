@@ -12,6 +12,9 @@
       `SKBottomSheetView` takes over the sheet the system restored instead of opening a second one.
     - Same fix for `SKDialog`: `SKDialogFragment` ignores the dismissal caused by an Activity
       recreation, and `SKDialogView` takes over the dialog the system restored.
+    - `SKFrame` only touches the fragments of its own container. It used to remove, then hide,
+      every `SKFragment` of the shared `FragmentManager`, so a `SKStack` laid out next to an
+      `SKBottomNavFrame` lost its screen as soon as a tab was selected.
 
 ## Version `1.6.1-ua`
 
