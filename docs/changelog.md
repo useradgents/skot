@@ -1,5 +1,16 @@
 # Changelog
 
+## Version `1.6.1b-ua`
+
+### fix
+
+- #### viewlegacy
+    - Keep an open `SKBottomSheet` across an Activity recreation (rotation, fold). On recreation,
+      `DialogFragment.onDestroyView` calls `onDismiss`, and `SKBottomSheetDialogFragment` forwarded
+      it, so `SKBottomSheetView` reset the state to `null`: the sheet disappeared with what the user
+      had typed. The dismissal is now ignored while the Activity is changing configuration, and
+      `SKBottomSheetView` takes over the sheet the system restored instead of opening a second one.
+
 ## Version `1.6.1-ua`
 
 ### fix

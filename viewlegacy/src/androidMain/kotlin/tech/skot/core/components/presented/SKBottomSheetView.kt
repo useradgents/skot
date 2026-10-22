@@ -15,26 +15,38 @@ class SKBottomSheetView(
     fun onState(state: SKBottomSheetVC.Shown?) {
         if (state != current?.state) {
             current?.bottomSheet?.dismiss()
+            // Après une recréation de l'Activity, le système a déjà restauré le volet affiché :
+            // on le reprend au lieu d'en ouvrir un second.
+            val restored = (fragmentManager.findFragmentByTag(TAG) as? SKBottomSheetDialogFragment)
+                ?.takeIf { current == null }
             if (state != null) {
-                (state.screen as SKScreenViewProxy<*>).createBottomSheetFragment(
-                    expanded = state.expanded,
-                    skipCollapsed = state.skipCollapsed,
-                    fullHeight = state.fullHeight,
-                    resizeOnKeyboard = state.resizeOnKeyboard,
-                ).apply {
-                    show(this@SKBottomSheetView.fragmentManager, "SkBottomSheet")
-
-                    setOnDismissListener {
-                        if (proxy.state == state) {
-                            proxy.state = null
+                val screen = state.screen as SKScreenViewProxy<*>
+                val bottomSheet =
+                    restored?.takeIf { it.arguments?.getLong(ScreensManager.SK_ARGUMENT_VIEW_KEY) == screen.key }
+                        ?: screen.createBottomSheetFragment(
+                            expanded = state.expanded,
+                            skipCollapsed = state.skipCollapsed,
+                            fullHeight = state.fullHeight,
+                            resizeOnKeyboard = state.resizeOnKeyboard,
+                        ).also {
+                            restored?.dismissAllowingStateLoss()
+                            it.show(this@SKBottomSheetView.fragmentManager, TAG)
                         }
-                        state.onDismiss?.invoke()
+                bottomSheet.setOnDismissListener {
+                    if (proxy.state == state) {
+                        proxy.state = null
                     }
-                    current = State(state, this)
+                    state.onDismiss?.invoke()
                 }
+                current = State(state, bottomSheet)
             } else {
+                restored?.dismissAllowingStateLoss()
                 current = null
             }
         }
+    }
+
+    private companion object {
+        const val TAG = "SkBottomSheet"
     }
 }
