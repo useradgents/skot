@@ -15,33 +15,19 @@ fun Generator.generateFonts() {
     println("generate Fonts interface .........")
 
 
-    val fontsDirectories = (listOf(rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/font")) +
-            if (referenceFontsByVariant) {
-                variantsCombinaison.map {
-                    rootPath.resolve(modules.view)
-                        .resolve("src/androidMain/res${it}_referenced/font")
-                }
-            } else {
-                emptyList()
-            }).apply {
-        forEach {
-            println("font directory : $it")
-        }
-    }.filter { Files.exists(it) }.toSet()
+    val fontsBySourceSet =
+        referencedResDirs(rootPath.resolve(modules.view), flavors)
+            .mapValues { (_, resDir) -> resDir.resolve("font") }
+            .filterValues { Files.exists(it) }
+            .mapValues { (sourceSet, dir) ->
+                println("font directory ($sourceSet) : $dir")
+                Files.list(dir).map { it.nameWithoutExtension }.collect(Collectors.toList()).filter { it.isNotBlank() }
+            }
+    checkReferencedInEveryVariant("font", fontsBySourceSet, flavors)
 
+    val hasFont = fontsBySourceSet.isNotEmpty()
 
-    val hasFont = fontsDirectories.isNotEmpty()
-
-    val fonts =
-        if (!hasFont) {
-            emptyList()
-        } else {
-            fontsDirectories.flatMap {
-                Files.list(it).map {
-                    it.nameWithoutExtension
-                }.collect(Collectors.toList()).filter { it.isNotBlank() }
-            }.toSet()
-        }
+    val fonts = fontsBySourceSet.values.flatten().toSet()
 
     fonts.forEach {
         println("font found : $it")

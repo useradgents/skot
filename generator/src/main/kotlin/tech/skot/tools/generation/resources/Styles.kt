@@ -15,7 +15,7 @@ import java.util.stream.Collectors
 fun Generator.generateStyles() {
     println("styles .........")
     println("generate Styles interface .........")
-    val values = rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/values")
+    val values = rootPath.resolve(modules.view).resolve("src/main/res_referenced/values")
 
     val colors =
         if (!Files.exists(values)) {

@@ -83,7 +83,7 @@ fun Generator.generateViewLegacy() {
                 .build()
                 .writeTo(androidSources(modules.view))
         }
-        if (!existsPath(layoutPath, "res")) {
+        if (!existsInSourceSets(modules.view, "res/layout/${it.layoutName()}.xml")) {
             Files.createDirectories(layoutPath.parent)
             layoutPath.toFile().writeText(LAYOUT_TEMPLATE.format(it.name.uppercase()))
         }

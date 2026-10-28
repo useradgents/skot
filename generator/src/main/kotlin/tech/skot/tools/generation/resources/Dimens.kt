@@ -15,7 +15,7 @@ import java.util.stream.Collectors
 fun Generator.generateDimens() {
     println("dimens .........")
     println("generate Dimens interface .........")
-    val values = rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/values")
+    val values = rootPath.resolve(modules.view).resolve("src/main/res_referenced/values")
 
     val dimens =
         if (!Files.exists(values)) {

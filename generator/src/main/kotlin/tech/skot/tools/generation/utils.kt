@@ -14,7 +14,6 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.WildcardTypeName
 import com.squareup.kotlinpoet.asTypeName
 import java.nio.file.Path
-import java.nio.file.Paths
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -222,20 +221,6 @@ fun ClassName.fileObjectBuilder(
         suppressWarningTypes(suppressWarnings)
     }
     .build()
-
-fun Path.replaceSegment(
-    segment: String,
-    replacement: String,
-): Path =
-    map {
-        if (it.toString() == segment) {
-            replacement
-        } else {
-            it.toString()
-        }
-    }.let {
-        Paths.get(it.joinToString("/", prefix = if (this.startsWith("/")) "/" else ""))
-    }
 
 fun KClass<*>.ownMembers(): List<KCallable<*>> {
     val superMembersNames = superclasses.flatMap { it.members.map { it.name } }

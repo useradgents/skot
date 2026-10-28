@@ -21,16 +21,10 @@ import java.nio.file.Files
 import kotlin.io.path.exists
 
 fun Generator.generateStrings() {
-    val values =
-        (
-                listOf(
-                    rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/values")
-                ) +
-                        variantsCombinaison.map {
-                            rootPath.resolve(modules.view)
-                                .resolve("src/androidMain/res${it}_referenced/values")
-                        }
-                ).filter { it.exists() }
+    val valuesBySourceSet =
+        referencedResDirs(rootPath.resolve(modules.view), flavors)
+            .mapValues { (_, resDir) -> resDir.resolve("values") }
+            .filterValues { it.exists() }
 
     println("strings .........")
 
@@ -41,16 +35,18 @@ fun Generator.generateStrings() {
             it.groupValues[1]
         }.map { "%$it" }.joinToString(separator = "_")
 
-    val pairsStringsPatterns =
-        values.flatMap {
-            Files.list(it).toList()
-        }.flatMap {
-            println("File will be parsed : $it")
-            it.getDocumentElement().childElements().filter { it.tagName == "string" }
-                .map {
-                    Pair(it.getAttribute("name"), it.textContent.patterns())
-                }
+    val pairsBySourceSet =
+        valuesBySourceSet.mapValues { (_, dir) ->
+            Files.list(dir).toList().flatMap {
+                println("File will be parsed : $it")
+                it.getDocumentElement().childElements().filter { it.tagName == "string" }
+                    .map {
+                        Pair(it.getAttribute("name"), it.textContent.patterns())
+                    }
+            }
         }
+    checkReferencedInEveryVariant("string", pairsBySourceSet.mapValues { (_, pairs) -> pairs.map { it.first } }, flavors)
+    val pairsStringsPatterns = pairsBySourceSet.values.flatten().distinctBy { it.first }
 
     val strings = pairsStringsPatterns.map { it.first }
 

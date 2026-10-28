@@ -55,9 +55,6 @@ class Generator(
     val feature: String?,
     val baseActivityVar: String?,
     val initializationPlans: List<InitializationPlan>,
-    val referenceIconsByVariant: Boolean,
-    val referenceFontsByVariant: Boolean,
-    val referenceColorsByVariant: Boolean,
 ) {
     class ModulesNames(
         val app: String = "androidApp",
@@ -70,8 +67,7 @@ class Generator(
 
     val modules = ModulesNames(view = feature ?: "view", app = feature ?: "androidApp")
 
-    val variantsCombinaison = skVariantsCombinaison(rootPath)
-    val mainVariant = skReadVariants(rootPath).variants.firstOrNull()?.capitalizeAsciiOnly()
+    val flavors: SKFlavors? = SKFlavors.read(rootPath.toFile())
 
     @ExperimentalStdlibApi
     val rootState = rootStateClass?.let { StateDef("rootState", appPackage, it) }
@@ -251,37 +247,21 @@ class Generator(
         generateCodeMap()
     }
 
-    fun generatedCommonSources(
-        module: String,
-        combinaison: String? = null,
-    ): Path = rootPath.resolve("$module/generated${combinaison ?: ""}/commonMain/kotlin")
+    fun generatedCommonSources(module: String): Path = rootPath.resolve("$module/generated/main/kotlin")
 
-    fun commonSources(module: String): Path = rootPath.resolve("$module/src/commonMain/kotlin")
+    fun commonSources(module: String): Path = rootPath.resolve("$module/src/main/kotlin")
 
-    fun jvmTestSources(
-        module: String,
-        combinaison: String? = null,
-    ): Path = rootPath.resolve("$module/src${combinaison ?: ""}/jvmTest/kotlin")
+    fun jvmTestSources(module: String): Path = rootPath.resolve("$module/src/test/kotlin")
 
-    fun generatedJvmTestSources(
-        module: String,
-        combinaison: String? = null,
-    ): Path = rootPath.resolve("$module/generated${combinaison ?: ""}/jvmTest/kotlin")
+    fun generatedJvmTestSources(module: String): Path = rootPath.resolve("$module/generated/test/kotlin")
 
-    fun generatedAndroidTestSources(
-        module: String,
-        combinaison: String? = null,
-    ): Path = rootPath.resolve("$module/generated${combinaison ?: ""}/androidTest/kotlin")
+    fun generatedAndroidTestSources(module: String): Path = rootPath.resolve("$module/generated/androidTest/kotlin")
 
-    fun generatedAndroidSources(
-        module: String,
-        combinaison: String? = null,
-    ): Path = rootPath.resolve("$module/generated${combinaison ?: ""}/androidMain/kotlin")
+    fun generatedAndroidSources(module: String): Path = rootPath.resolve("$module/generated/main/kotlin")
 
-    fun androidSources(module: String): Path = rootPath.resolve("$module/src/androidMain/kotlin")
+    fun androidSources(module: String): Path = rootPath.resolve("$module/src/main/kotlin")
 
-    fun androidTestSources(module: String): Path =
-        rootPath.resolve("$module/src/androidTest/kotlin")
+    fun androidTestSources(module: String): Path = rootPath.resolve("$module/src/androidTest/kotlin")
 
     private fun deleteModuleGenerated(module: String) {
         rootPath.resolve("$module/generated").toFile().deleteRecursively()
@@ -454,7 +434,7 @@ class Generator(
     fun androidResLayoutPath(
         module: String,
         name: String,
-    ): Path = rootPath.resolve("$module/src/androidMain/res/layout/$name.xml")
+    ): Path = rootPath.resolve("$module/src/main/res/layout/$name.xml")
 
     val viewR = ClassName("$appPackage.view", "R")
     val appR = ClassName("$appPackage.android", "R")
@@ -585,21 +565,26 @@ class Generator(
 
     fun ComponentDef.hasModel() = componentsWithModel.contains(this)
 
-    // Regarde si le fichier existe déjà, dans main ou dans une variante de main
-    fun existsPath(
-        path: Path,
-        patternConbinable: String,
-    ): Boolean {
-        return Files.exists(path) ||
-                variantsCombinaison.any {
-                    Files.exists(path.replaceSegment(patternConbinable, "$patternConbinable$it"))
-                }
-    }
+    // Regarde si le fichier existe déjà, dans main ou dans un source set de variante
+    fun existsInSourceSets(
+        module: String,
+        relativePath: String,
+    ): Boolean = tech.skot.tools.generation.existsInSourceSets(rootPath, module, relativePath, flavors)
 
     fun migrate() {
         migrateTo29()
     }
 }
+
+/** Le fichier existe-t-il déjà dans src/main ou dans un source set de variante du module ? */
+fun existsInSourceSets(
+    rootPath: Path,
+    module: String,
+    relativePath: String,
+    flavors: SKFlavors?,
+): Boolean =
+    (listOf("main") + (flavors?.variantSourceSets ?: emptyList()))
+        .any { Files.exists(rootPath.resolve("$module/src/$it/$relativePath")) }
 
 fun Path.getDocument(): Document =
     DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(this.toFile())

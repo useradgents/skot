@@ -17,7 +17,7 @@ import java.nio.file.Files
 import java.util.stream.Collectors
 
 fun Generator.generatePlurals() {
-    val values = rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/values")
+    val values = rootPath.resolve(modules.view).resolve("src/main/res_referenced/values")
 
     println("plurals .........")
     val plurals =

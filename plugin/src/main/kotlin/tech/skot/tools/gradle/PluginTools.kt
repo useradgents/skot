@@ -38,9 +38,6 @@ data class App(
     // le fullname d'une variable globale donnant la classe de base
     val baseActivityVar: String? = null,
     val initializationPlans: List<String> = emptyList(),
-    val referenceIconsByVariant: Boolean = false,
-    val referenceFontsByVariant: Boolean = false,
-    val referenceColorsByVariant: Boolean = false,
     val ktlintOnGeneratedFiles: Boolean = true,
 )
 
@@ -74,15 +71,6 @@ abstract class SkGenerateTask : DefaultTask() {
 
     @get:Input
     abstract val initializationPlans: Property<String>
-
-    @get:Input
-    abstract val referenceIconsByVariant: Property<Boolean>
-
-    @get:Input
-    abstract val referenceFontsByVariant: Property<Boolean>
-
-    @get:Input
-    abstract val referenceColorsByVariant: Property<Boolean>
 
     @get:Input
     abstract val ktlintOnGeneratedFiles: Property<Boolean>
@@ -121,9 +109,7 @@ abstract class SkGenerateTask : DefaultTask() {
                     feature.getOrElse("null"),
                     baseActivityVar.getOrElse("null"),
                     initializationPlans.get(),
-                    referenceIconsByVariant.get().toString(),
-                    referenceFontsByVariant.get().toString(),
-                    referenceColorsByVariant.get().toString(),)
+                )
         }
 
         if (ktlintOnGeneratedFiles.get()) {
@@ -184,9 +170,6 @@ class PluginTools : Plugin<Project> {
             initializationPlans.set(appProvider.map {
                 it.initializationPlans.joinToString("_")
             })
-            referenceIconsByVariant.set(appProvider.map { it.referenceIconsByVariant })
-            referenceFontsByVariant.set(appProvider.map { it.referenceFontsByVariant })
-            referenceColorsByVariant.set(appProvider.map { it.referenceColorsByVariant })
             ktlintOnGeneratedFiles.set(appProvider.map { it.ktlintOnGeneratedFiles })
             runtimeClasspath.from(project.configurations.named("runtimeClasspath"))
             runtimeClasspath.from(

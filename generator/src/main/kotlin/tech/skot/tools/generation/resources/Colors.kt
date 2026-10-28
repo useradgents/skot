@@ -37,15 +37,11 @@ fun Generator.generateColors() {
             }.collect(Collectors.toList())
         }
 
-    val colors = (rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/values").list() +
-    if (referenceColorsByVariant) {
-        variantsCombinaison.flatMap {
-            rootPath.resolve(modules.view)
-                .resolve("src/androidMain/res${it}_referenced/values").list()
-        }
-    } else {
-        emptyList()
-    }).toSet()
+    val colorsBySourceSet =
+        referencedResDirs(rootPath.resolve(modules.view), flavors)
+            .mapValues { (_, resDir) -> resDir.resolve("values").list() }
+    checkReferencedInEveryVariant("color", colorsBySourceSet, flavors)
+    val colors = colorsBySourceSet.values.flatten().toSet()
 
     fun String.toColorsPropertyName() = decapitalizeAsciiOnly().replace('.', '_')
 

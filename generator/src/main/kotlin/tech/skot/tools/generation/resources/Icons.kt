@@ -22,15 +22,7 @@ import kotlin.io.path.listDirectoryEntries
 
 fun Generator.generateIcons() {
     println("icons .........")
-    println("@@@@@@@@@ with referenceIconsByVariant = $referenceIconsByVariant")
     println("generate Icons interface .........")
-    val drawableDir =
-        rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/drawable")
-    val drawableXhdpiDir =
-        rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/drawable-xhdpi")
-    val drawableNodpiDir =
-        rootPath.resolve(modules.view).resolve("src/androidMain/res_referenced/drawable-nodpi")
-
     fun Path.listRes(): List<String> =
         if (!Files.exists(this)) {
             emptyList()
@@ -41,23 +33,13 @@ fun Generator.generateIcons() {
                 .map { it.substringBeforeLast(".") }
         }
 
-    val icons: List<String> =
-        drawableDir.listRes() + drawableXhdpiDir.listRes() + drawableNodpiDir.listRes() +
-                if (referenceIconsByVariant) {
-                    variantsCombinaison.flatMap {
-                        rootPath.resolve(modules.view)
-                            .resolve("src/androidMain/res${it}_referenced/drawable-xhdpi")
-                            .listRes() +
-                                rootPath.resolve(modules.view)
-                                    .resolve("src/androidMain/res${it}_referenced/drawable")
-                                    .listRes() +
-                                rootPath.resolve(modules.view)
-                                    .resolve("src/androidMain/res${it}_referenced/drawable-nodpi")
-                                    .listRes()
-                    }
-                } else {
-                    emptyList()
-                }
+    val iconsBySourceSet =
+        referencedResDirs(rootPath.resolve(modules.view), flavors)
+            .mapValues { (_, resDir) ->
+                listOf("drawable", "drawable-xhdpi", "drawable-nodpi").flatMap { resDir.resolve(it).listRes() }
+            }
+    checkReferencedInEveryVariant("drawable", iconsBySourceSet, flavors)
+    val icons: List<String> = iconsBySourceSet.values.flatten().distinct()
 
     fun String.toIconsPropertyName() = replaceFirstChar { it.lowercase(Locale.getDefault()) }
 
@@ -76,10 +58,7 @@ fun Generator.generateIcons() {
                 .build(),
         )
     }.writeTo(
-        generatedCommonSources(
-            modules.viewcontract,
-            if (referenceIconsByVariant) mainVariant else null,
-        ),
+        generatedCommonSources(modules.viewcontract),
     )
 
     val funGetSpec =
@@ -130,10 +109,7 @@ fun Generator.generateIcons() {
             .addFunction(funGetSpec)
     }
         .writeTo(
-            generatedAndroidSources(
-                feature ?: modules.app,
-                if (referenceIconsByVariant) mainVariant else null,
-            ),
+            generatedAndroidSources(feature ?: modules.app),
         )
 
     println("generate Icons android for view androidTests .........")
@@ -165,10 +141,7 @@ fun Generator.generateIcons() {
             .addFunction(funGetSpec)
     }
         .writeTo(
-            generatedAndroidTestSources(
-                modules.view,
-                if (referenceIconsByVariant) mainVariant else null,
-            ),
+            generatedAndroidTestSources(modules.view),
         )
 
     println("generate Icons mock  .........")
@@ -204,9 +177,6 @@ fun Generator.generateIcons() {
         )
     }
         .writeTo(
-            generatedJvmTestSources(
-                feature ?: modules.viewmodel,
-                if (referenceIconsByVariant) mainVariant else null,
-            ),
+            generatedJvmTestSources(feature ?: modules.viewmodel),
         )
 }
