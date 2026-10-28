@@ -52,7 +52,7 @@ Si le `build.gradle.kts` racine déclare le plugin SKot en dur dans le classpath
 changez aussi sa version :
 
 ```kotlin
-classpath("com.github.useradgents.skot:plugin:2.0.0-ua")   // était 1.6.0-ua
+classpath("com.github.useradgents.skot:plugin:2.0.0-ua")   // était 1.6.x-ua
 ```
 
 ## Étape 2 - Scripts des modules
