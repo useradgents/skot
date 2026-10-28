@@ -53,6 +53,8 @@ plan_dir() {
 
 # 2. Modules SKot à l'ancienne arborescence
 modules="$(find . -mindepth 2 -maxdepth 4 -name build.gradle.kts -not -path '*/build/*' -not -path './buildSrc/*' -not -path './.worktrees/*' -exec dirname {} \; | sed 's|^\./||' | sort)"
+# Les chemins avec espace casseraient les boucles ci-dessous : arrêt avant toute modification
+printf '%s\n' "$modules" | grep -E '[[:space:]]' | sed 's/$/ : chemin avec espace, à renommer avant migration/' >> "$work/errors" || true
 need_variant=false
 for m in $modules; do
   [ -d "$m/src" ] || continue

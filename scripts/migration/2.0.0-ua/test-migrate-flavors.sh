@@ -127,4 +127,16 @@ commit_all
 if out="$("$script" . 2>&1)"; then fail "suffixe inconnu accepté"; fi
 case "$out" in *"kotlinFoo"*) ;; *) fail "suffixe inconnu non signalé : $out" ;; esac
 
+# --- Module dont le chemin contient un espace ----------------------------------------------------
+new_repo
+put ok/build.gradle.kts 'plugins { id("tech.skot.viewmodel") }'
+put ok/src/commonMain/kotlin/a/A.kt
+put "my view/build.gradle.kts" 'plugins { id("tech.skot.viewlegacy") }'
+put "my view/src/commonMain/kotlin/a/A.kt"
+commit_all
+if out="$("$script" . --apply 2>&1)"; then fail "chemin avec espace accepté"; fi
+case "$out" in *"my view : chemin avec espace"*) ;; *) fail "chemin avec espace non signalé : $out" ;; esac
+exists ok/src/commonMain/kotlin/a/A.kt
+[ -z "$(git status --porcelain)" ] || fail "le chemin avec espace a modifié l'arbre"
+
 echo OK
