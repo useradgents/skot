@@ -403,6 +403,31 @@ Le `google-services.json` de chaque marque va dans `androidApp/src/<flavor>/goog
 bloc du flavor. Supprimez aussi les lignes `referenceIconsByVariant`, `referenceFontsByVariant` et
 `referenceColorsByVariant` (voir plus bas).
 
+Points à reprendre aussi dans les scripts Gradle (pilote Sezane) :
+
+- `buildSrc` ne garde que ce qui est commun à toutes les variantes : un `SKBuild` réduit à `versionName`,
+  la lecture de la signature. La fonction qui copiait le `google-services.json` de la marque
+  (`copyGoogleServicesJsonFile`) disparaît, le fichier de chaque marque est déjà dans `src/<flavor>/`.
+  Les fichiers `buildSrc/src/main/kotlin<Variante>/google-services.json` se déplacent par `git mv`
+  ou se recréent à partir de `git show` avant de supprimer le dossier.
+- Un libellé qui combinait marque, environnement et type de build (`D_qa_sezane_Sézane`) se recalcule
+  dans `androidComponents.onVariants { variant -> variant.manifestPlaceholders.put("app_name", …) }`,
+  avec `variant.productFlavors` (paires dimension/valeur) et `variant.buildType`.
+- Les placeholders (`scheme`, `web_site_host`) et les `buildConfigField` du module `view` passent dans
+  `android.productFlavors.named("<marque>") { … }` de ce module, comme pour `androidApp`.
+- Un identifiant de distribution par marque (`firebaseAppDistribution { serviceCredentialsFile = … }`)
+  se place dans le bloc `named("<marque>")` du flavor.
+- `base.archivesName` est unique pour tout le module : le nom de fichier du APK ne peut plus porter la
+  marque ni l'environnement (AGP ajoute `-<flavor>-<buildType>`), par exemple
+  `androidApp-v1.8.3(781)-sezane-qa-debug.apk`. Les dossiers de sortie sont
+  `androidApp/build/outputs/apk/<sezaneQa>/<buildType>` et `bundle/<sezaneQa><BuildType>`.
+- Un module Android du projet qui n'est pas un module SKot mais dépend d'un module à flavors (cas
+  `adyendropin` chez Sezane, qui dépend de `:model`) échoue avec « The only attribute distinguishing these
+  variants is VariantAttr ». Remplacez son `id("com.android.library")` par `id("tech.skot.variant")` : il
+  reçoit les mêmes flavors.
+- Si un `.gitignore` ignorait `modelcontract/generated/commonMain/kotlin/<package>/SKBuild.kt`, remplacez
+  le chemin par `modelcontract/generated/main/kotlin/<package>/SKBuild.kt`.
+
 ### Module `:variant`
 
 Un contrat est un module JVM sans flavors : il ne peut plus porter de code propre à une variante
@@ -425,6 +450,16 @@ Dès que `:variant` existe, `viewmodel`, `model` et `viewlegacy` ajoutent `api(p
 `feature` et `app` ajoutent `implementation(project(":variant"))` : les appels du code client ne changent pas. Les fichiers se rangent par
 variante : `variant/src/sezaneProd/kotlin/…`, `variant/src/octobre/kotlin/…`. Les valeurs de `SKBuild`
 lues à l'exécution par ce code vont aussi dans `:variant`.
+
+Le `SKBuild` généré dans `modelcontract` ne contient plus que les valeurs communes : tout ce que le code
+lit à l'exécution par marque ou par environnement (`SKBuild.scheme`, `SKBuild.appName`,
+`SKBuild.currentEnvironment`) devient un objet de `:variant` (chez Sezane `BrandBuild` dans
+`variant/src/<marque>/kotlin/com/sezane/` et `Environment` dans `variant/src/<env>/kotlin/…`), et les
+appels sont remplacés. Une constante de contrat construite sur ces valeurs (`Constants.successConnectionRedirect
+= "${SKBuild.scheme}://…"`) se déplace aussi dans `:variant`, un contrat ne pouvant pas le lire. Si le
+code déplacé par le script utilise des types d'un contrat (`JackpotCode` de `modelcontract`), ajoutez dans
+`variant/build.gradle.kts` `dependencies { api(project(":modelcontract")) }` (un contrat ne dépend jamais
+de `:variant`, pas de cycle).
 
 ### Ressources par marque
 
@@ -450,6 +485,13 @@ les variantes concernées (voir « Erreurs du build »). Supprimez les lignes `r
 script, ou checkout de CI si le projet ne commite pas `generated/`), `./gradlew skot:skGenerate` doit
 être lancé seul, dans sa propre commande, avant `./gradlew assemble<Marque><Env><BuildType>` ; les deux
 dans une même invocation échouent.
+Après la génération, committez les dossiers `generated/` si le projet les versionne (ils étaient supprimés
+par le script). Les résultats de test sont dans `<module>/build/test-results/test<Variante>DebugUnitTest`
+(plus `testDebugUnitTest`) : à reporter dans les `store_test_results` de la CI. Une sortie CI ne peut pas
+interpoler de variable d'environnement dans `store_artifacts` : donnez le dossier parent
+`androidApp/build/outputs/apk` (un seul flavor y est construit). Dans les paramètres de CI en
+majuscules (`QA`, `PreProd`), les noms de tâches s'écrivent `Qa`, `Preprod` : `assembleSezaneQaRelease`,
+`bundleOctobrePreprodRelease`, `appDistributionUploadSezaneQaRelease`.
 Un `test` sans variante lance les tests de toutes les variantes (6 fois chez Sezane) : testez une seule
 variante, `test<Marque><Env>DebugUnitTest`. Le script liste les appels `skot:<Tâche>` qu'il trouve dans
 les fichiers de CI (`.yml`, `.sh`, `Fastfile`, `Jenkinsfile`) : à remplacer à la main.
