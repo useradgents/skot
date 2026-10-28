@@ -20,26 +20,13 @@ class PluginApp : Plugin<Project> {
         project.dependencies {
             dependencies(project)
         }
+        project.skAddVariantModule("implementation")
     }
 
     private fun ApplicationExtension.conf(project: Project) {
-        sourceSets {
-            getByName("main") {
-                kotlin.directories.add("src/androidMain/kotlin")
-                kotlin.directories.add("generated/androidMain/kotlin")
-                skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach<String> {
-                    kotlin.directories.add("src/androidMain/kotlin$it")
-                    kotlin.directories.add("generated$it/androidMain/kotlin")
-                    res.directories.add("src/androidMain/res$it")
-                }
-                res.directories.add("src/androidMain/res")
-                assets.directories.add("src/androidMain/assets")
-                manifest.srcFile("src/androidMain/AndroidManifest.xml")
-            }
-            getByName("androidTest") {
-                kotlin.directories.add("src/androidTest/kotlin")
-            }
-        }
+        val flavors = project.skFlavors()
+        skDeclareFlavors(flavors)
+        skStandardSourceSets(flavors, withReferencedResources = false)
 
         androidBaseConfig(project)
 

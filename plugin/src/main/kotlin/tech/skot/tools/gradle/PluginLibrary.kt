@@ -19,7 +19,7 @@ class PluginLibrary : Plugin<Project> {
 
         project.extensions.getByType<LibraryExtension>().apply {
             androidBaseConfig(project)
-            skLegacySourceSets(project, withResources = false)
+            skLibraryLegacySourceSets(withResources = false)
             publishing {
                 singleVariant("release") { withSourcesJar() }
             }
@@ -33,5 +33,22 @@ class PluginLibrary : Plugin<Project> {
                 from(components.getByName("release"))
             }
         }
+    }
+}
+
+/**
+ * Les librairies SKot gardent l'arborescence historique (commonMain, androidMain, jvmTest, generated)
+ * et n'ont pas de variantes.
+ */
+private fun LibraryExtension.skLibraryLegacySourceSets(withResources: Boolean) {
+    sourceSets.getByName("main") {
+        listOf("src/commonMain/kotlin", "src/androidMain/kotlin", "generated/commonMain/kotlin", "generated/androidMain/kotlin")
+            .forEach { kotlin.directories.add(it) }
+        if (withResources) res.directories.add("src/androidMain/res")
+        manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    }
+    sourceSets.getByName("test") {
+        listOf("src/jvmTest/kotlin", "src/commonTest/kotlin", "generated/jvmTest/kotlin")
+            .forEach { kotlin.directories.add(it) }
     }
 }

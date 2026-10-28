@@ -93,6 +93,13 @@ gradlePlugin {
                 implementationClass = "tech.skot.tools.gradle.PluginFeature"
             }
 
+            create("SkotVariant") {
+                id = "tech.skot.variant"
+                displayName = "SKot variant"
+                description = "Plugin skot pour le module variant (code propre à chaque variante)"
+                implementationClass = "tech.skot.tools.gradle.PluginVariant"
+            }
+
             create("SkotTools") {
                 id = "tech.skot.tools"
                 displayName = "SKot tools"

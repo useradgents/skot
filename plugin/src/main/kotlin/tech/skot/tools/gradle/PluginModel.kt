@@ -15,10 +15,13 @@ class PluginModel : Plugin<Project> {
         project.skKotlinCompilerOptions()
         project.skDontFailOnGeneratedTestSourcesOnly()
 
+        val flavors = project.skFlavors()
         project.extensions.getByType<LibraryExtension>().apply {
             androidBaseConfig(project)
-            skLegacySourceSets(project, withResources = true)
+            skDeclareFlavors(flavors)
+            skStandardSourceSets(flavors, withReferencedResources = false)
         }
+        project.skAddVariantModule("api")
 
         val parentProjectPath = project.parent?.path ?: ""
         project.dependencies.apply {

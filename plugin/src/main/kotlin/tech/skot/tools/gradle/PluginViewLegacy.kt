@@ -23,30 +23,13 @@ class PluginViewLegacy : Plugin<Project> {
             dependencies(project)
             addDependenciesToViewLegacy(this, project.rootDir.toPath())
         }
+        project.skAddVariantModule("api")
     }
 
     private fun LibraryExtension.android(project: Project) {
-        sourceSets.getByName("main") {
-            kotlin.directories.add("src/androidMain/kotlin")
-            kotlin.directories.add("generated/androidMain/kotlin")
-            assets.directories.add("src/androidMain/assets")
-            res.directories.add("src/androidMain/res_referenced")
-            manifest.srcFile("src/androidMain/AndroidManifest.xml")
-
-            skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
-                res.directories.add("src/androidMain/res$it")
-                res.directories.add("src/androidMain/res${it}_referenced")
-                kotlin.directories.add("src/androidMain/kotlin$it")
-            }
-            res.directories.add("src/androidMain/res")
-        }
-
-        sourceSets.getByName("androidTest") {
-            kotlin.directories.add("generated/androidTest/kotlin")
-            skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach {
-                kotlin.directories.add("generated$it/androidTest/kotlin")
-            }
-        }
+        val flavors = project.skFlavors()
+        skDeclareFlavors(flavors)
+        skStandardSourceSets(flavors, withReferencedResources = true)
 
         androidBaseConfig(project)
 

@@ -21,6 +21,7 @@ class PluginFeature : Plugin<Project> {
             dependencies(project)
             SKLibrary.addDependenciesToViewLegacy(this, (project.parent?.projectDir ?: project.rootDir).toPath())
         }
+        project.skAddVariantModule("implementation")
     }
 
     private fun DynamicFeatureExtension.android(project: Project) {
@@ -30,24 +31,9 @@ class PluginFeature : Plugin<Project> {
             minSdk = Versions.android_minSdk
         }
 
-        sourceSets {
-            getByName("main") {
-                kotlin.directories.add("src/androidMain/kotlin")
-                kotlin.directories.add("generated/androidMain/kotlin")
-                skVariantsCombinaison(project.rootProject.rootDir.toPath()).forEach<String> {
-                    kotlin.directories.add("src/androidMain/kotlin$it")
-                    kotlin.directories.add("generated$it/androidMain/kotlin")
-                    res.directories.add("src/androidMain/res$it")
-                }
-                res.directories.add("src/androidMain/res")
-                res.directories.add("src/androidMain/res_referenced")
-
-                manifest.srcFile("src/androidMain/AndroidManifest.xml")
-            }
-            getByName("androidTest") {
-                kotlin.directories.add("src/androidTest/kotlin")
-            }
-        }
+        val flavors = project.skFlavors()
+        skDeclareFlavors(flavors)
+        skStandardSourceSets(flavors, withReferencedResources = true)
 
         packaging.jniLibs.excludes.add("META-INF/*.kotlin_module")
         packaging.jniLibs.excludes.add("META-INF/*")
