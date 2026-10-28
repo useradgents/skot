@@ -40,5 +40,6 @@ There is no switch task: pick the variant in the Build Variants selector of Andr
 
 ```bash
 #!/usr/bin/env bash
+./gradlew skot:skGenerate
 ./gradlew assembleApp1ProdRelease
 ```

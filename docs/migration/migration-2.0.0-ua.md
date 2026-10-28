@@ -421,8 +421,8 @@ android {
 ```
 
 Le plugin `tech.skot.variant` déclare les mêmes flavors et l'arborescence standard, sans génération.
-Dès que `:variant` existe, `viewmodel`, `model`, `viewlegacy`, `feature` et `app` ajoutent
-`api(project(":variant"))` : les appels du code client ne changent pas. Les fichiers se rangent par
+Dès que `:variant` existe, `viewmodel`, `model` et `viewlegacy` ajoutent `api(project(":variant"))`,
+`feature` et `app` ajoutent `implementation(project(":variant"))` : les appels du code client ne changent pas. Les fichiers se rangent par
 variante : `variant/src/sezaneProd/kotlin/…`, `variant/src/octobre/kotlin/…`. Les valeurs de `SKBuild`
 lues à l'exécution par ce code vont aussi dans `:variant`.
 
@@ -443,11 +443,13 @@ les variantes concernées (voir « Erreurs du build »). Supprimez les lignes `r
 
 | Avant | Après |
 |---|---|
-| `./gradlew skot:SezaneProd assembleRelease` | `./gradlew skot:skGenerate assembleSezaneProdRelease` |
+| `./gradlew skot:SezaneProd assembleRelease` | `./gradlew skot:skGenerate`, puis `./gradlew assembleSezaneProdRelease` |
 | `./gradlew test` ou `testDebugUnitTest` | `./gradlew testSezaneQaDebugUnitTest` |
 
-`skGenerate` s'exécute après `compileKotlin` : sur un checkout sans sources générées (CI), lancez-le
-d'abord (`./gradlew skot:skGenerate`, éventuellement dans une commande séparée), puis `assemble<Marque><Env><BuildType>`.
+`skGenerate` s'exécute après `compileKotlin` : sur un arbre sans sources générées (juste après le
+script, ou checkout de CI si le projet ne commite pas `generated/`), `./gradlew skot:skGenerate` doit
+être lancé seul, dans sa propre commande, avant `./gradlew assemble<Marque><Env><BuildType>` ; les deux
+dans une même invocation échouent.
 Un `test` sans variante lance les tests de toutes les variantes (6 fois chez Sezane) : testez une seule
 variante, `test<Marque><Env>DebugUnitTest`. Le script liste les appels `skot:<Tâche>` qu'il trouve dans
 les fichiers de CI (`.yml`, `.sh`, `Fastfile`, `Jenkinsfile`) : à remplacer à la main.
