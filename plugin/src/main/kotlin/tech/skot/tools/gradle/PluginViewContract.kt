@@ -14,6 +14,7 @@ class PluginViewContract : Plugin<Project> {
         project.plugins.apply("java-library")
         project.plugins.apply("maven-publish")
         project.plugins.apply("kotlinx-serialization")
+        project.skFailOnContractAndroidSources()
         project.skFailOnLegacyLayout()
         project.skFailOnContractVariantSources()
         project.skSubstituteLegacyKmpArtifacts()

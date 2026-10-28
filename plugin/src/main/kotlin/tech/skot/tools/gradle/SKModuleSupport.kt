@@ -37,6 +37,34 @@ internal fun Project.skFailOnAndroidSources() {
     }
 }
 
+/** Ressources (`src/<jeu>/res*`) et manifestes (`src/<jeu>/AndroidManifest.xml`) de l'arborescence standard. */
+internal fun skStandardAndroidSourceFiles(projectDir: File): List<File> =
+    projectDir.resolve("src").listFiles().orEmpty()
+        .filter { it.isDirectory }
+        .flatMap { set ->
+            set.listFiles().orEmpty().flatMap { entry ->
+                when {
+                    entry.isDirectory && entry.name.startsWith("res") -> entry.walkTopDown().filter { it.isFile }.toList()
+                    entry.isFile && entry.name == "AndroidManifest.xml" -> listOf(entry)
+                    else -> emptyList()
+                }
+            }
+        }
+
+/**
+ * Un contrat (viewcontract, modelcontract) est un module JVM pur : son code Android, ses ressources et son
+ * manifeste, que ce soit dans l'ancienne ou dans l'arborescence standard, vont dans le module model.
+ */
+internal fun Project.skFailOnContractAndroidSources() {
+    val files = (skAndroidSourceFiles(projectDir) + skStandardAndroidSourceFiles(projectDir)).distinct()
+    if (files.isNotEmpty()) {
+        throw GradleException(
+            "SKot ${Versions.skot} : le module $path est un contrat JVM, déplacez ces fichiers Android dans model " +
+                "(voir $MIGRATION_GUIDE) :\n" + files.joinToString("\n") { "  " + it.relativeTo(projectDir).path },
+        )
+    }
+}
+
 /** Dossiers de l'ancienne arborescence SKot (KMP, variantes skot_variants) présents dans un module. */
 internal fun skLegacyLayoutDirs(projectDir: File): List<String> {
     val legacy =

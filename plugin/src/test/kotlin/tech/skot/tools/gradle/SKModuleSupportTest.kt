@@ -34,6 +34,30 @@ class SKModuleSupportTest {
     }
 
     @Test
+    fun `les ressources et manifestes de l'arborescence standard sont des sources Android`() {
+        val dir = Files.createTempDirectory("sk").toFile()
+        dir.resolve("src/main/res/values").mkdirs()
+        dir.resolve("src/main/res/values/strings.xml").writeText("")
+        dir.resolve("src/prod/res_referenced/drawable").mkdirs()
+        dir.resolve("src/prod/res_referenced/drawable/a.xml").writeText("")
+        dir.resolve("src/main/AndroidManifest.xml").writeText("<manifest/>")
+        dir.resolve("src/main/kotlin/a").mkdirs()
+        dir.resolve("src/main/kotlin/a/File.kt").writeText("")
+        assertEquals(
+            listOf("src/main/AndroidManifest.xml", "src/main/res/values/strings.xml", "src/prod/res_referenced/drawable/a.xml"),
+            skStandardAndroidSourceFiles(dir).map { it.relativeTo(dir).invariantSeparatorsPath }.sorted(),
+        )
+    }
+
+    @Test
+    fun `un contrat sans ressources ni manifeste n'a pas de source Android standard`() {
+        val dir = Files.createTempDirectory("sk").toFile()
+        dir.resolve("src/main/kotlin").mkdirs()
+        dir.resolve("src/test/kotlin").mkdirs()
+        assertTrue(skStandardAndroidSourceFiles(dir).isEmpty())
+    }
+
+    @Test
     fun `un module à l'arborescence standard n'a rien d'ancien`() {
         val dir = Files.createTempDirectory("sk").toFile()
         dir.resolve("src/main/kotlin").mkdirs()
