@@ -25,6 +25,11 @@
       plurals are still read from `src/main/res_referenced` only.
     - New script `scripts/migration/2.0.0-ua/migrate-flavors.sh <root> [--apply]` moves a 2.0.0
       project to the new layout (dry run by default).
+      Order for a 2.0.0 client: guide steps 1 to 5 (version `2.0.0.b2-ua`), then the script, then step 6.
+      The script only handles modules applying a `tech.skot.*` plugin and stops on Android code left in
+      a contract.
+    - Contract plugins (`viewcontract`, `modelcontract`) fail on Android code, resources or manifests,
+      in the old or the standard layout, before the legacy layout check.
 
 ### feat
 

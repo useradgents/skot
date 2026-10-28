@@ -4,6 +4,8 @@ It is possible to use Android resources in the ViewModel. To do this, the resour
 
 The `res_referenced` directory uses the classic structure of an Android resource directory.
 
+The directory is `view/src/main/res_referenced`. Each flavor can add its own `view/src/<sourceSet>/res_referenced` (for example `src/sezane/res_referenced`, `src/prod/res_referenced`, `src/sezaneProd/res_referenced`): the referenced strings, colors, fonts and icons are the union of `src/main/res_referenced` and of all these directories, exposed through a single interface and a single implementation. A resource that exists in only some flavors must exist in every one of them (the generator stops and names the missing resource and flavors); a resource that is in `src/main/res_referenced` is common to all. Dimens, styles and plurals are read from `src/main/res_referenced` only.
+
 Once the file is placed in one of the subdirectories (drawable, values...) of `res_referenced`, you need to run the Gradle task `skGenerate` to generate the resource files.
 
 All resources are accessible via global variables.

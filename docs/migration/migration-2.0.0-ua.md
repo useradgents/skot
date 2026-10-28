@@ -32,19 +32,27 @@ seuls les scripts Gradle des quatre modules et les déclarations `expect`/`actua
 4. Facultatif : les répertoires `~/.m2/repository/com/github/useradgents/skot/*-jvm` et `*-android`
    éventuellement présents (anciens artefacts KMP) ne sont plus utilisés, vous pouvez les supprimer.
 
+## Ordre des étapes
+
+La version publiée est `2.0.0.b2-ua` et ses plugins refusent l'ancienne arborescence (`src/commonMain`…)
+dès qu'ils sont appliqués. L'ordre est donc : étapes 1 à 5 (scripts des modules, code Android des contrats,
+`expect`/`actual`, `androidApplication`), puis la section [Flavors](#flavors-200b2-ua) (le script déplace
+les sources vers l'arborescence standard), et enfin l'étape 6 (générer et vérifier) puis l'étape 7 (CI).
+Entre l'étape 2 et le script, le projet ne se synchronise pas : c'est normal.
+
 ## Étape 1 - Version
 
 Dans `gradle/libs.versions.toml` :
 
 ```toml
-skot = "2.0.0-ua"
+skot = "2.0.0.b2-ua"
 ```
 
 Si le `build.gradle.kts` racine déclare le plugin SKot en dur dans le classpath du `buildscript`,
 changez aussi sa version :
 
 ```kotlin
-classpath("com.github.useradgents.skot:plugin:2.0.0-ua")   // était 1.6.0-ua
+classpath("com.github.useradgents.skot:plugin:2.0.0.b2-ua")   // était 1.6.0-ua
 ```
 
 ## Étape 2 - Scripts des modules
@@ -291,12 +299,27 @@ Le module de DI du framework côté Android s'appelle désormais `androidModelFr
 
 ## Étape 6 - Générer et vérifier
 
+À faire après la section [Flavors](#flavors-200b2-ua) : le projet est alors sur l'arborescence standard.
+
 ```bash
 ./gradlew skot:skGenerate
 ```
 
-Comparez `generated/` à l'instantané `/tmp/generated-before.tgz` : seuls des imports et
-`androidModelFrameworkModule` peuvent changer. Puis :
+Le script de migration a supprimé les dossiers `generated/` et `generated<Variante>`, et les fichiers
+générés sont maintenant dans `generated/main/kotlin` (et non plus `generated/commonMain` ou
+`generated/androidMain`). Comparez après régénération, en ignorant ce changement de chemin :
+
+```bash
+mkdir -p /tmp/generated-before && tar xzf /tmp/generated-before.tgz -C /tmp/generated-before
+for g in $(cd /tmp/generated-before && find . -type d -name generated -not -path '*/build/*'); do
+  diff -r "/tmp/generated-before/$g/commonMain/kotlin" "$g/main/kotlin"
+done
+```
+
+Seuls des imports et `androidModelFrameworkModule` peuvent changer ; les fichiers de
+`generated/androidMain` apparaissent comme « Only in » côté nouveau dossier, et ceux des dossiers
+`generated<Variante>` (icônes, polices, couleurs par marque) n'ont plus d'équivalent : ils sont fusionnés
+dans les fichiers générés uniques. Puis :
 
 ```bash
 ./gradlew viewmodel:testDebugUnitTest model:testDebugUnitTest
@@ -319,7 +342,8 @@ choisit dans le sélecteur Build Variants, chaque variante se construit sans syn
 CI lance `assemble<Marque><Env><BuildType>`. `skSwitchTask`, `skot_variants.properties`,
 `skBuildSrcVariants`, `skReadVariants` et les dossiers `kotlin<Variante>` / `res<Variante>` /
 `generated<Variante>` disparaissent : les modules clients adoptent l'arborescence Android standard
-(`src/main`, `src/test`, `src/<flavor>`). Prérequis : le projet est déjà sur SKot 2.0.0 (étapes 1 à 7).
+(`src/main`, `src/test`, `src/<flavor>`). Prérequis : le projet a passé les étapes 1 à 5 (version `2.0.0.b2-ua`) ; l'étape 6 se fait après cette section
+(voir « Ordre des étapes »).
 Les bibliothèques SKot (`sk-*`, plugins `tech.skot.library*`) gardent leur arborescence et n'ont pas de
 flavors.
 
@@ -342,8 +366,12 @@ git add -A && git commit -m "CHORE - Move the sources to the standard flavor lay
 
 Le script s'arrête (code 1, rien n'est modifié) en listant les causes sur : une collision (même chemin
 relatif dans deux sources, par exemple un fichier à la fois dans `commonMain` et `androidMain`), un
-suffixe de variante inconnu, un dossier `src/jvmMain` (code JVM à traiter avant), un chemin de module
-contenant une espace, une destination qui existe déjà. Corrigez, puis relancez.
+suffixe de variante inconnu, un dossier `src/jvmMain` (code JVM à traiter avant), du code Android
+(`kotlin`, `res*`, `assets`, manifeste) resté dans le `src/androidMain` d'un contrat (à déplacer dans
+`model`, étape 3), un nom de flavor invalide, réservé ou présent dans les deux dimensions, un chemin de
+module contenant une espace, une destination qui existe déjà. Corrigez, puis relancez. Seuls les modules
+dont le `build.gradle.kts` applique un plugin `tech.skot.*` sont traités : un module KMP ou Android tiers
+n'est ni déplacé ni signalé.
 
 Principaux déplacements : `src/commonMain/kotlin` et `src/androidMain/kotlin` vers `src/main/kotlin` ;
 `src/jvmTest` et `src/commonTest` vers `src/test/kotlin` ; `kotlinSezaneProd` vers `src/sezaneProd/kotlin` ;
@@ -352,7 +380,10 @@ propre à une variante d'un contrat vers `variant/src/<variante>/kotlin`. Les do
 supprimés.
 
 Juste après le script, l'arbre n'a plus de sources générées, et `skGenerate` s'exécute après
-`compileKotlin` : lancez d'abord la génération seule, puis construisez.
+`compileKotlin` : lancez d'abord la génération seule, puis construisez. Faites-le une fois que vous
+avez retiré les appels listés par le script dans « À migrer à la main » (`skSwitchTask`,
+`skBuildSrcVariants`, `skReadVariants`…, voir les sections suivantes), sans quoi le build échoue avant
+la génération.
 
 ```bash
 ./gradlew skot:skGenerate
@@ -362,7 +393,8 @@ Juste après le script, l'arbre n'a plus de sources générées, et `skGenerate`
 ### Déclarer les flavors
 
 Le script écrit `skot_flavors.properties` à la racine du projet (sans appel `skSwitchTask`
-trouvé, il ne l'écrit pas : écrivez-le alors à la main) :
+trouvé, il ne l'écrit pas : le projet n'a alors pas d'environnements, donc pas de flavors, et il n'y a
+rien à déclarer ; pour en ajouter plus tard, créez le fichier à la main) :
 
 ```properties
 brand=sezane,octobre
@@ -928,10 +960,13 @@ signature ne sont pas complétés.
 
 ## Erreurs fréquentes
 
-- `SKot 2.0.0-ua : le module :xxx applique encore kotlin("multiplatform"). Retirez-le ainsi que le bloc
+- `SKot 2.0.0.b2-ua : le module :xxx applique encore kotlin("multiplatform"). Retirez-le ainsi que le bloc
   kotlin { android { } sourceSets { } }` : le script du module n'est pas migré, reprenez l'étape 2.
-- `SKot 2.0.0-ua : le module :xxx est un module JVM, déplacez ces fichiers Android dans model` suivi de
-  la liste des fichiers : ce sont ceux de la section 2 de `detect.sh`, reprenez l'étape 3.
+- `SKot 2.0.0.b2-ua : le module :xxx est un contrat JVM, déplacez ces fichiers Android dans model` suivi
+  de la liste des fichiers (code, ressources, manifeste d'un `viewcontract` ou `modelcontract`) : reprenez
+  l'étape 3. Ce message précède celui de l'ancienne arborescence : un contrat qui a encore du code Android
+  dans `src/androidMain` obtient celui-ci d'abord, puis, une fois les fichiers déplacés, le message
+  « utilise encore l'ancienne arborescence » qui renvoie au script (section Flavors).
 - `Method … not mocked` dans un test : une API Android est atteinte depuis un test unitaire. Ne
   l'autorisez pas avec `isReturnDefaultValues` ; liez un faux dans l'injecteur de test (étape 4).
 - `Method … not mocked` pour `formatPhoneNumber` (`PhoneNumberUtils`) ou `toSKUri` (`android.net.Uri`) :
