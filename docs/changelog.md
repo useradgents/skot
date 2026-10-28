@@ -1,11 +1,24 @@
 # Changelog
 
-## Version `2.0.0.b2-ua`
+## Version `2.0.0-ua`
 
-**Breaking — environments and brands are Android product flavors.** Guide: [migration 2.0.0-ua, section Flavors](migration/migration-2.0.0-ua.md#flavors-200b2-ua).
+**Breaking — SKot no longer uses Kotlin Multiplatform.** Guide: [migration 2.0.0-ua](migration/migration-2.0.0-ua.md).
+
+**Breaking — environments and brands are Android product flavors.** Guide: [migration 2.0.0-ua, section Flavors](migration/migration-2.0.0-ua.md#flavors).
 
 ### chore
 
+- #### Modules
+    - `core`, `viewcontract`, `modelcontract` and `generator` are Kotlin/JVM modules; `viewmodel`,
+      `model`, `viewmodelTests`, `viewlegacy` and `viewlegacyTests` are Android libraries.
+    - New artifacts: `coreAndroid` (Timber printer, `SKEnvInitProvider`, `toSKUri`,
+      `BaseInjector(application, modules)`, `androidApplication`) and `modelTests` (the model's test
+      fixtures, including `modelFrameworkModule`).
+    - The `tech.skot.starter` plugin is removed.
+    - New `tech.skot.library-contract`, `library`, `library-viewmodeltests` and `library-viewlegacy`
+      plugins to build the SKot libraries (sk-map, sk-tabbar…) without Kotlin Multiplatform.
+    - The projects' `jvmTest` tests run as local unit tests: `testDebugUnitTest`. There is no
+      `jvmTest` alias task.
 - #### Variants
     - `skSwitchTask`, `skot_variants.properties`, `skBuildSrcVariants`, `skReadVariants`, the
       `skot_switch_variant` task group and the `generated<Variant>` folders are removed. Every variant
@@ -25,7 +38,7 @@
       plurals are still read from `src/main/res_referenced` only.
     - New script `scripts/migration/2.0.0-ua/migrate-flavors.sh <root> [--apply]` moves a 2.0.0
       project to the new layout (dry run by default).
-      Order for a 2.0.0 client: guide steps 1 to 5 (version `2.0.0.b2-ua`), then the script, then step 6.
+      Order: guide steps 1 to 5, then the script, then step 6.
       The script only handles modules applying a `tech.skot.*` plugin and stops on Android code left in
       a contract.
     - Contract plugins (`viewcontract`, `modelcontract`) fail on Android code, resources or manifests,
@@ -33,35 +46,14 @@
 
 ### feat
 
+- #### Logging
+    - New `SKLogPrinter.printer` API (`SKLogPrinter.Printer`, default `StdoutPrinter`). Timber is
+      installed as the printer by `SKEnvInitProvider`. `d`/`i`/`v`/`w`/`e` keep their signatures.
 - #### Variants
     - New `tech.skot.variant` plugin: a flavored Android library `:variant` holding the per-variant
       constants of the contracts. When it exists, the other SKot Android modules depend on it.
     - The generator stops when a referenced resource is missing in some variant and names the
       resource and the variants.
-
-## Version `2.0.0-ua`
-
-**Breaking — SKot no longer uses Kotlin Multiplatform.** Guide: [migration 2.0.0-ua](migration/migration-2.0.0-ua.md).
-
-### chore
-
-- #### Modules
-    - `core`, `viewcontract`, `modelcontract` and `generator` are Kotlin/JVM modules; `viewmodel`,
-      `model`, `viewmodelTests`, `viewlegacy` and `viewlegacyTests` are Android libraries.
-    - New artifacts: `coreAndroid` (Timber printer, `SKEnvInitProvider`, `toSKUri`,
-      `BaseInjector(application, modules)`, `androidApplication`) and `modelTests` (the model's test
-      fixtures, including `modelFrameworkModule`).
-    - The `tech.skot.starter` plugin is removed.
-    - New `tech.skot.library-contract`, `library`, `library-viewmodeltests` and `library-viewlegacy`
-      plugins to build the SKot libraries (sk-map, sk-tabbar…) without Kotlin Multiplatform.
-    - The projects' `jvmTest` tests run as local unit tests: `testDebugUnitTest`. There is no
-      `jvmTest` alias task.
-
-### feat
-
-- #### Logging
-    - New `SKLogPrinter.printer` API (`SKLogPrinter.Printer`, default `StdoutPrinter`). Timber is
-      installed as the printer by `SKEnvInitProvider`. `d`/`i`/`v`/`w`/`e` keep their signatures.
 
 ### fix
 

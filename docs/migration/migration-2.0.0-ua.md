@@ -34,9 +34,9 @@ seuls les scripts Gradle des quatre modules et les déclarations `expect`/`actua
 
 ## Ordre des étapes
 
-La version publiée est `2.0.0.b2-ua` et ses plugins refusent l'ancienne arborescence (`src/commonMain`…)
+La version publiée est `2.0.0-ua` et ses plugins refusent l'ancienne arborescence (`src/commonMain`…)
 dès qu'ils sont appliqués. L'ordre est donc : étapes 1 à 5 (scripts des modules, code Android des contrats,
-`expect`/`actual`, `androidApplication`), puis la section [Flavors](#flavors-200b2-ua) (le script déplace
+`expect`/`actual`, `androidApplication`), puis la section [Flavors](#flavors) (le script déplace
 les sources vers l'arborescence standard), et enfin l'étape 6 (générer et vérifier) puis l'étape 7 (CI).
 Entre l'étape 2 et le script, le projet ne se synchronise pas : c'est normal.
 
@@ -45,14 +45,14 @@ Entre l'étape 2 et le script, le projet ne se synchronise pas : c'est normal.
 Dans `gradle/libs.versions.toml` :
 
 ```toml
-skot = "2.0.0.b2-ua"
+skot = "2.0.0-ua"
 ```
 
 Si le `build.gradle.kts` racine déclare le plugin SKot en dur dans le classpath du `buildscript`,
 changez aussi sa version :
 
 ```kotlin
-classpath("com.github.useradgents.skot:plugin:2.0.0.b2-ua")   // était 1.6.0-ua
+classpath("com.github.useradgents.skot:plugin:2.0.0-ua")   // était 1.6.0-ua
 ```
 
 ## Étape 2 - Scripts des modules
@@ -299,7 +299,7 @@ Le module de DI du framework côté Android s'appelle désormais `androidModelFr
 
 ## Étape 6 - Générer et vérifier
 
-À faire après la section [Flavors](#flavors-200b2-ua) : le projet est alors sur l'arborescence standard.
+À faire après la section [Flavors](#flavors) : le projet est alors sur l'arborescence standard.
 
 ```bash
 ./gradlew skot:skGenerate
@@ -333,7 +333,7 @@ Le nombre de tests doit être celui relevé avant de commencer, tous verts.
 Remplacez les tâches `jvmTest` par `testDebugUnitTest` (`viewmodel:testDebugUnitTest`,
 `model:testDebugUnitTest`). Il n'y a pas de tâche `jvmTest` de compatibilité.
 
-## Flavors (2.0.0.b2-ua)
+## Flavors
 
 ### Pourquoi
 
@@ -342,7 +342,7 @@ choisit dans le sélecteur Build Variants, chaque variante se construit sans syn
 CI lance `assemble<Marque><Env><BuildType>`. `skSwitchTask`, `skot_variants.properties`,
 `skBuildSrcVariants`, `skReadVariants` et les dossiers `kotlin<Variante>` / `res<Variante>` /
 `generated<Variante>` disparaissent : les modules clients adoptent l'arborescence Android standard
-(`src/main`, `src/test`, `src/<flavor>`). Prérequis : le projet a passé les étapes 1 à 5 (version `2.0.0.b2-ua`) ; l'étape 6 se fait après cette section
+(`src/main`, `src/test`, `src/<flavor>`). Prérequis : le projet a passé les étapes 1 à 5 (version `2.0.0-ua`) ; l'étape 6 se fait après cette section
 (voir « Ordre des étapes »).
 Les bibliothèques SKot (`sk-*`, plugins `tech.skot.library*`) gardent leur arborescence et n'ont pas de
 flavors.
@@ -534,15 +534,15 @@ les fichiers de CI (`.yml`, `.sh`, `Fastfile`, `Jenkinsfile`) : à remplacer à 
 
 ### Erreurs du build
 
-- `SKot 2.0.0.b2-ua : le module :model utilise encore l'ancienne arborescence SKot. Lancez
+- `SKot 2.0.0-ua : le module :model utilise encore l'ancienne arborescence SKot. Lancez
   scripts/migration/2.0.0-ua/migrate-flavors.sh (dépôt SKot) (voir docs/migration/migration-2.0.0-ua.md)`
   suivi de la liste des éléments trouvés : `skot_variants.properties` à la racine, un dossier
   `src/commonMain`, `androidMain`, `jvmMain`, `jvmTest`, `commonTest`, `generated/commonMain`,
   `generated/androidMain`, `generated/jvmTest` ou `generated<Variante>`. Lancez le script.
-- `SKot 2.0.0.b2-ua : le module :viewcontract est un contrat sans variantes, déplacez ces fichiers dans
+- `SKot 2.0.0-ua : le module :viewcontract est un contrat sans variantes, déplacez ces fichiers dans
   le module :variant (voir docs/migration/migration-2.0.0-ua.md)` suivi des fichiers : un contrat contient
   un dossier `src/<autre que main et test>`. Déplacez-les dans `variant/src/<variante>/kotlin`.
-- `SKot 2.0.0.b2-ua : skot_flavors.properties : …` : fichier invalide, parmi « la propriété environment
+- `SKot 2.0.0-ua : skot_flavors.properties : …` : fichier invalide, parmi « la propriété environment
   doit lister au moins un environnement », « « X » n'est pas un nom de flavor valide (lowerCamelCase,
   lettres et chiffres) », « « X » est un nom réservé par Android Gradle Plugin », « flavors déclarés
   plusieurs fois : X ».
@@ -960,9 +960,9 @@ signature ne sont pas complétés.
 
 ## Erreurs fréquentes
 
-- `SKot 2.0.0.b2-ua : le module :xxx applique encore kotlin("multiplatform"). Retirez-le ainsi que le bloc
+- `SKot 2.0.0-ua : le module :xxx applique encore kotlin("multiplatform"). Retirez-le ainsi que le bloc
   kotlin { android { } sourceSets { } }` : le script du module n'est pas migré, reprenez l'étape 2.
-- `SKot 2.0.0.b2-ua : le module :xxx est un contrat JVM, déplacez ces fichiers Android dans model` suivi
+- `SKot 2.0.0-ua : le module :xxx est un contrat JVM, déplacez ces fichiers Android dans model` suivi
   de la liste des fichiers (code, ressources, manifeste d'un `viewcontract` ou `modelcontract`) : reprenez
   l'étape 3. Ce message précède celui de l'ancienne arborescence : un contrat qui a encore du code Android
   dans `src/androidMain` obtient celui-ci d'abord, puis, une fois les fichiers déplacés, le message
