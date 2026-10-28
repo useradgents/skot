@@ -27,6 +27,15 @@ done || true
 envs="$(awk 'NF && !seen[$0]++' "$work/envs" | paste -sd, -)"
 brands="$(awk 'NF && !seen[$0]++' "$work/brands" | paste -sd, -)"
 
+# Noms inférés : doivent être des noms de flavor Android valides, distincts entre dimensions
+for n in $(printf '%s,%s' "$brands" "$envs" | tr ',' ' '); do
+  printf '%s\n' "$n" | grep -qE '^[a-z][a-zA-Z0-9]*$' || echo "flavor \"$n\" : nom invalide (attendu [a-z][a-zA-Z0-9]*, ex. mock_locale à renommer)" >> "$work/errors"
+  case "$n" in main|test|androidTest|testFixtures|debug|release) echo "flavor \"$n\" : nom réservé par Android" >> "$work/errors" ;; esac
+done
+for n in $(printf '%s' "$envs" | tr ',' ' '); do
+  case ",$brands," in *",$n,"*) echo "flavor \"$n\" : présent à la fois comme marque et comme environnement" >> "$work/errors" ;; esac
+done
+
 { echo main
   printf '%s\n' "$brands" | tr ',' '\n'
   printf '%s\n' "$envs" | tr ',' '\n'
@@ -52,7 +61,11 @@ plan_dir() {
 }
 
 # 2. Modules SKot à l'ancienne arborescence
-modules="$(find . -mindepth 2 -maxdepth 4 -name build.gradle.kts -not -path '*/build/*' -not -path './buildSrc/*' -not -path './.worktrees/*' -exec dirname {} \; | sed 's|^\./||' | sort)"
+all_modules="$(find . -mindepth 2 -maxdepth 4 -name build.gradle.kts -not -path '*/build/*' -not -path './buildSrc/*' -not -path './.worktrees/*' -exec dirname {} \; | sed 's|^\./||' | sort)"
+# Seuls les modules SKot (plugin tech.skot.*) sont migrés : un module KMP ou Android tiers reste intact
+modules="$(printf '%s\n' "$all_modules" | while IFS= read -r m; do
+  [ -n "$m" ] && grep -qE 'tech\.skot\.' "$m/build.gradle.kts" && printf '%s\n' "$m"
+done || true)"
 # Les chemins avec espace casseraient les boucles ci-dessous : arrêt avant toute modification
 printf '%s\n' "$modules" | grep -E '[[:space:]]' | sed 's/$/ : chemin avec espace, à renommer avant migration/' >> "$work/errors" || true
 need_variant=false
@@ -60,6 +73,14 @@ for m in $modules; do
   [ -d "$m/src" ] || continue
   contract=false
   grep -qE 'tech\.skot\.(viewcontract|modelcontract)' "$m/build.gradle.kts" && contract=true
+  if $contract && [ -d "$m/src/androidMain" ]; then
+    for child in "$m/src/androidMain"/*; do
+      [ -e "$child" ] || continue
+      case "$(basename "$child")" in
+        kotlin|res*|assets|AndroidManifest.xml) echo "$child : code Android dans un contrat, à déplacer dans model avant migration (guide, étape 3)" >> "$work/errors" ;;
+      esac
+    done
+  fi
   [ -d "$m/src/jvmMain" ] && echo "$m/src/jvmMain : code JVM, à traiter avant (guide de migration 2.0.0-ua)" >> "$work/errors"
   for container in commonMain androidMain; do
     [ -d "$m/src/$container" ] || continue

@@ -139,4 +139,41 @@ case "$out" in *"my view : chemin avec espace"*) ;; *) fail "chemin avec espace 
 exists ok/src/commonMain/kotlin/a/A.kt
 [ -z "$(git status --porcelain)" ] || fail "le chemin avec espace a modifié l'arbre"
 
+# --- Contrat avec du code Android ---------------------------------------------------------------
+new_repo
+put modelcontract/build.gradle.kts 'plugins { id("tech.skot.modelcontract") }'
+put modelcontract/src/commonMain/kotlin/a/A.kt
+put modelcontract/src/androidMain/res/values/strings.xml
+commit_all
+if out="$("$script" . --apply 2>&1)"; then fail "contrat avec androidMain/res accepté"; fi
+case "$out" in *"modelcontract/src/androidMain/res : code Android dans un contrat"*) ;; *) fail "contrat Android non signalé : $out" ;; esac
+[ -z "$(git status --porcelain)" ] || fail "le contrat Android a modifié l'arbre"
+
+# --- Module non SKot (KMP) ignoré ---------------------------------------------------------------
+new_repo
+put viewmodel/build.gradle.kts 'plugins { id("tech.skot.viewmodel") }'
+put viewmodel/src/commonMain/kotlin/a/A.kt
+put kmp/build.gradle.kts 'plugins { kotlin("multiplatform") }'
+put kmp/src/commonMain/kotlin/b/B.kt
+put kmp/src/jvmMain/kotlin/b/J.kt
+put kmp/generated/x.kt
+commit_all
+"$script" . --apply >/dev/null || fail "module KMP a bloqué la migration"
+exists viewmodel/src/main/kotlin/a/A.kt
+exists kmp/src/commonMain/kotlin/b/B.kt
+exists kmp/src/jvmMain/kotlin/b/J.kt
+exists kmp/generated/x.kt
+
+# --- Nom de flavor invalide ----------------------------------------------------------------------
+new_repo
+put skot/build.gradle.kts 'skSwitchTask("Locale", "mock_locale", "sezane")
+skSwitchTask("Release", "release", "sezane")'
+put viewmodel/build.gradle.kts 'plugins { id("tech.skot.viewmodel") }'
+put viewmodel/src/commonMain/kotlin/a/A.kt
+commit_all
+if out="$("$script" . --apply 2>&1)"; then fail "noms de flavor invalides acceptés"; fi
+case "$out" in *'"mock_locale" : nom invalide'*) ;; *) fail "nom invalide non signalé : $out" ;; esac
+case "$out" in *'"release" : nom réservé'*) ;; *) fail "nom réservé non signalé : $out" ;; esac
+[ -z "$(git status --porcelain)" ] || fail "les noms invalides ont modifié l'arbre"
+
 echo OK
