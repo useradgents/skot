@@ -12,6 +12,7 @@ import org.gradle.kotlin.dsl.getByType
  */
 class PluginVariant : Plugin<Project> {
     override fun apply(project: Project) {
+        project.skFailOnLegacyLayout()
         project.skFailOnKotlinMultiplatform()
         project.plugins.apply("com.android.library")
         project.skKotlinCompilerOptions()

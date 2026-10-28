@@ -8,6 +8,7 @@ import tech.skot.Versions
 
 class PluginModel : Plugin<Project> {
     override fun apply(project: Project) {
+        project.skFailOnLegacyLayout()
         project.skFailOnKotlinMultiplatform()
         project.plugins.apply("com.android.library")
         project.plugins.apply("kotlinx-serialization")

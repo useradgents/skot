@@ -32,4 +32,47 @@ class SKModuleSupportTest {
             skAndroidSourceFiles(dir).map { it.relativeTo(dir).invariantSeparatorsPath }.sorted(),
         )
     }
+
+    @Test
+    fun `un module à l'arborescence standard n'a rien d'ancien`() {
+        val dir = Files.createTempDirectory("sk").toFile()
+        dir.resolve("src/main/kotlin").mkdirs()
+        dir.resolve("src/test/kotlin").mkdirs()
+        dir.resolve("generated/main/kotlin").mkdirs()
+        dir.resolve("generated/androidTest/kotlin").mkdirs()
+        assertTrue(skLegacyLayoutDirs(dir).isEmpty())
+    }
+
+    @Test
+    fun `l'ancienne arborescence et les générés de variante sont listés`() {
+        val dir = Files.createTempDirectory("sk").toFile()
+        listOf("src/commonMain/kotlin", "src/androidMain/res", "src/jvmTest/kotlin", "generated/commonMain/kotlin", "generatedSezane/commonMain/kotlin")
+            .forEach { dir.resolve(it).mkdirs() }
+        assertEquals(
+            listOf("src/commonMain", "src/androidMain", "src/jvmTest", "generated/commonMain", "generatedSezane"),
+            skLegacyLayoutDirs(dir),
+        )
+    }
+
+    @Test
+    fun `un contrat sans variante n'a rien à déplacer`() {
+        val dir = Files.createTempDirectory("sk").toFile()
+        dir.resolve("src/main/kotlin/a").mkdirs()
+        dir.resolve("src/main/kotlin/a/Api.kt").writeText("")
+        dir.resolve("src/test/kotlin/a").mkdirs()
+        dir.resolve("src/test/kotlin/a/ApiTest.kt").writeText("")
+        assertTrue(skContractVariantFiles(dir).isEmpty())
+    }
+
+    @Test
+    fun `le code de variante d'un contrat est listé`() {
+        val dir = Files.createTempDirectory("sk").toFile()
+        dir.resolve("src/sezaneProd/kotlin/a").mkdirs()
+        dir.resolve("src/sezaneProd/kotlin/a/TargetConstants.kt").writeText("")
+        dir.resolve("src/sezaneProd/.DS_Store").writeText("")
+        assertEquals(
+            listOf("src/sezaneProd/kotlin/a/TargetConstants.kt"),
+            skContractVariantFiles(dir).map { it.relativeTo(dir).invariantSeparatorsPath },
+        )
+    }
 }

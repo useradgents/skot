@@ -57,11 +57,12 @@ class PluginModelContract : Plugin<Project> {
         project.plugins.apply("java-library")
         project.plugins.apply("maven-publish")
         project.plugins.apply("kotlinx-serialization")
-        project.skFailOnAndroidSources()
+        project.skFailOnLegacyLayout()
+        project.skFailOnContractVariantSources()
         project.skSubstituteLegacyKmpArtifacts()
         project.skKotlinCompilerOptions()
 
-        val outputDirValue = project.layout.projectDirectory.dir("generated/commonMain/kotlin")
+        val outputDirValue = project.layout.projectDirectory.dir("generated/main/kotlin")
         val appProvider = project.provider { extension.buildFiles ?: emptyList<Any>() }
         val versionCodeProvider = project.providers.provider { project.skVersionCode() }
 
@@ -72,21 +73,14 @@ class PluginModelContract : Plugin<Project> {
             this.addingVersionCodeAndDebug.set(true)
         }
 
-        project.extensions.getByType<KotlinJvmProjectExtension>().conf(project)
+        project.extensions.getByType<KotlinJvmProjectExtension>().conf()
         project.tasks.named("compileKotlin").configure { dependsOn(copyBuildFile) }
 
         project.dependencies.add("api", "${Versions.group}:modelcontract:${Versions.skot}")
     }
 
-    private fun KotlinJvmProjectExtension.conf(project: Project) {
+    private fun KotlinJvmProjectExtension.conf() {
         jvmToolchain(21)
-        sourceSets.getByName("main").kotlin.apply {
-            srcDir("src/commonMain/kotlin")
-            srcDir("generated/commonMain/kotlin")
-            project.skVariantsCombinaison().forEach {
-                srcDir("src/commonMain/kotlin$it")
-            }
-        }
-        sourceSets.getByName("test").kotlin.srcDir("src/jvmTest/kotlin")
+        sourceSets.getByName("main").kotlin.srcDir("generated/main/kotlin")
     }
 }

@@ -13,6 +13,7 @@ import tech.skot.tools.gradle.SKLibrary.Companion.addDependenciesToViewLegacy
 @Suppress("UNUSED_PARAMETER")
 class PluginViewLegacy : Plugin<Project> {
     override fun apply(project: Project) {
+        project.skFailOnLegacyLayout()
         project.skFailOnKotlinMultiplatform()
         project.plugins.apply("com.android.library")
         // kotlin.android removed: AGP 9.0 has built-in Kotlin support

@@ -11,6 +11,7 @@ import tech.skot.Versions
 
 class PluginFeature : Plugin<Project> {
     override fun apply(project: Project) {
+        project.skFailOnLegacyLayout()
         project.skSubstituteLegacyKmpArtifacts()
         project.plugins.apply("com.android.dynamic-feature")
         println("############## project.extensions ${project.extensions}")

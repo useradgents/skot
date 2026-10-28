@@ -9,6 +9,7 @@ import tech.skot.tools.gradle.SKLibrary.Companion.addDependenciesToLibraries
 
 class PluginViewModel : Plugin<Project> {
     override fun apply(project: Project) {
+        project.skFailOnLegacyLayout()
         project.skFailOnKotlinMultiplatform()
         project.plugins.apply("com.android.library")
         project.plugins.apply("kotlinx-serialization")

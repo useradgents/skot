@@ -14,11 +14,12 @@ class PluginViewContract : Plugin<Project> {
         project.plugins.apply("java-library")
         project.plugins.apply("maven-publish")
         project.plugins.apply("kotlinx-serialization")
-        project.skFailOnAndroidSources()
+        project.skFailOnLegacyLayout()
+        project.skFailOnContractVariantSources()
         project.skSubstituteLegacyKmpArtifacts()
         project.skKotlinCompilerOptions()
 
-        project.extensions.getByType<KotlinJvmProjectExtension>().conf(project)
+        project.extensions.getByType<KotlinJvmProjectExtension>().conf()
 
         project.dependencies.add("api", "${Versions.group}:viewcontract:${Versions.skot}")
         // utilisé souvent par les projets et inclu à core de toutes façons
@@ -31,16 +32,8 @@ class PluginViewContract : Plugin<Project> {
         )
     }
 
-    private fun KotlinJvmProjectExtension.conf(project: Project) {
+    private fun KotlinJvmProjectExtension.conf() {
         jvmToolchain(21)
-        sourceSets.getByName("main").kotlin.apply {
-            srcDir("src/commonMain/kotlin")
-            srcDir("generated/commonMain/kotlin")
-            project.skVariantsCombinaison().forEach {
-                srcDir("src/commonMain/kotlin$it")
-                srcDir("generated$it/commonMain/kotlin")
-            }
-        }
-        sourceSets.getByName("test").kotlin.srcDir("src/jvmTest/kotlin")
+        sourceSets.getByName("main").kotlin.srcDir("generated/main/kotlin")
     }
 }
