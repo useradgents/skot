@@ -310,6 +310,167 @@ Le nombre de tests doit être celui relevé avant de commencer, tous verts.
 Remplacez les tâches `jvmTest` par `testDebugUnitTest` (`viewmodel:testDebugUnitTest`,
 `model:testDebugUnitTest`). Il n'y a pas de tâche `jvmTest` de compatibilité.
 
+## Flavors (2.0.0.b2-ua)
+
+### Pourquoi
+
+Les environnements et les marques deviennent des product flavors Android standard. La variante se
+choisit dans le sélecteur Build Variants, chaque variante se construit sans sync ni régénération, et la
+CI lance `assemble<Marque><Env><BuildType>`. `skSwitchTask`, `skot_variants.properties`,
+`skBuildSrcVariants`, `skReadVariants` et les dossiers `kotlin<Variante>` / `res<Variante>` /
+`generated<Variante>` disparaissent : les modules clients adoptent l'arborescence Android standard
+(`src/main`, `src/test`, `src/<flavor>`). Prérequis : le projet est déjà sur SKot 2.0.0 (étapes 1 à 7).
+Les bibliothèques SKot (`sk-*`, plugins `tech.skot.library*`) gardent leur arborescence et n'ont pas de
+flavors.
+
+### Lancer le script
+
+```bash
+scripts/migration/2.0.0-ua/migrate-flavors.sh <racine du projet>           # simulation (par défaut)
+scripts/migration/2.0.0-ua/migrate-flavors.sh <racine du projet> --apply   # applique
+```
+
+Sans `--apply`, le script affiche le plan : les flavors déduits des appels `skSwitchTask` de
+`skot/build.gradle.kts` (la marque `normal` est ignorée), les dossiers déplacés, les suppressions, la
+création éventuelle du module `:variant` et la liste de ce qu'il reste à migrer à la main. `--apply`
+exige un arbre git propre sous la racine et ne commite rien : committez le résultat seul, c'est un
+commit « déplacements uniquement » facile à relire :
+
+```bash
+git add -A && git commit -m "CHORE - Move the sources to the standard flavor layout (moves only)"
+```
+
+Le script s'arrête (code 1, rien n'est modifié) en listant les causes sur : une collision (même chemin
+relatif dans deux sources, par exemple un fichier à la fois dans `commonMain` et `androidMain`), un
+suffixe de variante inconnu, un dossier `src/jvmMain` (code JVM à traiter avant), un chemin de module
+contenant une espace, une destination qui existe déjà. Corrigez, puis relancez.
+
+Principaux déplacements : `src/commonMain/kotlin` et `src/androidMain/kotlin` vers `src/main/kotlin` ;
+`src/jvmTest` et `src/commonTest` vers `src/test/kotlin` ; `kotlinSezaneProd` vers `src/sezaneProd/kotlin` ;
+`resSezane` vers `src/sezane/res`, `resSezane_referenced` vers `src/sezane/res_referenced` ; le code
+propre à une variante d'un contrat vers `variant/src/<variante>/kotlin`. Les dossiers `generated*` sont
+supprimés.
+
+Juste après le script, l'arbre n'a plus de sources générées, et `skGenerate` s'exécute après
+`compileKotlin` : lancez d'abord la génération seule, puis construisez.
+
+```bash
+./gradlew skot:skGenerate
+./gradlew assembleSezaneProdDebug
+```
+
+### Déclarer les flavors
+
+Le script écrit `skot_flavors.properties` à la racine du projet (sans appel `skSwitchTask`
+trouvé, il ne l'écrit pas : écrivez-le alors à la main) :
+
+```properties
+brand=sezane,octobre
+environment=qa,preprod,prod
+```
+
+- `environment` est obligatoire, `brand` est facultatif (absent pour un client sans marques).
+- Les dimensions sont `brand` puis `environment` : les variantes s'appellent `sezaneProdDebug`, les
+  source sets `src/sezane`, `src/prod`, `src/sezaneProd`.
+- La première valeur de chaque dimension est la variante par défaut.
+- Les noms sont en lowerCamelCase (lettres et chiffres), uniques sur les deux dimensions, et différents
+  des noms réservés `main`, `test`, `androidTest`, `testFixtures`, `debug`, `release`.
+
+Le fichier est lu par tous les plugins SKot et par le générateur : les flavors sont identiques dans
+chaque module Android, condition pour qu'AGP associe leurs variantes. Les contrats (`viewcontract`,
+`modelcontract`) restent sans flavors.
+
+### `buildSrc` → `productFlavors`
+
+`buildSrc` ne connaît plus les variantes. Retirez de `skot/build.gradle.kts` les appels `skSwitchTask`
+et `skBuildSrcVariants`, supprimez les dossiers `buildSrc/src/main/kotlin<Variante>` et le code qui
+appelle `skReadVariants`. Les valeurs propres à une variante passent dans `androidApp/build.gradle.kts`
+(`applicationId`, `applicationIdSuffix`, placeholders du manifeste comme `app_name`, signature,
+`buildConfigField`). Exemple Sezane :
+
+```kotlin
+android.productFlavors {
+    named("octobre") {
+        applicationId = "com.octobre.android"
+        manifestPlaceholders["scheme"] = "octobre"
+    }
+    named("qa") { applicationIdSuffix = ".qanew" }
+}
+```
+
+Le `google-services.json` de chaque marque va dans `androidApp/src/<flavor>/google-services.json`
+(`androidApp/src/sezane/`, `androidApp/src/octobre/`) ; une signature par marque se déclare dans le
+bloc du flavor. Supprimez aussi les lignes `referenceIconsByVariant`, `referenceFontsByVariant` et
+`referenceColorsByVariant` (voir plus bas).
+
+### Module `:variant`
+
+Un contrat est un module JVM sans flavors : il ne peut plus porter de code propre à une variante
+(`TargetConstants` par marque et environnement, `OperationJackpotConfig` par marque, `EnvironmentConstants`
+chez Hedios). Ce code va dans un module Android `:variant`, créé par le script quand il a déplacé du code
+de contrat (`variant/build.gradle.kts`, `src/main/AndroidManifest.xml`, `include(":variant")`) :
+
+```kotlin
+plugins {
+	id("tech.skot.variant")
+}
+
+android {
+	namespace = "com.sezane.variant"
+}
+```
+
+Le plugin `tech.skot.variant` déclare les mêmes flavors et l'arborescence standard, sans génération.
+Dès que `:variant` existe, `viewmodel`, `model`, `viewlegacy`, `feature` et `app` ajoutent
+`api(project(":variant"))` : les appels du code client ne changent pas. Les fichiers se rangent par
+variante : `variant/src/sezaneProd/kotlin/…`, `variant/src/octobre/kotlin/…`. Les valeurs de `SKBuild`
+lues à l'exécution par ce code vont aussi dans `:variant`.
+
+### Ressources par marque
+
+Les chaînes, couleurs, polices et icônes référencées sont l'union de `src/main/res_referenced` et des
+`res_referenced` de chaque variante du module `view` : une seule interface (`viewcontract/generated/main/kotlin`),
+une seule implémentation (`view/generated/main/kotlin`, `app` pour les icônes). Les marques déclarent donc les
+mêmes noms (`logo_demain`, `icn_history`…) ; `R.drawable.x` se résout par variante à la fusion des
+ressources. Les dimens, styles et pluriels sont encore lus dans `src/main/res_referenced` seulement.
+Les générés sont écrits dans `generated/main/kotlin`, `generated/test/kotlin` et
+`generated/androidTest/kotlin`.
+
+Le générateur s'arrête si une ressource de l'union manque dans une variante, en nommant la ressource et
+les variantes concernées (voir « Erreurs du build »). Supprimez les lignes `referenceXxxByVariant`.
+
+### CI
+
+| Avant | Après |
+|---|---|
+| `./gradlew skot:SezaneProd assembleRelease` | `./gradlew skot:skGenerate assembleSezaneProdRelease` |
+| `./gradlew test` ou `testDebugUnitTest` | `./gradlew testSezaneQaDebugUnitTest` |
+
+`skGenerate` s'exécute après `compileKotlin` : sur un checkout sans sources générées (CI), lancez-le
+d'abord (`./gradlew skot:skGenerate`, éventuellement dans une commande séparée), puis `assemble<Marque><Env><BuildType>`.
+Un `test` sans variante lance les tests de toutes les variantes (6 fois chez Sezane) : testez une seule
+variante, `test<Marque><Env>DebugUnitTest`. Le script liste les appels `skot:<Tâche>` qu'il trouve dans
+les fichiers de CI (`.yml`, `.sh`, `Fastfile`, `Jenkinsfile`) : à remplacer à la main.
+
+### Erreurs du build
+
+- `SKot 2.0.0.b2-ua : le module :model utilise encore l'ancienne arborescence SKot. Lancez
+  scripts/migration/2.0.0-ua/migrate-flavors.sh (dépôt SKot) (voir docs/migration/migration-2.0.0-ua.md)`
+  suivi de la liste des éléments trouvés : `skot_variants.properties` à la racine, un dossier
+  `src/commonMain`, `androidMain`, `jvmMain`, `jvmTest`, `commonTest`, `generated/commonMain`,
+  `generated/androidMain`, `generated/jvmTest` ou `generated<Variante>`. Lancez le script.
+- `SKot 2.0.0.b2-ua : le module :viewcontract est un contrat sans variantes, déplacez ces fichiers dans
+  le module :variant (voir docs/migration/migration-2.0.0-ua.md)` suivi des fichiers : un contrat contient
+  un dossier `src/<autre que main et test>`. Déplacez-les dans `variant/src/<variante>/kotlin`.
+- `SKot 2.0.0.b2-ua : skot_flavors.properties : …` : fichier invalide, parmi « la propriété environment
+  doit lister au moins un environnement », « « X » n'est pas un nom de flavor valide (lowerCamelCase,
+  lettres et chiffres) », « « X » est un nom réservé par Android Gradle Plugin », « flavors déclarés
+  plusieurs fois : X ».
+- `Ressources string référencées absentes de certaines variantes :` (idem avec `color`, `font` et
+  `drawable`) suivi de lignes `  <variante> : <ressource>, …` : ajoutez la ressource dans
+  `src/<flavor>/res_referenced` des marques ou environnements concernés, ou dans `src/main/res_referenced`
+  si elle est commune.
+
 ## Modules KMP partagés
 
 Gardez `jvm()` sur un module KMP partagé dont dépend un contrat (pldt : `pldtShared` est une

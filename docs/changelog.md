@@ -1,5 +1,39 @@
 # Changelog
 
+## Version `2.0.0.b2-ua`
+
+**Breaking — environments and brands are Android product flavors.** Guide: [migration 2.0.0-ua, section Flavors](migration/migration-2.0.0-ua.md#flavors-200b2-ua).
+
+### chore
+
+- #### Variants
+    - `skSwitchTask`, `skot_variants.properties`, `skBuildSrcVariants`, `skReadVariants`, the
+      `skot_switch_variant` task group and the `generated<Variant>` folders are removed. Every variant
+      builds without a sync or a regeneration: `./gradlew assemble<Brand><Env><BuildType>`.
+    - Flavors are declared once in the root `skot_flavors.properties` (`brand` optional,
+      `environment` required), read by every SKot plugin and by the generator. `buildSrc` no longer
+      knows about variants.
+    - Client modules use the standard source layout: `src/main`, `src/test`, `src/<flavor>`,
+      `src/<brand><Env>`, `generated/main/kotlin`. The plugins fail with a message pointing to the
+      migration script when they find the old layout. SKot libraries (`sk-*`) keep their layout and
+      get no flavors.
+    - Contracts (`viewcontract`, `modelcontract`) stay flavorless: the plugin fails on any variant
+      source folder in a contract.
+    - `referenceIconsByVariant`, `referenceFontsByVariant` and `referenceColorsByVariant` are removed:
+      referenced strings, colors, fonts and icons are the union of `src/main/res_referenced` and of
+      every variant `res_referenced`, with one interface and one implementation. Dimens, styles and
+      plurals are still read from `src/main/res_referenced` only.
+    - New script `scripts/migration/2.0.0-ua/migrate-flavors.sh <root> [--apply]` moves a 2.0.0
+      project to the new layout (dry run by default).
+
+### feat
+
+- #### Variants
+    - New `tech.skot.variant` plugin: a flavored Android library `:variant` holding the per-variant
+      constants of the contracts. When it exists, the other SKot Android modules depend on it.
+    - The generator stops when a referenced resource is missing in some variant and names the
+      resource and the variants.
+
 ## Version `2.0.0-ua`
 
 **Breaking — SKot no longer uses Kotlin Multiplatform.** Guide: [migration 2.0.0-ua](migration/migration-2.0.0-ua.md).

@@ -2,25 +2,39 @@
 
 ## Add Environment (Prod, Preprod, Rec)
 
-In the skot module, , add a skSwitchTask for each Env you use in your project : 
+Environments are the `environment` dimension of the Android product flavors (required). They are
+declared in `skot_flavors.properties`, at the root of the project:
 
-* in the skot block of the build.gradle.kts
-  `skSwitchTask("TaskEnvName", "dev")`
+```properties
+environment=rec,preprod,prod
+```
 
-* launch gradle sync
+* names are lowerCamelCase (`preprod`, not `Preprod`), the first value is the default one
 
-* All the task added are visible in the gradle task group skot_switch_variant__
+* launch gradle sync: the variants `recDebug`, `preprodRelease`... appear in the Build Variants selector
+
+* environment specific files go in `src/<environment>/` of each module (`src/prod/kotlin`,
+  `src/prod/res_referenced`...); a file specific to a brand and an environment goes in
+  `src/<brand><Environment>/` (`src/app1Prod/kotlin`)
+
+* app settings of an environment go in `androidApp/build.gradle.kts`:
+
+```kotlin
+android.productFlavors {
+    named("rec") { applicationIdSuffix = ".rec" }
+}
+```
+
+* constants of an environment used by the contracts (API urls...) go in the `:variant` module,
+  in `variant/src/<environment>/kotlin`
 
 ## Change current Env
 
-* launch the switch task you want to use 
+There is no switch task: pick the variant in the Build Variants selector of Android Studio.
 
-* launch gradle sync (or gradle clean) task 
-
-## Bash script to update Env on ci/cv client
+## Build on ci/cd
 
 ```bash
 #!/usr/bin/env bash
-./gradlew yourChangeEnvTask
-./gradlew clean
+./gradlew assembleProdRelease
 ```

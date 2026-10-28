@@ -1,27 +1,44 @@
 ## Add variant for project
 
+## Add a brand (APP1, APP2)
 
-## Add Variant (APP1, APP2 )
+Brands are the `brand` dimension of the Android product flavors. They are declared in
+`skot_flavors.properties`, at the root of the project (the `brand` line is optional):
 
-In the skot module, , add a skSwitchTask for each Env you use in your project :
+```properties
+brand=app1,app2
+environment=dev,prod
+```
 
-* in the build.gradle.kts
-  `skSwitchTask("TaskEnvVariantName", "dev", "APP1" )`
+* names are lowerCamelCase (`app1`, not `App1`), the first value of each dimension is the default one
 
-* launch gradle sync
+* launch gradle sync: the variants `app1DevDebug`, `app2ProdRelease`... appear in the Build Variants selector
 
-* All the task added are visible in the gradle task group skot_switch_variant__
+* brand specific files go in `src/<brand>/` of each module:
+  * `src/app1/kotlin` for code (same file path in every brand)
+  * `src/app1/res` for Android resources, `src/app1/res_referenced` for the referenced ones
+    (strings, colors, fonts, icons): every brand must provide the same resource names, the generator
+    stops and names a resource missing in a variant
+  * `androidApp/src/app1/` for the `google-services.json` of the brand
 
-## Change current Variant
+* app settings of a brand (`applicationId`, `manifestPlaceholders`, signing) go in
+  `androidApp/build.gradle.kts`:
 
-* launch the switch task you want to use
+```kotlin
+android.productFlavors {
+    named("app2") { applicationId = "com.app2.android" }
+}
+```
 
-* launch gradle sync (or gradle clean) task
+* constants of a brand used by the contracts go in the `:variant` module, in `variant/src/<brand>/kotlin`
 
-## Bash script to update Env on ci/cv client
+## Change current variant
+
+There is no switch task: pick the variant in the Build Variants selector of Android Studio.
+
+## Build on ci/cd
 
 ```bash
 #!/usr/bin/env bash
-./gradlew skot:yourChangeEnvTask
-./gradlew clean
+./gradlew assembleApp1ProdRelease
 ```
