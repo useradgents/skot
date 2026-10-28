@@ -14,6 +14,11 @@ android {
     }
     namespace = "io.uad.skotsample.android"
 
+    productFlavors {
+        named("red") { applicationIdSuffix = ".red" }
+        named("dev") { applicationIdSuffix = ".dev" }
+    }
+
 
     buildTypes {
         getByName("debug") {
