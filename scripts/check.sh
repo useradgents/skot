@@ -10,4 +10,5 @@ bash scripts/migration/2.0.0-ua/test-migrate-flavors.sh
 ./gradlew coreAndroid:assembleDebugAndroidTest model:assembleDebugAndroidTest
 ./gradlew viewlegacy:compileDebugAndroidTestSources
 ./gradlew publishToMavenLocal -x test -x check
-(cd sample && ./gradlew skot:skGenerate assembleBlueDevDebug assembleBlueProdDebug assembleRedDevDebug assembleRedProdDebug testBlueDevDebugUnitTest testBlueProdDebugUnitTest testRedDevDebugUnitTest testRedProdDebugUnitTest)
+(cd sample && ./gradlew skot:skGenerate)
+(cd sample && ./gradlew assembleBlueDevDebug assembleBlueProdDebug assembleRedDevDebug assembleRedProdDebug testBlueDevDebugUnitTest testBlueProdDebugUnitTest testRedDevDebugUnitTest testRedProdDebugUnitTest)
