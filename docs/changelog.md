@@ -1,6 +1,6 @@
 # Changelog
 
-## Version `1.6.1b-ua`
+## Version `1.6.2-ua`
 
 ### fix
 
