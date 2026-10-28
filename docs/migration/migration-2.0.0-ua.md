@@ -425,6 +425,10 @@ Points à reprendre aussi dans les scripts Gradle (pilote Sezane) :
   `adyendropin` chez Sezane, qui dépend de `:model`) échoue avec « The only attribute distinguishing these
   variants is VariantAttr ». Remplacez son `id("com.android.library")` par `id("tech.skot.variant")` : il
   reçoit les mêmes flavors.
+  `missingDimensionStrategy` n'est pas la solution ici : le module dépend d'un module à flavors (`:model`),
+  et figer un seul flavor mélangerait deux variantes de `:model` dans une même variante de l'application.
+  `tech.skot.variant` applique aussi `androidBaseConfig` de SKot (compileSdk/minSdk, lint) et la
+  vérification de l'ancienne arborescence : vérifiez qu'il ne contredit pas les réglages propres du module.
 - Si un `.gitignore` ignorait `modelcontract/generated/commonMain/kotlin/<package>/SKBuild.kt`, remplacez
   le chemin par `modelcontract/generated/main/kotlin/<package>/SKBuild.kt`.
 
