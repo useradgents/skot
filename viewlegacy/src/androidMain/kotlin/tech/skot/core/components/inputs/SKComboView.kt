@@ -4,6 +4,7 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.AutoCompleteTextView
 import android.widget.BaseAdapter
 import android.widget.Filter
@@ -56,6 +57,8 @@ abstract class SKCommonComboView<Binding : Any>(
     init {
         autoComplete.apply {
 
+            // A ListView can ask for a position beyond the choices after they shrank,
+            // hence getOrNull in getView, getItem and getItemId.
             object : BaseAdapter(), Filterable {
                 override fun getView(
                     position: Int,
@@ -65,7 +68,7 @@ abstract class SKCommonComboView<Binding : Any>(
                     val v =
                         p1 ?: LayoutInflater.from(context)
                             .inflate(choiceItemLayoutID, viewGroup, false)
-                    val choice = _choices[position]
+                    val choice = _choices.getOrNull(position) ?: return v
 
 
                     val tv = (v as? ViewGroup)?.let { container ->
@@ -82,13 +85,13 @@ abstract class SKCommonComboView<Binding : Any>(
                     return v
                 }
 
-                override fun getItem(position: Int): Any {
-                    val choice = _choices[position]
-                    return choice.text
+                override fun getItem(position: Int): Any? {
+                    return _choices.getOrNull(position)?.text
                 }
 
                 override fun getItemId(position: Int): Long {
-                    return _choices[position].text.hashCode().toLong()
+                    return _choices.getOrNull(position)?.text?.hashCode()?.toLong()
+                        ?: AdapterView.INVALID_ROW_ID
                 }
 
                 override fun getCount() = _choices.size

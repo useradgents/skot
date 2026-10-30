@@ -1,5 +1,17 @@
 # Changelog
 
+## Version `2.0.1-ua`
+
+### fix
+
+- #### viewlegacy
+    - The drop-down adapter of `SKCombo` and `SKInputWithSuggestions` no longer throws
+      `IndexOutOfBoundsException` when the list asks for a position beyond the choices. After the
+      choices shrank, `AbsListView.handleDataChanged` in touch mode can keep the previously
+      selected position (a stylus hovering a row selects it), and `ListView.layoutChildren` then
+      asks `getItemId` for it. `getItemId` returns `AdapterView.INVALID_ROW_ID`, `getItem` `null`
+      and `getView` an unbound row for such a position.
+
 ## Version `2.0.0-ua`
 
 **Breaking — SKot no longer uses Kotlin Multiplatform.** Guide: [migration 2.0.0-ua](migration/migration-2.0.0-ua.md).
