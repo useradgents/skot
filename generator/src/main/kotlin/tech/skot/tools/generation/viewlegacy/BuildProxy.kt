@@ -39,8 +39,6 @@ fun PropertyDef.onMethod(
 
 fun KFunction<*>.dataClassName() = "${name.capitalizeAsciiOnly()}Data"
 
-fun KFunction<*>.callClassName() = "${name.capitalizeAsciiOnly()}Call"
-
 fun ComponentDef.buildProxy(
     generator: Generator,
     viewModuleAndroidPackage: String,

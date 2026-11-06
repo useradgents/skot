@@ -86,7 +86,9 @@ interface DecorationVC : SKComponentVC
 
 **Target:** the `*VC` interface. Marks the component's ViewModel as **generic**
 (it has a type parameter); the generated tester references it with a star
-projection.
+projection. Optional since 2.0.2-ua: the generator reads the type parameters
+from the ViewModel's source file. The annotation still forces one star
+projection when that file cannot be read.
 
 ```kotlin
 @SKGenerics

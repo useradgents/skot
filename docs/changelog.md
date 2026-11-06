@@ -1,5 +1,29 @@
 # Changelog
 
+## Version `2.0.2-ua`
+
+### fix
+
+- #### generator
+    - The generated ModelContract mocks implement every abstract member of the contract, including
+      those inherited from its super-interfaces, whether redeclared with `override` or not. They
+      used to skip any member whose name also appeared in the first super-interface, and the mock
+      did not compile.
+    - Each overload of a mocked function gets its own mock, numbered in the order of its parameter
+      types: `addFilter1Mock` / `AddFilter1Call`, `addFilter2Mock` / `AddFilter2Call`. A function
+      that is not overloaded keeps `addFilterMock` / `AddFilterCall`.
+    - A `var` of type `SKData` or `SKPaginatedData` is mocked by an `override var` of the declared
+      type, initialised with `SKDataMock` / `SKPaginatedDataMock`. A property of type
+      `SKManualData` is mocked by an `override var` holding a `SKManualData` — `SKManualData(null)`
+      when its type argument is nullable, `lateinit` otherwise — instead of a `SKDataMock`, which
+      could not override it.
+    - The Testers and `Test*` classes of a generic ViewModel star-project it
+      (`AccountSubSelectItem<*>`), as `@SKGenerics` already did. The generator reads the type
+      parameters from the ViewModel's source file, so the annotation is no longer needed; it still
+      forces one star projection when the source cannot be read. `Test*` classes are only
+      generated when absent from `src/test`: the ones generated earlier for a generic ViewModel
+      keep their raw type and must be fixed by hand (`AccountSubSelectItem<*>`).
+
 ## Version `2.0.1-ua`
 
 ### fix

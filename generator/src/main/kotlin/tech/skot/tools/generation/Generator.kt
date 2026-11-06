@@ -425,6 +425,12 @@ class Generator(
                 .resolve("$simpleName.kt"),
         )
 
+    fun ClassName.commonSourceInModule(module: String): String? =
+        commonSources(module).resolve(packageName.packageToPathFragment())
+            .resolve("$simpleName.kt")
+            .takeIf { Files.exists(it) }
+            ?.let { Files.readString(it) }
+
     fun ClassName.existsJvmTestInModule(module: String) =
         Files.exists(
             jvmTestSources(module).resolve(packageName.packageToPathFragment())

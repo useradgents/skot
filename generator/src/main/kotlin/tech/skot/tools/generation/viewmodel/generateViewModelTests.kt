@@ -36,20 +36,17 @@ fun Generator.generateViewModelTests() {
         }.writeTo(jvmTestSources(modules.viewmodel))
     }
     components.forEach {
-        val isGeneric = it.vc.hasAnnotation<SKGenerics>()
+        // un ViewModel générique non annoté @SKGenerics est détecté dans sa source
+        val typeParametersCount =
+            typeParametersCountOf(it.viewModel().commonSourceInModule(modules.viewmodel), it.viewModel().simpleName)
+                .coerceAtLeast(if (it.vc.hasAnnotation<SKGenerics>()) 1 else 0)
         if (!it.vc.hasAnnotation<SKNoVM>()) {
             it.viewModelTester().fileClassBuilder(
                 suppressWarnings = listOf("unused")
             ) {
                 primaryConstructor(
                     FunSpec.constructorBuilder()
-                        .addParameter("component", it.viewModel().let {
-                            if (isGeneric) {
-                                it.parameterizedBy(STAR)
-                            } else {
-                                it
-                            }
-                        })
+                        .addParameter("component", it.viewModel().withStarProjections(typeParametersCount))
                         .build()
                 )
                 superclass(
@@ -72,13 +69,7 @@ fun Generator.generateViewModelTests() {
                 val componentVarName = if (it.isScreen) "screen" else "component"
                 addFunction(
                     FunSpec.builder("tester")
-                        .addParameter(componentVarName, it.viewModel().let {
-                            if (isGeneric) {
-                                it.parameterizedBy(STAR)
-                            } else {
-                                it
-                            }
-                        })
+                        .addParameter(componentVarName, it.viewModel().withStarProjections(typeParametersCount))
                         .returns(it.viewModelTester())
                         .addCode("return ${it.viewModelTester().simpleName}($componentVarName)")
                         .build()
@@ -87,3 +78,24 @@ fun Generator.generateViewModelTests() {
         }
     }
 }
+
+/**
+ * Nombre de paramètres de type de la classe [simpleName] déclarée dans [source], 0 si elle n'est
+ * pas générique ou si la source est absente. Seuls les paramètres de premier niveau sont comptés.
+ */
+fun typeParametersCountOf(source: String?, simpleName: String): Int {
+    val declaration = source?.let { Regex("""\bclass\s+$simpleName\s*<""").find(it) } ?: return 0
+    var depth = 1
+    var count = 1
+    for (char in source.substring(declaration.range.last + 1)) {
+        when (char) {
+            '<' -> depth++
+            '>' -> if (--depth == 0) return count
+            ',' -> if (depth == 1) count++
+        }
+    }
+    return 0
+}
+
+fun ClassName.withStarProjections(count: Int): TypeName =
+    if (count == 0) this else parameterizedBy(List(count) { STAR })
